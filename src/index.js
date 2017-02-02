@@ -13,7 +13,11 @@ const {
   hasOwn,
   concatAll
 } = require("./util");
-
+const {
+  getChildContext,
+  getContext,
+  getRootContext
+} = require("./context");
 
 
 function* renderAttrs (attrs) {
@@ -52,17 +56,18 @@ function renderNode(node) {
   ]);
 }
 
-function evalComponent(node) {
-  // TODO: Add support for React context.
-  //       https://github.com/divmain/react-ssr-async/issues/1
-  const instance = new node.type(node.props);
+function evalComponent(node, context) {
+  const componentContext = getContext(node.type, context);
+  const instance = new node.type(node.props, componentContext);
+
+  const childContext = getChildContext(node.type, instance, context);
 
   return isFunction(instance.render) ?
-    traverse(instance.render()) :
-    traverse(instance);
+    traverse(instance.render(), childContext) :
+    traverse(instance, childContext);
 }
 
-function traverse(node) {
+function traverse(node, context) {
   // A render function might return `null`.
   if (!node) {
     return most.empty();
@@ -77,7 +82,7 @@ function traverse(node) {
   }
   // React component.
   if (hasOwn(node, "$$typeof")) {
-    return evalComponent(node);
+    return evalComponent(node, context);
   }
 
   throw new TypeError(`Unknown node of type: ${node.type}`);
@@ -85,10 +90,12 @@ function traverse(node) {
 
 
 function asStream(node, synchronous) {
+  const rootContext = getRootContext();
+
   return synchronous ?
-    traverse(node) :
+    traverse(node, rootContext) :
     // Force the stream's events to be consumed asynchronously.
-    traverse(node).delay(1);
+    traverse(node, rootContext).delay(1);
 }
 
 function asPromise (node, synchronous) {

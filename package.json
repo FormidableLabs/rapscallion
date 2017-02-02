@@ -7,7 +7,8 @@
     "benchmark-synchronous": "babel-node benchmark/benchmark-synchronous.js",
     "concurrency": "babel-node benchmark/concurrency.js",
     "benchmark-concurrent": "babel-node benchmark/benchmark-concurrent.js",
-    "check-output": "babel-node benchmark/test-html-output.js"
+    "check-output": "babel-node benchmark/test-html-output.js",
+    "check-context-output": "babel-node benchmark/test-html-output-with-context.js"
   },
   "repository": {
     "type": "git",
