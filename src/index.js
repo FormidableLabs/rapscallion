@@ -42,37 +42,44 @@ function renderChildren (children) {
     traverse(children);
 }
 
-function renderNode(tag) {
+function renderNode(node) {
   return concatAll([
-    most.just(`<${tag.type}`),
-    most.generate(renderAttrs, tag.props),
+    most.just(`<${node.type}`),
+    most.generate(renderAttrs, node.props),
     most.just(">"),
-    renderChildren(tag.props.children),
-    most.just(`<${tag.type}/>`)
+    renderChildren(node.props.children),
+    most.just(`<${node.type}/>`)
   ]);
 }
 
-function evalComponent(node, state) {
-  const instance = new node.type(node.props/*, context? */);
+function evalComponent(node) {
+  // TODO: Add support for React context.
+  //       https://github.com/divmain/react-ssr-async/issues/1
+  const instance = new node.type(node.props);
 
   return isFunction(instance.render) ?
     traverse(instance.render()) :
     traverse(instance);
 }
 
-function traverse(node, state) {
+function traverse(node) {
+  // A render function might return `null`.
   if (!node) {
     return most.empty();
   }
+  // Text node.
   if (isString(node)) {
     return most.just(htmlStringEscape(node));
   }
+  // Plain-jane DOM element, not a React component.
   if (isString(node.type)) {
     return renderNode(node);
   }
+  // React component.
   if (hasOwn(node, "$$typeof")) {
-    return evalComponent(node, state);
+    return evalComponent(node);
   }
+
   throw new TypeError(`Unknown node of type: ${node.type}`);
 }
 
@@ -80,6 +87,7 @@ function traverse(node, state) {
 function asStream(node, synchronous) {
   return synchronous ?
     traverse(node) :
+    // Force the stream's events to be consumed asynchronously.
     traverse(node).delay(1);
 }
 
