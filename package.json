@@ -1,5 +1,5 @@
 {
-  "name": "react-ssr-stream",
+  "name": "rapscallion",
   "version": "0.1.0",
   "description": "",
   "main": "src/index.js",
@@ -8,6 +8,10 @@
     "concurrency": "babel-node benchmark/concurrency.js",
     "benchmark-concurrent": "babel-node benchmark/benchmark-concurrent.js",
     "check-output": "babel-node benchmark/test-html-output.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/divmain/rapscallion.git"
   },
   "author": "Dale Bustad <dale@divmain.com>",
   "license": "MIT",
