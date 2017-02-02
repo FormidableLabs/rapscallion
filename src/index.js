@@ -9,13 +9,11 @@ const {
 const toNodeStream = require("./to-node-stream");
 const {
   toDashCase,
-  htmlStringEscape
+  htmlStringEscape,
+  hasOwn,
+  concatAll
 } = require("./util");
 
-
-const hasOwn = (obj, key) => Object.prototype.hasOwnProperty.call(obj, key);
-const concatAll = streams =>
-  streams.reduce((memo, stream) => memo.concat(stream), most.empty());
 
 
 function* renderAttrs (attrs) {
