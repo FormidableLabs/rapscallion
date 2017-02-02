@@ -18,6 +18,7 @@ const {
   getContext,
   getRootContext
 } = require("./context");
+const streamTemplate = require("./template");
 
 
 function* renderAttrs (attrs) {
@@ -111,5 +112,6 @@ function asNodeStream (node) {
 module.exports = {
   asStream,
   asPromise,
-  asNodeStream
+  asNodeStream,
+  streamTemplate
 };
