@@ -33,6 +33,6 @@ const getTemplatedStream = componentStream => ssrAsync.streamTemplate`
   </html>
 `;
 
-const componentStream = ssrAsync.asStream(<MyComponent prop="stuff" />);
+const componentStream = ssrAsync.renderToStream(<MyComponent prop="stuff" />);
 const htmlStream = getTemplatedStream(componentStream);
 htmlStream.observe(segment => process.stdout.write(alternateColor(segment)));

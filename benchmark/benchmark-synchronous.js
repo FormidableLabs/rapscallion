@@ -51,7 +51,7 @@ Promise.resolve()
   .then(processorKiller =>
     time(
       "react-ssr-async",
-      () => ssrAsync.asPromise(
+      () => ssrAsync.renterToString(
         <Component
           depth={DEPTH}
           leafText="hi there! © <"

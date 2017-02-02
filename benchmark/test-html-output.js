@@ -31,5 +31,5 @@ const C = ({ a, children }) => {
   );
 }
 
-ssrAsync.asPromise(<A prop="stuff" />)
+ssrAsync.renterToString(<A prop="stuff" />)
   .then(html => console.log(html));

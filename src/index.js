@@ -90,7 +90,7 @@ function traverse(node, context) {
 }
 
 
-function asStream(node, synchronous) {
+function renderToStream(node, synchronous) {
   const rootContext = getRootContext();
 
   return synchronous ?
@@ -99,15 +99,15 @@ function asStream(node, synchronous) {
     traverse(node, rootContext).delay(1);
 }
 
-function asPromise (node, synchronous) {
-  return asStream(node, synchronous)
+function renterToString (node, synchronous) {
+  return renderToStream(node, synchronous)
     .reduce((memo, segment) => (memo.push(segment), memo), [])
     .then(segments => segments.join(""));
 }
 
 module.exports = {
-  asStream,
-  asPromise,
+  renderToStream,
+  renterToString,
   toNodeStream,
   streamTemplate
 };

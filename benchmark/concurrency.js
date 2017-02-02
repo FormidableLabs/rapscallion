@@ -40,7 +40,7 @@ range(5).forEach(idx => {
     />
   );
   setTimeout(() => {
-    ssrAsync.asStream(bigComponent)
+    ssrAsync.renderToStream(bigComponent)
       .observe(segment => console.log(`${padLeft(idx)} --> ${segment}`))
       .then(() => console.log(`${padLeft(idx)} --> DONE!`))    
   }, 1 * idx);

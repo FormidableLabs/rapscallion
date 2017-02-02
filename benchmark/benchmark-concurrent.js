@@ -57,7 +57,7 @@ Promise.resolve()
       "react-ssr-async",
       () => Promise.all(
         range(CONCURRENCY).map(() =>
-          ssrAsync.asPromise(
+          ssrAsync.renterToString(
             <Component
               depth={DEPTH}
               leafText="hi there! © <"
