@@ -105,13 +105,9 @@ function asPromise (node, synchronous) {
     .then(segments => segments.join(""));
 }
 
-function asNodeStream (node) {
-  return toNodeStream(asStream(node));
-}
-
 module.exports = {
   asStream,
   asPromise,
-  asNodeStream,
+  toNodeStream,
   streamTemplate
 };
