@@ -130,7 +130,7 @@ However, you may want to change this number if your server is under heavy load. 
 
 ## Caching
 
-Caching is performed on a per-component level, is completely opt-in, and should be used judiciously.  The gist is this: you define a `cacheKey` prop on your component, and that component will only be rendered once for that particular key.
+Caching is performed on a per-component level, is completely opt-in, and should be used judiciously.  The gist is this: you define a `cacheKey` prop on your component, and that component will only be rendered once for that particular key. `cacheKey` can be set on both React components and html React elements.
 
 If you cache components that change often, this will result in slower performance.  But if you're careful to cache only those components for which 1) a `cacheKey` is easy to compute, and 2) will have a small set of keys (i.e. the props don't change often), you can see considerable performance improvements.
 
@@ -138,7 +138,7 @@ If you cache components that change often, this will result in slower performanc
 
 ```javascript
 const Child = ({ val }) => (
-  <div cacheKey={ `Child:${val}` }>
+  <div>
     ComponentA
   </div>
 );
@@ -147,7 +147,7 @@ const Parent = ({ toVal }) => (
   <div cacheKey={ `Parent:${toVal}` }>
     {
       _.range(toVal).map(val => (
-        <Child key={val} />
+        <Child cacheKey={ `Child:${val}` } key={val} />
       ))
     }
   </div>
