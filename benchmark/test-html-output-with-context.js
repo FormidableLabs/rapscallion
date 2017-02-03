@@ -1,5 +1,5 @@
 import { default as React, Component, PropTypes } from "react";
-import ssrAsync from "../src";
+import { renderToString } from "../src";
 
 
 class Grandparent extends Component {
@@ -45,5 +45,5 @@ Child.contextTypes = {
 };
 
 
-ssrAsync.renderToString(<Grandparent />)
+renderToString(<Grandparent />)
   .then(html => console.log(html));

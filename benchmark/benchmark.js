@@ -2,7 +2,7 @@ import { default as React } from "react";
 import { renderToString } from "react-dom/server";
 import { range } from "lodash";
 
-import ssrAsync from "../src";
+import { renderToString } from "../src";
 import { time } from "./_util";
 
 
@@ -70,7 +70,7 @@ Promise.resolve()
       "rapscallion, no caching",
       () => Promise.all(
         range(CONCURRENCY).map(() =>
-          ssrAsync.renderToString(
+          renderToString(
             <Component
               depth={DEPTH}
               leafText="hi there! © <"
@@ -85,7 +85,7 @@ Promise.resolve()
       "rapscallion, caching DIVs",
       () => Promise.all(
         range(CONCURRENCY).map(() =>
-          ssrAsync.renderToString(
+          renderToString(
             <Component
               depth={DEPTH}
               leafText="hi there! © <"
@@ -101,7 +101,7 @@ Promise.resolve()
       "rapscallion, caching DIVs (second time)",
       () => Promise.all(
         range(CONCURRENCY).map(() =>
-          ssrAsync.renderToString(
+          renderToString(
             <Component
               depth={DEPTH}
               leafText="hi there! © <"
@@ -117,7 +117,7 @@ Promise.resolve()
       "rapscallion, caching Components",
       () => Promise.all(
         range(CONCURRENCY).map(() =>
-          ssrAsync.renderToString(
+          renderToString(
             <Component
               depth={DEPTH}
               leafText="hi there! © <"
@@ -133,7 +133,7 @@ Promise.resolve()
       "rapscallion, caching Components (second time)",
       () => Promise.all(
         range(CONCURRENCY).map(() =>
-          ssrAsync.renderToString(
+          renderToString(
             <Component
               depth={DEPTH}
               leafText="hi there! © <"

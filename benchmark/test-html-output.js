@@ -1,5 +1,5 @@
 import { default as React } from "react";
-import ssrAsync from "../src";
+import { renderToString } from "../src";
 
 
 const A = ({ prop }) => {
@@ -31,5 +31,5 @@ const C = ({ a, children }) => {
   );
 }
 
-ssrAsync.renderToString(<A prop="stuff" />)
+renderToString(<A prop="stuff" />)
   .then(html => console.log(html));

@@ -1,7 +1,7 @@
 import { default as React } from "react";
 import { range } from "lodash";
 
-import ssrAsync from "../src";
+import { renderToStream } from "../src";
 
 
 const Component = ({ depth, leafText }) => {
@@ -40,7 +40,7 @@ range(5).forEach(idx => {
     />
   );
   setTimeout(() => {
-    ssrAsync.renderToStream(bigComponent)
+    renderToStream(bigComponent)
       .observe(segment => console.log(`${padLeft(idx)} --> ${segment}`))
       .then(() => console.log(`${padLeft(idx)} --> DONE!`))    
   }, 1 * idx);

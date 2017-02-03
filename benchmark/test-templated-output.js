@@ -1,6 +1,6 @@
 import { default as React } from "react";
 
-import ssrAsync from "../src";
+import { streamTemplate, renderToStream } from "../src";
 import { alternateColor } from "./_util";
 
 
@@ -23,7 +23,7 @@ const Child = () => {
   return <div />
 };
 
-const getTemplatedStream = componentStream => ssrAsync.streamTemplate`
+const getTemplatedStream = componentStream => streamTemplate`
   <html>
     <body>
       ${ getSomeState }
@@ -33,6 +33,6 @@ const getTemplatedStream = componentStream => ssrAsync.streamTemplate`
   </html>
 `;
 
-const componentStream = ssrAsync.renderToStream(<MyComponent prop="stuff" />);
+const componentStream = renderToStream(<MyComponent prop="stuff" />);
 const htmlStream = getTemplatedStream(componentStream);
 htmlStream.observe(segment => process.stdout.write(alternateColor(segment)));
