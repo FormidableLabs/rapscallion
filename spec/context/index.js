@@ -17,7 +17,7 @@ describe("react context", () => {
 
   it("renders context two levels deep", () => {
     return renderToString(<Grandparent />).then(html => {
-      expect(html).to.equal("<div><span>grandparent</span><span>parent</span/></div>");
+      expect(html).to.equal("<div><span>grandparent</span><span>parent</span></div>");
     });
   });
 });
