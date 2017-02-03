@@ -4,7 +4,8 @@ const {
   isArray,
   isFunction,
   isInteger,
-  isString
+  isString,
+  assign
 } = require("lodash");
 
 const toNodeStream = require("./to-node-stream");
@@ -68,17 +69,26 @@ function renderNode(node) {
   ]);
 }
 
+function syncSetState (newState, cb) {
+  // Mutation is faster and should be safe here.
+  this.state = assign(
+    this.state,
+    isFunction(newState) ?
+      newState(this.state, this.props) :
+      newState
+  );
+  if (cb) { cb.call(this); }
+}
+
 function evalComponent(node, context) {
   const componentContext = getContext(node.type, context);
   const instance = new node.type(node.props, componentContext);
 
   const childContext = getChildContext(node.type, instance, context);
 
-  // this.setState({ something: true }, () => console.log(this.state))
-  // pass a fake callback, and defer the stream until the callback is invoked?
-
   if (isFunction(instance.render)) {
     if (isFunction(instance.componentWillMount)) {
+      instance.setState = syncSetState;
       instance.componentWillMount();
     }
     return traverse(instance.render(), childContext);
