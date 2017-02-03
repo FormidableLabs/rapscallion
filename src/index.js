@@ -98,11 +98,11 @@ function traverse(node, context) {
 
   // Plain-jane DOM element, not a React component.
   if (isString(node.type)) {
-    return getCachedNodeStream(node, () => renderNode(node));
+    return getCachedNodeStream(node, (_node) => renderNode(_node));
   }
   // React component.
   if (hasOwn(node, "$$typeof")) {
-    return getCachedNodeStream(node, () => evalComponent(node, context));
+    return getCachedNodeStream(node, (_node) => evalComponent(_node, context));
   }
 
   throw new TypeError(`Unknown node of type: ${node.type}`);
