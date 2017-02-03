@@ -180,7 +180,7 @@ The return value is a [Most.js](https://github.com/cujojs/most) stream.
 That may not be clear in the abstract, so here's an example:
 
 ```javascript
-import { renderToStream, streamTemplate, toNodeStream } from "react-ssr-async";
+import { renderToStream, streamTemplate, toNodeStream } from "rapscallion";
 
 // ...
 
