@@ -72,6 +72,8 @@ renderToString(<MyComponent {...props} />)
 ```
 
 
+-----
+
 ### `renderToStream`
 
 `renderToStream(VirtualDomNode) -> MostStream<StringSegment>`
@@ -85,6 +87,8 @@ const componentStream = renderToStream(<MyComponent prop="stuff" />);
 componentStream.observe(segment => process.stdout.write(segment));
 ```
 
+
+-----
 
 ### `toNodeStream`
 
@@ -102,12 +106,16 @@ app.get('/example', function(req, res){
 ```
 
 
+-----
+
 ### `streamTemplate`
 
 ``streamTemplate`TEMPLATE LITERAL` -> MostStream<StringSegment>``
 
 See the [section below](#stream-templates) for usage instructions.
 
+
+-----
 
 ### `tuneAsynchronicity`
 
