@@ -36,8 +36,6 @@ function getCachedNodeStream (node, streamFactory) {
       .multicast();
     entry.stream = stream;
 
-
-
     cache[cacheKey] = entry;
     return stream;
   }
