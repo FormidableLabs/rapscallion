@@ -26,6 +26,7 @@ Rapscallion is a React VirtualDOM renderer for the server.  Its notable features
   - [`streamTemplate`](#streamtemplate)
   - [`tuneAsynchronicity`](#tuneasynchronicity)
 - [Caching](#caching)
+- [Benchmarks](#benchmarks)
 - [Stream templates](#stream-templates)
 - [License](#license)
 
@@ -123,7 +124,12 @@ Caching is performed on a per-component level, is completely opt-in, and should 
 
 If you cache components that change often, this will result in slower performance.  But if you're careful to cache only those components for which 1) a `cacheKey` is easy to compute, and 2) will have a small set of keys (i.e. the props don't change often), you can see considerable performance improvements.
 
+
+## Benchmarks
+
 The below benchmarks _do not_ represent a typical use-case.  Instead, they represent the absolute _best case scenario_ for component caching - up to 2,100x faster!
+
+However, you'll note that even without caching, a concurrent workload will be processed in roughly half the time of React, without any of the blocking!
 
 ```
 Starting benchmark for 10 concurrent render operations...
