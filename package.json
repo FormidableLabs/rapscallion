@@ -1,7 +1,15 @@
 {
   "name": "rapscallion",
   "version": "0.1.0",
-  "description": "",
+  "description": "Asynchronous React VirtualDOM renderer for SSR.",
+  "keywords": [
+    "react",
+    "ssr",
+    "asynchronous",
+    "render",
+    "html",
+    "stream"
+  ],
   "main": "src/index.js",
   "scripts": {
     "benchmark": "babel-node benchmark/benchmark.js",
@@ -23,6 +31,9 @@
     "babel-plugin-transform-react-jsx": "^6.22.0",
     "react": "^15.4.2",
     "react-dom": "^15.4.2"
+  },
+  "engines" : {
+    "node" : ">=6.0.0"
   },
   "dependencies": {
     "he": "^1.1.1",
