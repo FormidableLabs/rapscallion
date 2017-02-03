@@ -70,7 +70,7 @@ Promise.resolve()
       "rapscallion, no caching",
       () => Promise.all(
         range(CONCURRENCY).map(() =>
-          ssrAsync.renterToString(
+          ssrAsync.renderToString(
             <Component
               depth={DEPTH}
               leafText="hi there! © <"
@@ -85,7 +85,7 @@ Promise.resolve()
       "rapscallion, caching DIVs",
       () => Promise.all(
         range(CONCURRENCY).map(() =>
-          ssrAsync.renterToString(
+          ssrAsync.renderToString(
             <Component
               depth={DEPTH}
               leafText="hi there! © <"
@@ -101,7 +101,7 @@ Promise.resolve()
       "rapscallion, caching DIVs (second time)",
       () => Promise.all(
         range(CONCURRENCY).map(() =>
-          ssrAsync.renterToString(
+          ssrAsync.renderToString(
             <Component
               depth={DEPTH}
               leafText="hi there! © <"
@@ -117,7 +117,7 @@ Promise.resolve()
       "rapscallion, caching Components",
       () => Promise.all(
         range(CONCURRENCY).map(() =>
-          ssrAsync.renterToString(
+          ssrAsync.renderToString(
             <Component
               depth={DEPTH}
               leafText="hi there! © <"
@@ -133,7 +133,7 @@ Promise.resolve()
       "rapscallion, caching Components (second time)",
       () => Promise.all(
         range(CONCURRENCY).map(() =>
-          ssrAsync.renterToString(
+          ssrAsync.renderToString(
             <Component
               depth={DEPTH}
               leafText="hi there! © <"

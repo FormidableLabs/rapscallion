@@ -106,7 +106,7 @@ function renderToStream(node) {
   return traverse(node, rootContext).thru(batch(BATCH_EVERY));
 }
 
-function renterToString (node) {
+function renderToString (node) {
   return renderToStream(node)
     .reduce((memo, segment) => (memo.push(segment), memo), [])
     .then(segments => segments.join(""));
@@ -115,7 +115,7 @@ function renterToString (node) {
 
 module.exports = {
   renderToStream,
-  renterToString,
+  renderToString,
   toNodeStream,
   streamTemplate,
   tuneAsynchronicity

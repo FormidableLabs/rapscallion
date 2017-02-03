@@ -43,7 +43,7 @@ In Node.js:
 ```javascript
 const {
   renderToStream,
-  renterToString,
+  renderToString,
   toNodeStream,
   streamTemplate,
   tuneAsynchronicity

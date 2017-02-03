@@ -45,5 +45,5 @@ Child.contextTypes = {
 };
 
 
-ssrAsync.renterToString(<Grandparent />)
+ssrAsync.renderToString(<Grandparent />)
   .then(html => console.log(html));
