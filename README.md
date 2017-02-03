@@ -9,7 +9,7 @@ Rapscallion is a React VirtualDOM renderer for the server.  Its notable features
 - With 10 **concurrent renders**, Rapscallion is roughly **twice the speed** of `renderToString`.
 - It provides a streaming interface so that you can **start sending content to the client immediately**.
 - It provides a stream templating feature, so that you can **wrap your component's HTML in boilerplate** without giving up benefits of streaming.
-- It provides a **component caching** API to further speed-up your rendering (stats on that [below](#caching)).
+- It provides a **component caching** API to further speed-up your rendering.
 
 
 ## Table of Contents
@@ -26,8 +26,8 @@ Rapscallion is a React VirtualDOM renderer for the server.  Its notable features
   - [`streamTemplate`](#streamtemplate)
   - [`tuneAsynchronicity`](#tuneasynchronicity)
 - [Caching](#caching)
-- [Benchmarks](#benchmarks)
 - [Stream templates](#stream-templates)
+- [Benchmarks](#benchmarks)
 - [License](#license)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -74,12 +74,12 @@ renderToString(<MyComponent {...props} />)
 
 `renderToStream(VirtualDomNode) -> MostStream<StringSegment>`
 
-This function evalues a React VirtualDOM Element, and returns a [most.js](https://github.com/cujojs/most) stream.  This stream will emit string segments of HTML as the DOM tree is asynchronously evaluated and traversed.
+This function evalues a React VirtualDOM Element, and returns a [Most.js](https://github.com/cujojs/most) stream.  This stream will emit string segments of HTML as the DOM tree is asynchronously evaluated and traversed.
 
 **Example:**
 
 ```javascript
-const componentStream = ssrAsync.renderToStream(<MyComponent prop="stuff" />);
+const componentStream = renderToStream(<MyComponent prop="stuff" />);
 componentStream.observe(segment => process.stdout.write(segment));
 ```
 
@@ -88,13 +88,13 @@ componentStream.observe(segment => process.stdout.write(segment));
 
 `toNodeStream(MostStream<StringSegment>) -> NodeStream<StringSegment>`
 
-This function translates [most.js](https://github.com/cujojs/most) streams to Node streams.  You'll be able to pipe the output of these Node streams to an HTTP Response object or to disk.
+This function translates [Most.js](https://github.com/cujojs/most) streams to Node streams.  You'll be able to pipe the output of these Node streams to an HTTP Response object or to disk.
 
 **Example:**
 
 ```javascript
 app.get('/example', function(req, res){
-  const componentHtmlStream = ssrAsync.toNodeStream(<MyComponent />);
+  const componentHtmlStream = renderToStream(<MyComponent />);
   toNodeStream(componentHtmlStream).pipe(res);
 });
 ```
@@ -113,9 +113,9 @@ See the [section below](#stream-templates) for usage instructions.
 
 Rapscallion allows you to tune the asynchronicity of your renders.  By default, rapscallion batches events in your stream of HTML segments.  These batches are processed in a synchronous-like way.  This gives you the benefits of asynchronous rendering without losing too much synchronous rendering performance.
 
-The default value is `100` and equates to the approximate speed-performance of React's `renderToString`, i.e. rapscallion takes about the same amount of time as React.
+The default value is `100` and equates to the approximate speed-performance of React's `renderToString`.  With this value, Rapscallion takes about the same amount of time as React to render a VirtualDOM tree.
 
-However, you may want to tune this number if your server is under heavy load.  Possible values are all positive integers.  Lower numbers will be "more asynchronous" and higher numbers will be "more synchronous".
+However, you may want to change this number if your server is under heavy load.  Possible values are the set of all positive integers.  Lower numbers will be "more asynchronous" (shorter periods between I/O processing) and higher numbers will be "more synchronous" (higher performance).
 
 
 ## Caching
@@ -126,7 +126,7 @@ If you cache components that change often, this will result in slower performanc
 
 **Example:**
 
-```javascript```
+```javascript
 const Child = ({ val }) => (
   <div cacheKey={ `Child:${val}` }>
     ComponentA
@@ -144,13 +144,58 @@ const Parent = ({ toVal }) => (
 );
 
 Promise.resolve()
-  // The first time will take the expected amount of time.
+  // The first render will take the expected duration.
   .then(() => renderToString(<Parent toVal={5} />))
-  // The second time will take much less time, due to cache hits.
+  // The second render will be much faster, due to multiple cache hits.
   .then(() => renderToString(<Parent toVal={6} />))
-  // The third time will be near-instantaneous, due to a top-level cache hit.
+  // The third render will be near-instantaneous, due to a top-level cache hit.
   .then(() => renderToString(<Parent toVal={6} />));
 ```
+
+
+## Stream templates
+
+With React's default `renderToString`, it is a common pattern to define a function that takes the rendered output and inserts it into some HTML boilerplate; `<html>` tags and the like.
+
+Rapscallion allows you to stream the rendered content of your components as they are generated.  However, this makes it somewhat less simple to wrap that component in your HTML boilerplate.
+
+Fortunately, Rapscallion provides _stream templates_.  They look very similar to normal template strings, with a couple of exceptions.
+
+1. You add `streamTemplate` as a [template literal tag](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#Tagged_template_literals).
+2. Using template literals' expression interpolation, you can insert streams into the template.
+3. You can also insert functions into the template that will be evaluated after the previous content has been streamed.
+
+The return value is a [Most.js](https://github.com/cujojs/most) stream.
+
+That may not be clear in the abstract, so here's an example:
+
+```javascript
+import { renderToStream, streamTemplate, toNodeStream } from "react-ssr-async";
+
+// ...
+
+app.get('/example', function(req, res){
+  // ...
+
+  const store = createStore(/* ... */);
+  const componentHtmlStream = renderToStream(<MyComponent store={store} />);
+
+  const responseStream = streamTemplate`
+    <html>
+    <body>
+      ${componentHtmlStream}
+      <script>
+        window._initialState = ${() => store.getState()};
+      </script>
+    </body>
+    </html>
+  `;
+
+  toNodeStream(responseStream).pipe(res);
+});
+```
+
+Note that the template includes both a stream of HTML text (`componentHtmlStream`) and a function that evaluates to the store's state - something you'll often want to do with SSR.
 
 
 ## Benchmarks
@@ -168,49 +213,6 @@ rapscallion, caching DIVs (second time) took 0.002369651 seconds.
 rapscallion, caching Components took 0.123907298 seconds.
 rapscallion, caching Components (second time) took 0.003139111 seconds.
 ```
-
-
-## Stream templates
-
-With React's default `renderToString`, it is a common pattern to define a function that takes the rendered output and inserts it into some HTML boilerplate; `<html>` tags and the like.
-
-Rapscallion allows you to stream the rendered content of your components as they are generated.  However, this makes it somewhat less simple to wrap that component in your HTML boilerplate.
-
-Fortunately, Rapscallion provides _stream templates_.  They look very similar to normal template strings, with a couple of exceptions.
-
-1. You add `streamTemplate` as a [template literal tag](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#Tagged_template_literals).
-2. Using template literals' expression interpolation, you can insert streams into the template.
-3. You can also insert functions into the template that will be evaluated after the previous content has been streamed.
-
-That may not be clear in the abstract, so here's an example:
-
-```javascript
-import ssrAsync from "react-ssr-async";
-
-// ...
-
-app.get('/example', function(req, res){
-  // ...
-
-  const store = createStore(/* ... */);
-  const componentHtml = ssrAsync.asNodeStream(<MyComponent store={store} />);
-
-  const responseStream = ssrAsync.nodeStreamTemplate`
-    <html>
-    <body>
-      ${componentHtml}
-      <script>
-        window._initialState = ${() => store.getState()};
-      </script>
-    </body>
-    </html>
-  `;
-
-  responseStream.pipe(res);
-});
-```
-
-Note that the template includes both a stream of HTML text (`componentHtml`) and a function that evaluates to the store's state - something you'll often want to do with SSR.
 
 
 ## License
