@@ -19,13 +19,13 @@ Rapscallion is a React VirtualDOM renderer for the server.  Its notable features
 
 
 - [Installation](#installation)
-- [Caching](#caching)
 - [API](#api)
   - [`renderToString`](#rendertostring)
   - [`renderToStream`](#rendertostream)
   - [`toNodeStream`](#tonodestream)
   - [`streamTemplate`](#streamtemplate)
   - [`tuneAsynchronicity`](#tuneasynchronicity)
+- [Caching](#caching)
 - [Stream templates](#stream-templates)
 - [License](#license)
 
@@ -51,24 +51,6 @@ const {
 // ...
 ```
 
-
-## Caching
-
-Caching is performed on a per-component level, is completely opt-in, and should be used judiciously.  The gist is this: you define a `cacheKey` prop on your component, and that component will only be rendered once for that particular key.
-
-If you cache components that change often, this will result in slower performance.  But if you're careful to cache only those components for which 1) a `cacheKey` is easy to compute, and 2) will have a small set of keys (i.e. the props don't change often), you can see considerable performance improvements.
-
-The below benchmarks _do not_ represent a typical use-case.  Instead, they represent the absolute _best case scenario_ for component caching - up to 2,100x faster!
-
-```
-Starting benchmark for 10 concurrent render operations...
-renderToString took 6.595226639 seconds.
-rapscallion, no caching took 3.490436779 seconds.
-rapscallion, caching DIVs took 0.814969248 seconds.
-rapscallion, caching DIVs (second time) took 0.002369651 seconds.
-rapscallion, caching Components took 0.123907298 seconds.
-rapscallion, caching Components (second time) took 0.003139111 seconds.
-```
 
 ## API
 
@@ -133,6 +115,25 @@ Rapscallion allows you to tune the asynchronicity of your renders.  By default, 
 The default value is `100` and equates to the approximate speed-performance of React's `renderToString`, i.e. rapscallion takes about the same amount of time as React.
 
 However, you may want to tune this number if your server is under heavy load.  Possible values are all positive integers.  Lower numbers will be "more asynchronous" and higher numbers will be "more synchronous".
+
+
+## Caching
+
+Caching is performed on a per-component level, is completely opt-in, and should be used judiciously.  The gist is this: you define a `cacheKey` prop on your component, and that component will only be rendered once for that particular key.
+
+If you cache components that change often, this will result in slower performance.  But if you're careful to cache only those components for which 1) a `cacheKey` is easy to compute, and 2) will have a small set of keys (i.e. the props don't change often), you can see considerable performance improvements.
+
+The below benchmarks _do not_ represent a typical use-case.  Instead, they represent the absolute _best case scenario_ for component caching - up to 2,100x faster!
+
+```
+Starting benchmark for 10 concurrent render operations...
+renderToString took 6.595226639 seconds.
+rapscallion, no caching took 3.490436779 seconds.
+rapscallion, caching DIVs took 0.814969248 seconds.
+rapscallion, caching DIVs (second time) took 0.002369651 seconds.
+rapscallion, caching Components took 0.123907298 seconds.
+rapscallion, caching Components (second time) took 0.003139111 seconds.
+```
 
 
 ## Stream templates
