@@ -12,6 +12,7 @@
   ],
   "main": "src/index.js",
   "scripts": {
+    "test": "mocha spec/exec.js",
     "benchmark": "babel-node benchmark/benchmark.js",
     "concurrency": "babel-node benchmark/concurrency.js",
     "check-output": "babel-node benchmark/test-html-output.js",
@@ -29,6 +30,7 @@
     "babel-plugin-transform-es2015-arrow-functions": "^6.22.0",
     "babel-plugin-transform-es2015-modules-commonjs": "^6.22.0",
     "babel-plugin-transform-react-jsx": "^6.22.0",
+    "mocha": "^3.2.0",
     "react": "^15.4.2",
     "react-dom": "^15.4.2"
   },
@@ -36,6 +38,7 @@
     "node": ">=6.0.0"
   },
   "dependencies": {
+    "chai": "^3.5.0",
     "he": "^1.1.1",
     "lodash": "^4.17.4",
     "most": "^1.2.1"
