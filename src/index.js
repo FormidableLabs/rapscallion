@@ -64,7 +64,7 @@ function renderNode(node) {
     most.generate(renderAttrs, node.props),
     most.just(">"),
     renderChildren(node.props.children),
-    most.just(`<${node.type}/>`)
+    most.just(`</${node.type}>`)
   ]);
 }
 
