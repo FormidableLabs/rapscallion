@@ -67,7 +67,7 @@ Promise.resolve()
   )
   .then(() =>
     time(
-      "react-ssr-async, no caching",
+      "rapscallion, no caching",
       () => Promise.all(
         range(CONCURRENCY).map(() =>
           ssrAsync.renterToString(
@@ -82,23 +82,7 @@ Promise.resolve()
   )
   .then(() =>
     time(
-      "react-ssr-async, caching DIVs",
-      () => Promise.all(
-        range(CONCURRENCY).map(() =>
-          ssrAsync.renterToString(
-            <Component
-              depth={DEPTH}
-              leafText="hi there! © <"
-              cacheMe={CACHE_DIVS}
-            />
-          )
-        )
-      )
-    )
-  )
-  .then(() =>
-    time(
-      "react-ssr-async, caching DIVs (second time)",
+      "rapscallion, caching DIVs",
       () => Promise.all(
         range(CONCURRENCY).map(() =>
           ssrAsync.renterToString(
@@ -114,7 +98,23 @@ Promise.resolve()
   )
   .then(() =>
     time(
-      "react-ssr-async, caching Components",
+      "rapscallion, caching DIVs (second time)",
+      () => Promise.all(
+        range(CONCURRENCY).map(() =>
+          ssrAsync.renterToString(
+            <Component
+              depth={DEPTH}
+              leafText="hi there! © <"
+              cacheMe={CACHE_DIVS}
+            />
+          )
+        )
+      )
+    )
+  )
+  .then(() =>
+    time(
+      "rapscallion, caching Components",
       () => Promise.all(
         range(CONCURRENCY).map(() =>
           ssrAsync.renterToString(
@@ -130,7 +130,7 @@ Promise.resolve()
   )
   .then(() =>
     time(
-      "react-ssr-async, caching Components (second time)",
+      "rapscallion, caching Components (second time)",
       () => Promise.all(
         range(CONCURRENCY).map(() =>
           ssrAsync.renterToString(

@@ -50,7 +50,7 @@ Promise.resolve()
   )
   .then(processorKiller =>
     time(
-      "react-ssr-async",
+      "rapscallion",
       () => ssrAsync.renterToString(
         <Component
           depth={DEPTH}
