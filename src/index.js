@@ -74,9 +74,16 @@ function evalComponent(node, context) {
 
   const childContext = getChildContext(node.type, instance, context);
 
-  return isFunction(instance.render) ?
-    traverse(instance.render(), childContext) :
-    traverse(instance, childContext);
+  // this.setState({ something: true }, () => console.log(this.state))
+  // pass a fake callback, and defer the stream until the callback is invoked?
+
+  if (isFunction(instance.render)) {
+    if (isFunction(instance.componentWillMount)) {
+      instance.componentWillMount();
+    }
+    return traverse(instance.render(), childContext);
+  }
+  return traverse(instance, childContext);
 }
 
 function traverse(node, context) {

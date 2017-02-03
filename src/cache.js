@@ -1,4 +1,5 @@
 const most = require("most");
+const { assign, omit } = require("lodash");
 
 
 const cache = Object.create(null);
@@ -13,8 +14,12 @@ const compressCache = (cacheEntry) => {
 function getCachedNodeStream (node, streamFactory) {
   const cacheKey = node.props && node.props.cacheKey;
   if (!cacheKey) {
-    return streamFactory();
+    return streamFactory(node);
   }
+
+  const _node = assign({}, node, {
+    props: omit(node.props, ["cacheKey"])
+  });
 
   const cacheEntry = cache[cacheKey];
   if (cacheEntry) {
@@ -26,7 +31,7 @@ function getCachedNodeStream (node, streamFactory) {
     const buffer = [];
     const entry = { buffer };
 
-    const stream = streamFactory()
+    const stream = streamFactory(_node)
       .tap(segment => buffer.push(segment))
       .continueWith(() => {
         entry.stream = most.empty();
