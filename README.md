@@ -6,7 +6,7 @@ Rapscallion is a React VirtualDOM renderer for the server.  Its notable features
 
 - Rendering is **asynchronous and non-blocking**.
 - With no concurrent renders, Rapscallion is roughly the same speed as React's `renderToString`.
-- With 10 **concurrent renders**, Rapscallion is roughly **twice the speed** as `renderToString`.
+- With 10 **concurrent renders**, Rapscallion is roughly **twice the speed** of `renderToString`.
 - It provides a streaming interface so that you can **start sending content to the client immediately**.
 - It provides a stream templating feature, so that you can **wrap your component's HTML in boilerplate** without giving up benefits of streaming.
 - It provides a **component caching** API to further speed-up your rendering (stats on that [below](#caching)).
