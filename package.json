@@ -4,9 +4,8 @@
   "description": "",
   "main": "src/index.js",
   "scripts": {
-    "benchmark-synchronous": "babel-node benchmark/benchmark-synchronous.js",
+    "benchmark": "babel-node benchmark/benchmark.js",
     "concurrency": "babel-node benchmark/concurrency.js",
-    "benchmark-concurrent": "babel-node benchmark/benchmark-concurrent.js",
     "check-output": "babel-node benchmark/test-html-output.js",
     "check-context-output": "babel-node benchmark/test-html-output-with-context.js",
     "check-templated-output": "babel-node benchmark/test-templated-output.js"

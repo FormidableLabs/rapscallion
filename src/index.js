@@ -101,20 +101,17 @@ function traverse(node, context) {
   throw new TypeError(`Unknown node of type: ${node.type}`);
 }
 
-
-function renderToStream(node, synchronous) {
+function renderToStream(node) {
   const rootContext = getRootContext();
-
-  return synchronous ?
-    traverse(node, rootContext) :
-    traverse(node, rootContext).thru(batch(BATCH_EVERY));
+  return traverse(node, rootContext).thru(batch(BATCH_EVERY));
 }
 
-function renterToString (node, synchronous) {
-  return renderToStream(node, synchronous)
+function renterToString (node) {
+  return renderToStream(node)
     .reduce((memo, segment) => (memo.push(segment), memo), [])
     .then(segments => segments.join(""));
 }
+
 
 module.exports = {
   renderToStream,

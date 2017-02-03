@@ -6,7 +6,7 @@ import ssrAsync from "../src";
 import { time } from "./_util";
 
 
-const CONCURRENCY = 4;
+const CONCURRENCY = 10;
 const DEPTH = 7;
 const CACHE_DIVS = "CACHE_DIVS";
 const CACHE_COMPONENT = "CACHE_COMPONENT";
