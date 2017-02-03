@@ -1,5 +1,7 @@
 # Rapscallion
 
+[![CircleCI](https://circleci.com/gh/divmain/rapscallion.svg?style=svg)](https://circleci.com/gh/divmain/rapscallion)
+
 ## Overview
 
 Rapscallion is a React VirtualDOM renderer for the server.  Its notable features are as follows:
