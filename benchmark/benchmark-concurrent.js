@@ -8,9 +8,11 @@ import { time } from "./_util";
 
 const CONCURRENCY = 4;
 const DEPTH = 7;
+const CACHE_DIVS = "CACHE_DIVS";
+const CACHE_COMPONENT = "CACHE_COMPONENT";
 
 
-const Component = ({ depth, leafText }) => {
+const Component = ({ depth, leafText, cacheMe }) => {
   if (depth === 1) {
     return (
       <div>
@@ -21,13 +23,24 @@ const Component = ({ depth, leafText }) => {
 
   const newDepth = depth - 1;
   return (
-    <div>
+    <div
+      cacheKey={
+        cacheMe === CACHE_DIVS ?
+          `Div:${depth}` :
+          null
+      }
+    >
       {
         range(depth).map(idx => (
           <Component
             depth={newDepth}
             leafText={leafText}
             key={idx}
+            cacheKey={
+              cacheMe === CACHE_COMPONENT ?
+                `Component:${depth}` :
+                null
+            }
           />
         ))
       }
@@ -52,9 +65,9 @@ Promise.resolve()
       )
     )
   )
-  .then(processorKiller =>
+  .then(() =>
     time(
-      "react-ssr-async",
+      "react-ssr-async, no caching",
       () => Promise.all(
         range(CONCURRENCY).map(() =>
           ssrAsync.renterToString(
@@ -66,5 +79,68 @@ Promise.resolve()
         )
       )
     )
+  )
+  .then(() =>
+    time(
+      "react-ssr-async, caching DIVs",
+      () => Promise.all(
+        range(CONCURRENCY).map(() =>
+          ssrAsync.renterToString(
+            <Component
+              depth={DEPTH}
+              leafText="hi there! © <"
+              cacheMe={CACHE_DIVS}
+            />
+          )
+        )
+      )
+    )
+  )
+  .then(() =>
+    time(
+      "react-ssr-async, caching DIVs (second time)",
+      () => Promise.all(
+        range(CONCURRENCY).map(() =>
+          ssrAsync.renterToString(
+            <Component
+              depth={DEPTH}
+              leafText="hi there! © <"
+              cacheMe={CACHE_DIVS}
+            />
+          )
+        )
+      )
+    )
+  )
+  .then(() =>
+    time(
+      "react-ssr-async, caching Components",
+      () => Promise.all(
+        range(CONCURRENCY).map(() =>
+          ssrAsync.renterToString(
+            <Component
+              depth={DEPTH}
+              leafText="hi there! © <"
+              cacheMe={CACHE_COMPONENT}
+            />
+          )
+        )
+      )
+    )
+  )
+  .then(() =>
+    time(
+      "react-ssr-async, caching Components (second time)",
+      () => Promise.all(
+        range(CONCURRENCY).map(() =>
+          ssrAsync.renterToString(
+            <Component
+              depth={DEPTH}
+              leafText="hi there! © <"
+              cacheMe={CACHE_COMPONENT}
+            />
+          )
+        )
+      )
+    )
   );
-

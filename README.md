@@ -15,6 +15,22 @@ Rapscallion is a library for asynchronously rendering React components on the se
 
 TODO
 
+## Caching
+
+Component render caching is opt-in, and should be used judiciously.  The gist is this: you define a `cacheKey` prop on your component inside your application, and that component will only be rendered once for that particular key.
+
+If you cache components that change often, this will result in slower performance.  But if you're careful to cache only those component for which 1) a `cacheKey` is easy to compute, and 2) will have a small set of keys (i.e. the props don't change often)
+
+```
+Starting benchmark for 4 concurrent render operations...
+renderToString took 2.943021643 seconds.
+rapscallion, no caching took 2.951309105 seconds.
+rapscallion, caching DIVs took 2.113534856 seconds.
+rapscallion, caching DIVs (second time) took 0.001992798 seconds.
+rapscallion, caching Components took 0.282408187 seconds.
+rapscallion, caching Components (second time) took 0.003854510 seconds.
+```
+
 ## API
 
 TODO

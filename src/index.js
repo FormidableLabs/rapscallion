@@ -19,6 +19,7 @@ const {
   getRootContext
 } = require("./context");
 const streamTemplate = require("./template");
+const getCachedNodeStream = require("./cache");
 
 
 function* renderAttrs (attrs) {
@@ -77,13 +78,14 @@ function traverse(node, context) {
   if (isString(node)) {
     return most.just(htmlStringEscape(node));
   }
+
   // Plain-jane DOM element, not a React component.
   if (isString(node.type)) {
-    return renderNode(node);
+    return getCachedNodeStream(node, () => renderNode(node));
   }
   // React component.
   if (hasOwn(node, "$$typeof")) {
-    return evalComponent(node, context);
+    return getCachedNodeStream(node, () => evalComponent(node, context));
   }
 
   throw new TypeError(`Unknown node of type: ${node.type}`);
