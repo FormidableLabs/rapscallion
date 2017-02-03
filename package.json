@@ -1,6 +1,6 @@
 {
   "name": "rapscallion",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Asynchronous React VirtualDOM renderer for SSR.",
   "keywords": [
     "react",
@@ -32,8 +32,8 @@
     "react": "^15.4.2",
     "react-dom": "^15.4.2"
   },
-  "engines" : {
-    "node" : ">=6.0.0"
+  "engines": {
+    "node": ">=6.0.0"
   },
   "dependencies": {
     "he": "^1.1.1",
