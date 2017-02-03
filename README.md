@@ -78,7 +78,7 @@ renderToString(<MyComponent {...props} />)
 
 `renderToStream(VirtualDomNode) -> MostStream<StringSegment>`
 
-This function evalues a React VirtualDOM Element, and returns a [Most.js](https://github.com/cujojs/most) stream.  This stream will emit string segments of HTML as the DOM tree is asynchronously evaluated and traversed.
+This function evalues a React VirtualDOM Element, and returns a [Most.js](https://github.com/cujojs/most) stream.  This stream will emit string segments of HTML as the DOM tree is asynchronously traversed and evaluated.
 
 **Example:**
 
@@ -195,7 +195,7 @@ app.get('/example', function(req, res){
     <body>
       ${componentHtmlStream}
       <script>
-        window._initialState = ${() => store.getState()};
+        window._initialState = ${() => JSON.stringify(store.getState())};
       </script>
     </body>
     </html>
