@@ -3,6 +3,7 @@ const most = require("most");
 const {
   isArray,
   isFunction,
+  isInteger,
   isString
 } = require("lodash");
 
@@ -20,6 +21,15 @@ const {
 } = require("./context");
 const streamTemplate = require("./template");
 const getCachedNodeStream = require("./cache");
+const batch = require("./batch");
+
+
+let BATCH_EVERY = 100;
+const tuneAsynchronicity = num => {
+  if (!isInteger(num) || num < 1) {
+    throw new RangeError("Asynchronicity must be an integer greater than or equal to 1.");
+  }
+};
 
 
 function* renderAttrs (attrs) {
@@ -97,8 +107,7 @@ function renderToStream(node, synchronous) {
 
   return synchronous ?
     traverse(node, rootContext) :
-    // Force the stream's events to be consumed asynchronously.
-    traverse(node, rootContext).delay(1);
+    traverse(node, rootContext).thru(batch(BATCH_EVERY));
 }
 
 function renterToString (node, synchronous) {
@@ -111,5 +120,6 @@ module.exports = {
   renderToStream,
   renterToString,
   toNodeStream,
-  streamTemplate
+  streamTemplate,
+  tuneAsynchronicity
 };

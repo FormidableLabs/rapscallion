@@ -51,6 +51,17 @@ TODO
 
 ``streamTemplate`TEMPLATE LITERAL` -> MostStream<StringSegment>``
 
+### `tuneAsynchronicity`
+
+`tuneAsynchronicity(PositiveInteger)`
+
+Rapscallion allows you to tune the asynchronicity of your renders.  By default, rapscallion batches events in your stream of HTML segments.  These batches are processed in a synchronous-like way.  This gives you the benefits of asynchronous rendering without losing too much synchronous rendering performance.
+
+The default value is `100` and equates to the approximate speed-performance of React's `renderToString`, i.e. rapscallion takes about the same amount of time as React.
+
+However, you may want to tune this number if your server is under heavy load.  Possible values are all positive integers.  Lower numbers will be "more asynchronous" and higher numbers will be "more synchronous".
+
+
 ### Example
 
 TODO
