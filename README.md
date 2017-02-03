@@ -124,6 +124,34 @@ Caching is performed on a per-component level, is completely opt-in, and should 
 
 If you cache components that change often, this will result in slower performance.  But if you're careful to cache only those components for which 1) a `cacheKey` is easy to compute, and 2) will have a small set of keys (i.e. the props don't change often), you can see considerable performance improvements.
 
+**Example:**
+
+```javascript```
+const Child = ({ val }) => (
+  <div cacheKey={ `Child:${val}` }>
+    ComponentA
+  </div>
+);
+
+const Parent = ({ toVal }) => (
+  <div cacheKey={ `Parent:${toVal}` }>
+    {
+      _.range(toVal).map(val => (
+        <Child key={val} />
+      ))
+    }
+  </div>
+);
+
+Promise.resolve()
+  // The first time will take the expected amount of time.
+  .then(() => renderToString(<Parent toVal={5} />))
+  // The second time will take much less time, due to cache hits.
+  .then(() => renderToString(<Parent toVal={6} />))
+  // The third time will be near-instantaneous, due to a top-level cache hit.
+  .then(() => renderToString(<Parent toVal={6} />));
+```
+
 
 ## Benchmarks
 
