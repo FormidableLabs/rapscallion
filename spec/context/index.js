@@ -10,13 +10,13 @@ import {
 describe("react context", () => {
   it("renders context one level deep", () => {
     return renderToString(<Parent />).then(html => {
-      expect(html).to.equal("<div><span></span><span>parent</span></div>");
+      expect(html).to.equal("<div><div><span></span><span>parent</span></div></div>");
     });
   });
 
   it("renders context two levels deep", () => {
     return renderToString(<Grandparent />).then(html => {
-      expect(html).to.equal("<div><span>grandparent</span><span>parent</span></div>");
+      expect(html).to.equal("<div><div><span>grandparent</span><span>parent</span></div></div>");
     });
   });
 });

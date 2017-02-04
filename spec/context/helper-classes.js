@@ -21,7 +21,11 @@ export class Parent extends Component {
   }
 
   render () {
-    return <Child />;
+    return (
+      <div>
+        <Child />
+      </div>
+    );
   }
 }
 
