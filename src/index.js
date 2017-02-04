@@ -30,6 +30,7 @@ const tuneAsynchronicity = num => {
   if (!isInteger(num) || num < 1) {
     throw new RangeError("Asynchronicity must be an integer greater than or equal to 1.");
   }
+  BATCH_EVERY = num;
 };
 
 
