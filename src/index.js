@@ -50,22 +50,22 @@ function *renderAttrs (attrs) {
   }
 }
 
-function renderChildren (children) {
+function renderChildren (children, context) {
   if (!children) {
     return most.empty();
   }
 
   return isArray(children) ?
-    most.from(children).concatMap(child => traverse(child)) :
-    traverse(children);
+    most.from(children).concatMap(child => traverse(child, context)) :
+    traverse(children, context);
 }
 
-function renderNode (node) {
+function renderNode (node, context) {
   return concatAll([
     most.just(`<${node.type}`),
     most.generate(renderAttrs, node.props),
     most.just(">"),
-    renderChildren(node.props.children),
+    renderChildren(node.props.children, context),
     most.just(`</${node.type}>`)
   ]);
 }
@@ -112,7 +112,7 @@ function traverse (node, context) {
 
   // Plain-jane DOM element, not a React component.
   if (isString(node.type)) {
-    return getCachedNodeStream(node, (_node) => renderNode(_node));
+    return getCachedNodeStream(node, (_node) => renderNode(_node, context));
   }
   // React component.
   if (hasOwn(node, "$$typeof")) {
