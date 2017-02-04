@@ -1,6 +1,6 @@
 # Rapscallion
 
-[![CircleCI](https://circleci.com/gh/divmain/rapscallion.svg?style=svg)](https://circleci.com/gh/divmain/rapscallion)
+[![CircleCI](https://circleci.com/gh/FormidableLabs/rapscallion.svg?style=svg)](https://circleci.com/gh/FormidableLabs/rapscallion)
 
 ## Overview
 

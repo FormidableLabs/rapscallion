@@ -21,7 +21,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/divmain/rapscallion.git"
+    "url": "git://github.com/FormidableLabs/rapscallion.git"
   },
   "author": "Dale Bustad <dale@divmain.com>",
   "license": "MIT",
