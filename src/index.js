@@ -57,7 +57,18 @@ function renderChildren (children, context) {
 
   return isArray(children) ?
     most.from(children).concatMap(child => traverse(child, context)) :
-    traverse(children, context);
+    // This was:
+    //
+    //   traverse(children, context);
+    //
+    // However, for a JSX tree where each node had only one child, this
+    // resulted in synchronous evaluation of the entire tree.  In order
+    // to circumvent this, we create a new stream of a single value that
+    // is flat-mapped into the traversal that we want.
+    //
+    // This doesn't cost us anything performance-wise, and it gives
+    // better guarantees with regard to asychronicity of tree evaluation.
+    most.just(null).flatMap(() => traverse(children, context));
 }
 
 function renderNode (node, context) {

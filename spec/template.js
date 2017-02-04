@@ -49,7 +49,7 @@ describe("stream templates", () => {
     });
   });
 
-  it("renders functions after components have been evaluated", () => {
+  it("renders template segments asynchronously in order", () => {
     let someState = "before";
 
     const A = () => {
@@ -57,14 +57,22 @@ describe("stream templates", () => {
       return <div />;
     };
 
-    const tmpl = streamTemplate`${renderToStream(<A />)}${() => someState}`;
+    const B = () => {
+      return (
+        <div>
+          <A />
+        </div>
+      );
+    };
+
+    const tmpl = streamTemplate`${() => someState}${renderToStream(<B />)}${() => someState}`;
 
     let output = "";
 
     return tmpl.observe(segment => {
       output += segment;
     }).then(() => {
-      expect(output).to.equal("<div></div>after");
+      expect(output).to.equal("before<div><div></div></div>after");
     });
   });
 });
