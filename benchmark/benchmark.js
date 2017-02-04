@@ -1,5 +1,5 @@
 import { default as React } from "react";
-import { renderToString } from "react-dom/server";
+import { renderToString as renderToStringReact } from "react-dom/server";
 import { range } from "lodash";
 
 import { renderToString } from "../src";
@@ -56,12 +56,12 @@ Promise.resolve()
     time(
       "renderToString",
       () => range(CONCURRENCY).forEach(() =>
-        renderToString(
+        renderToStringReact(
           <Component
             depth={DEPTH}
             leafText="hi there! © <"
           />
-        )          
+        )
       )
     )
   )
