@@ -17,3 +17,4 @@ global.assert = chai.assert;
 require("./cache");
 require("./context");
 require("./lifecycle-methods");
+require("./template");
