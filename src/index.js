@@ -34,8 +34,8 @@ const tuneAsynchronicity = num => {
 };
 
 
-function* renderAttrs (attrs) {
-  for (attrKey in attrs) {
+function *renderAttrs (attrs) {
+  for (const attrKey in attrs) {
     if (
       hasOwn(attrs, attrKey) &&
       attrKey !== "children"
@@ -60,7 +60,7 @@ function renderChildren (children) {
     traverse(children);
 }
 
-function renderNode(node) {
+function renderNode (node) {
   return concatAll([
     most.just(`<${node.type}`),
     most.generate(renderAttrs, node.props),
@@ -70,6 +70,7 @@ function renderNode(node) {
   ]);
 }
 
+/* eslint-disable no-invalid-this */
 function syncSetState (newState, cb) {
   // Mutation is faster and should be safe here.
   this.state = assign(
@@ -80,9 +81,11 @@ function syncSetState (newState, cb) {
   );
   if (cb) { cb.call(this); }
 }
+/* eslint-enable no-invalid-this */
 
-function evalComponent(node, context) {
+function evalComponent (node, context) {
   const componentContext = getContext(node.type, context);
+  // eslint-disable-next-line new-cap
   const instance = new node.type(node.props, componentContext);
 
   const childContext = getChildContext(node.type, instance, context);
@@ -97,7 +100,7 @@ function evalComponent(node, context) {
   return traverse(instance, childContext);
 }
 
-function traverse(node, context) {
+function traverse (node, context) {
   // A render function might return `null`.
   if (!node) {
     return most.empty();
@@ -119,7 +122,7 @@ function traverse(node, context) {
   throw new TypeError(`Unknown node of type: ${node.type}`);
 }
 
-function renderToStream(node) {
+function renderToStream (node) {
   const rootContext = getRootContext();
   return traverse(node, rootContext).thru(batch(BATCH_EVERY));
 }

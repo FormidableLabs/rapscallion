@@ -3,8 +3,7 @@ import { default as React } from "react";
 import { renderToString } from "../../src";
 import {
   Grandparent,
-  Parent,
-  Child
+  Parent
 } from "./helper-classes";
 
 

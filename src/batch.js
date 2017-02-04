@@ -35,6 +35,7 @@ class Sink {
   }
 
   event (t, x) {
+    // eslint-disable-next-line no-unused-expressions
     this.shouldWait() ?
       this.scheduler.delay(1, PropagateTask.event(x, this.sink)) :
       this.scheduler.asap(PropagateTask.event(x, this.sink));

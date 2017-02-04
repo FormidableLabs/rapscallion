@@ -18,7 +18,6 @@ const concatAll = streams =>
   streams.reduce((memo, stream) => memo.concat(stream), most.empty());
 
 
-
 module.exports = {
   toDashCase,
   htmlStringEscape,

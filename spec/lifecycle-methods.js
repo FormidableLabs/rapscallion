@@ -27,7 +27,7 @@ class C extends Component {
 describe("lifecycle methods", () => {
   it("calls componentWillMount on stateful components", () => {
     const cb = sinon.spy();
-    return renderToString(<C cb={cb} />).then(html => {
+    return renderToString(<C cb={cb} />).then(() => {
       expect(cb).to.have.been.calledOnce;
     });
   });
@@ -62,7 +62,7 @@ describe("lifecycle methods", () => {
       instance.setState({}, setStateCb);
     };
 
-    return renderToString(<C cb={cb} />).then(html => {
+    return renderToString(<C cb={cb} />).then(() => {
       expect(setStateCb)
         .to.have.been.calledOnce.and
         .to.have.been.calledOn(_instance);
@@ -72,6 +72,7 @@ describe("lifecycle methods", () => {
   it("supports recursive setState invocations", () => {
     const cb = instance =>
       instance.setState({ val: "set" }, function () {
+        // eslint-disable-next-line no-invalid-this
         this.setState({ val: "set-again" });
       });
 
