@@ -99,16 +99,16 @@ function evalComponent (node, context) {
   // eslint-disable-next-line new-cap
   const instance = new node.type(node.props, componentContext);
 
+  if (isFunction(instance.componentWillMount)) {
+    instance.setState = syncSetState;
+    instance.componentWillMount();
+  }
+
   const childContext = getChildContext(node.type, instance, context);
 
-  if (isFunction(instance.render)) {
-    if (isFunction(instance.componentWillMount)) {
-      instance.setState = syncSetState;
-      instance.componentWillMount();
-    }
-    return traverse(instance.render(), childContext);
-  }
-  return traverse(instance, childContext);
+  return isFunction(instance.render) ?
+    traverse(instance.render(), childContext) :
+    traverse(instance, childContext);
 }
 
 function traverse (node, context) {
