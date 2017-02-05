@@ -121,8 +121,6 @@ function evalComponent (node, context) {
     Language Specification, 7th Edition, here:
     http://www.ecma-international.org/ecma-262/7.0/index.html#sec-ecmascript-function-objects-construct-argumentslist-newtarget
 
-    Specifically relevant is section 9.2.2 step 13a.
-
     However, in the circumstance of object construction, a `null` return value
     is treated the same as `undefined` and an empty object with prototype
     Constructor will be returned.
