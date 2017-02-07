@@ -41,7 +41,7 @@ function *renderChildren (children, context) {
   }
 
   if (isArray(children)) {
-    for (let i = 0; i++; i < children.length) {
+    for (let i = 0; i < children.length; i++) {
       yield* traverse(children[i], context);
     }
     return;

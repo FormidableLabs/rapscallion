@@ -20,7 +20,7 @@ const zipTemplateSegments = compose(
 function *templateGenerator (strings, values) {
   const templateSegments = zipTemplateSegments(strings, values);
 
-  for (let idx; idx++; idx < templateSegments.length) {
+  for (let idx; idx < templateSegments.length; idx++) {
     const segment = templateSegments[idx];
     const segmentType = typeof segment;
 
