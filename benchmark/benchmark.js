@@ -1,8 +1,8 @@
 import { default as React } from "react";
-import { renderToString as renderToStringReact } from "react-dom/server";
+import { renderToString } from "react-dom/server";
 import { range } from "lodash";
 
-import { renderToString } from "../src";
+import { render } from "../src";
 import { time } from "./_util";
 
 
@@ -56,7 +56,7 @@ Promise.resolve()
     time(
       "renderToString",
       () => range(CONCURRENCY).forEach(() =>
-        renderToStringReact(
+        renderToString(
           <Component
             depth={DEPTH}
             leafText="hi there! © <"
@@ -70,12 +70,12 @@ Promise.resolve()
       "rapscallion, no caching",
       () => Promise.all(
         range(CONCURRENCY).map(() =>
-          renderToString(
+          render(
             <Component
               depth={DEPTH}
               leafText="hi there! © <"
             />
-          )
+          ).toPromise()
         )
       )
     )
@@ -85,13 +85,13 @@ Promise.resolve()
       "rapscallion, caching DIVs",
       () => Promise.all(
         range(CONCURRENCY).map(() =>
-          renderToString(
+          render(
             <Component
               depth={DEPTH}
               leafText="hi there! © <"
               cacheMe={CACHE_DIVS}
             />
-          )
+          ).toPromise()
         )
       )
     )
@@ -101,13 +101,13 @@ Promise.resolve()
       "rapscallion, caching DIVs (second time)",
       () => Promise.all(
         range(CONCURRENCY).map(() =>
-          renderToString(
+          render(
             <Component
               depth={DEPTH}
               leafText="hi there! © <"
               cacheMe={CACHE_DIVS}
             />
-          )
+          ).toPromise()
         )
       )
     )
@@ -117,13 +117,13 @@ Promise.resolve()
       "rapscallion, caching Components",
       () => Promise.all(
         range(CONCURRENCY).map(() =>
-          renderToString(
+          render(
             <Component
               depth={DEPTH}
               leafText="hi there! © <"
               cacheMe={CACHE_COMPONENT}
             />
-          )
+          ).toPromise()
         )
       )
     )
@@ -133,13 +133,13 @@ Promise.resolve()
       "rapscallion, caching Components (second time)",
       () => Promise.all(
         range(CONCURRENCY).map(() =>
-          renderToString(
+          render(
             <Component
               depth={DEPTH}
               leafText="hi there! © <"
               cacheMe={CACHE_COMPONENT}
             />
-          )
+          ).toPromise()
         )
       )
     )
