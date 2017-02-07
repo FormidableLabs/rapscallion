@@ -23,15 +23,19 @@ class GeneratorCache {
 
     const forkIdx = this.forks++;
     this.forkCursors[forkIdx] = 0;
-    return { next: this.getNext.bind(this, forkIdx) };
+    return {
+      [Symbol.iterator]: () => ({ next: this.getNext.bind(this, forkIdx) })
+    };
   }
 
   forkCompressed () {
     let sentCompressed = false;
     return {
-      next: () => sentCompressed ?
-        { value: null, done: true } :
-        (sentCompressed = true, { value: this.compressedBuffer, done: false })
+      [Symbol.iterator]: () => ({
+        next: () => sentCompressed ?
+          { value: null, done: true } :
+          (sentCompressed = true, { value: this.compressedBuffer, done: false })
+      })
     };
   }
 
