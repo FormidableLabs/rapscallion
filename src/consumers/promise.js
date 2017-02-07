@@ -37,7 +37,7 @@ function asyncBatch (
 function toPromise (sequence, batchSize, dataReactAttrs) {
   const arrayBuffer = [];
   const checksumWrapper = getChecksumWrapper(arrayBuffer);
-  const reactIdPushable = getReactIdPushable(checksumWrapper, 0, dataReactAttrs);
+  const reactIdPushable = getReactIdPushable(checksumWrapper, 1, dataReactAttrs);
 
   return new Promise(resolve =>
     setImmediate(

@@ -23,7 +23,7 @@ function toNodeStream (sequence, batchSize, dataReactAttrs) {
   });
 
   const checksumWrapper = getChecksumWrapper(stream);
-  const reactIdPushable = getReactIdPushable(checksumWrapper, 0, dataReactAttrs);
+  const reactIdPushable = getReactIdPushable(checksumWrapper, 1, dataReactAttrs);
 
   stream.checksum = checksumWrapper.checksum;
   return stream;

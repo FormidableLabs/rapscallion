@@ -35,11 +35,8 @@ function getReactIdPushable (pushable, reactIdStart, dataReactAttrs) {
     push: el => {
       if (el === REACT_ID) {
         if (!dataReactAttrs) { return; }
-        pushable.push(
-          reactIdIdx === reactIdStart ?
-            " data-reactroot=\"\"" :
-            ` data-reactid="${reactIdIdx}"`
-        );
+        if (reactIdIdx === reactIdStart) { pushable.push(" data-reactroot=\"\""); }
+        pushable.push(` data-reactid="${reactIdIdx}"`);
         reactIdIdx++;
       } else {
         pushable.push(el);
