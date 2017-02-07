@@ -1,4 +1,3 @@
-const most = require("most");
 const {
   compose,
   filter,
@@ -6,6 +5,8 @@ const {
   flatten,
   zip
 } = require("lodash/fp");
+
+const Renderer = require("./renderer");
 
 
 const zipTemplateSegments = compose(
@@ -15,28 +16,37 @@ const zipTemplateSegments = compose(
 );
 
 
-function streamTemplate (strings, ...values) {
+// eslint-disable-next-line consistent-return
+function *templateGenerator (strings, values) {
   const templateSegments = zipTemplateSegments(strings, values);
 
-  return most.from(templateSegments)
-    .concatMap(segment => {
-      const segmentType = typeof segment;
+  for (let idx; idx++; idx < templateSegments.length) {
+    const segment = templateSegments[idx];
+    const segmentType = typeof segment;
 
-      /* eslint-disable indent */
-      switch (segmentType) {
-        case "string": {
-          return most.just(segment);
-        }
-        case "function": {
-          return most.just(segment());
-        }
-        default: {
-          if (segment instanceof most.Stream) { return segment; }
-          throw new Error("Unknown value in stream template.", segment);
-        }
+    /* eslint-disable indent */
+    switch (segmentType) {
+      case "string": {
+        return yield segment;
       }
-      /* eslint-enable indent */
-    });
+      case "function": {
+        return yield segment();
+      }
+      default: {
+        // Support any object that conforms to the iterator protocol.
+        if (segment && segment.next) {
+          return yield* segment;
+        }
+        throw new Error("Unknown value in stream template.", segment);
+      }
+    }
+    /* eslint-enable indent */
+  }
 }
 
-module.exports = streamTemplate;
+function template (strings, ...values) {
+  const gen = templateGenerator(strings, values);
+  return new Renderer(gen);
+}
+
+module.exports = template;

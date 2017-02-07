@@ -1,4 +1,3 @@
-const most = require("most");
 const { encode } = require("he");
 
 
@@ -14,13 +13,14 @@ const htmlStringEscape = str => encode(str, ENCODE_OPTS);
 
 const hasOwn = (obj, key) => Object.prototype.hasOwnProperty.call(obj, key);
 
-const concatAll = streams =>
-  streams.reduce((memo, stream) => memo.concat(stream), most.empty());
+function *queueGeneration (generatorFn) {
+  yield* generatorFn();
+}
 
 
 module.exports = {
+  queueGeneration,
   toDashCase,
   htmlStringEscape,
-  hasOwn,
-  concatAll
+  hasOwn
 };
