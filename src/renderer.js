@@ -25,6 +25,7 @@ class Renderer {
       throw new RangeError("Asynchronicity must be an integer greater than or equal to 1.");
     }
     this.batchSize = batchSize;
+    return this;
   }
 }
 
