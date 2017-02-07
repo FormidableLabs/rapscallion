@@ -1,14 +1,15 @@
 const { isInteger } = require("lodash");
 
+const render = require("./render");
 const toPromise = require("./consumers/promise");
 const toNodeStream = require("./consumers/node-stream");
 
 
 class Renderer {
-  constructor (gen) {
-    this.gen = gen;
+  constructor (jsx) {
+    this.gen = render(jsx);
     this.batchSize = 100;
-    this.next = gen.next.bind(gen);
+    this.next = this.gen.next.bind(this.gen);
   }
 
   toPromise () {

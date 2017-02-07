@@ -1,14 +1,8 @@
-
-const render = require("./render");
+const Renderer = require("./renderer");
 const template = require("./template");
-
-const toPromise = require("./consumers/promise");
-const toNodeStream = require("./consumers/node-stream");
 
 
 module.exports = {
-  render,
-  toPromise,
-  toNodeStream,
+  render: jsx => new Renderer(jsx),
   template
 };
