@@ -1,7 +1,8 @@
 import { default as React } from "react";
 import { range } from "lodash";
+import { Throttle } from "stream-throttle";
 
-import { renderToStream } from "../src";
+import { render } from "../src";
 
 
 const Component = ({ depth, leafText }) => {
@@ -39,9 +40,10 @@ range(5).forEach(idx => {
       leafText={`leaf for ${idx}`}
     />
   );
-  setTimeout(() => {
-    renderToStream(bigComponent)
-      .observe(segment => console.log(`${padLeft(idx)} --> ${segment}`))
-      .then(() => console.log(`${padLeft(idx)} --> DONE!`))    
-  }, 1 * idx);
+
+  render(bigComponent)
+    .tuneAsynchronicity(2)
+    .toStream()
+    .pipe(new Throttle({ rate: 300 }))
+    .on("data", segment => console.log(`${padLeft(idx)} --> ${segment}`));
 });
