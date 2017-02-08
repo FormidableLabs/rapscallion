@@ -1,6 +1,6 @@
 import { default as React } from "react";
 
-import { streamTemplate, renderToStream } from "../src";
+import { template, render } from "../src";
 import { alternateColor } from "./_util";
 
 
@@ -20,19 +20,21 @@ const MyComponent = ({ prop }) => {
 
 const Child = () => {
   someState = "STATE AFTER RENDERING";
-  return <div />
+  return <div />;
 };
 
-const getTemplatedStream = componentStream => streamTemplate`
+const getTemplateRenderer = componentRenderer => template`
   <html>
     <body>
       ${ getSomeState }
-      ${ componentStream }
+      ${ componentRenderer }
       ${ getSomeState }
     </body>
   </html>
 `;
 
-const componentStream = renderToStream(<MyComponent prop="stuff" />);
-const htmlStream = getTemplatedStream(componentStream);
-htmlStream.observe(segment => process.stdout.write(alternateColor(segment)));
+const componentRenderer = render(<MyComponent prop="stuff" />);
+const htmlRenderer = getTemplateRenderer(componentRenderer);
+htmlRenderer
+  .toStream()
+  .on("data", segment => process.stdout.write(alternateColor(segment)));
