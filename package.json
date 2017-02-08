@@ -14,7 +14,7 @@
   "scripts": {
     "check": "npm run lint && npm run test",
     "test": "mocha spec/exec.js",
-    "lint": "eslint ./src ./spec",
+    "lint": "eslint src spec",
     "benchmark": "babel-node benchmark/benchmark.js",
     "concurrency": "babel-node benchmark/concurrency.js",
     "check-output": "babel-node benchmark/test-html-output.js",
