@@ -33,8 +33,8 @@ Parent.childContextTypes = {
 const Child = (props, context) => {
   return (
     <div>
-      <span>{context.grandparent}</span>
-      <span>{context.parent}</span>
+      <span style={{ color: "blue", strokeWidth: 5 }}>{context.grandparent}</span>
+      <span className="my-class">{context.parent}</span>
     </div>
   );
 };

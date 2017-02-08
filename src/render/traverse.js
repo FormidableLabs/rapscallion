@@ -3,27 +3,9 @@ const { isArray, isFunction, isString } = require("lodash");
 const { getChildContext, getContext } = require("./context");
 const { syncSetState } = require("./state");
 const { getCachedSequence, sequence } = require("../sequence");
-const { toDashCase, htmlStringEscape, hasOwn } = require("./util");
+const { htmlStringEscape, hasOwn } = require("./util");
+const renderAttrs = require("./attrs");
 
-
-function renderAttrs (attrs) {
-  const attrString = [];
-
-  for (const attrKey in attrs) {
-    if (
-      hasOwn(attrs, attrKey) &&
-      attrKey !== "children"
-    ) {
-      const attrVal = attrs[attrKey];
-
-      if (!attrVal || isFunction(attrVal)) { continue; }
-
-      attrString.push(` ${toDashCase(attrKey)}${attrVal ? "" : "${attrVal}"}`);
-    }
-  }
-
-  return attrString.join("");
-}
 
 function renderChildren (children, context) {
   if (!children) { return null; }
