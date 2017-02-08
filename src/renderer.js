@@ -5,6 +5,10 @@ const toPromise = require("./consumers/promise");
 const toNodeStream = require("./consumers/node-stream");
 
 
+/**
+ * A friendly wrapper around rendering operations.  The public API
+ * is documented in the README.
+ */
 class Renderer {
   constructor (vdomNode, sequence) {
     this.sequence = sequence || render(vdomNode);
