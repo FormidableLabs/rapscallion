@@ -13,8 +13,6 @@ Rapscallion is a React VirtualDOM renderer for the server.  Its notable features
 - It provides a stream templating feature, so that you can **wrap your component's HTML in boilerplate** without giving up benefits of streaming.
 - It provides a **component caching** API to further speed-up your rendering.
 
-Big thanks to @briancavalier for his fantastic [Most.js](https://github.com/cujojs/most) library!
-
 
 ## Table of Contents
 
