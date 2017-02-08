@@ -10,7 +10,7 @@ import { time } from "./_util";
 process.env.NODE_ENV = "production";
 
 
-const CONCURRENCY = 1;
+const CONCURRENCY = 10;
 const DEPTH = 7;
 const CACHE_DIVS = "CACHE_DIVS";
 const CACHE_COMPONENT = "CACHE_COMPONENT";
