@@ -6,6 +6,14 @@ const transformAttrKey = require("./transform-attr-key");
 
 const mapWithKey = map.convert({ cap: false });
 
+
+/**
+ * Render an object of key/value pairs into their HTML attribute equivalent.
+ *
+ * @param      {Object}  attrs   Attributes in object form.
+ *
+ * @return     {String}          Generated HTML attribute output.
+ */
 function renderAttrs (attrs) {
   const attrString = [];
 
