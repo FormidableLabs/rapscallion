@@ -1,6 +1,6 @@
 import { default as React } from "react";
 
-import { renderToString } from "../src";
+import { render } from "../src";
 
 
 describe("special cases", () => {
@@ -8,7 +8,7 @@ describe("special cases", () => {
     const NullComponent = () => null;
     const Parent = () => <div><NullComponent /></div>;
 
-    return renderToString(<Parent />).then(html => {
+    return render(<Parent />).toPromise().then(html => {
       expect(html).to.equal("<div></div>");
     });
   });
