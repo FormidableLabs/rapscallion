@@ -1,4 +1,5 @@
 const most = require("most");
+const addChecksumToMarkup = require("./checksum");
 
 const {
   isArray,
@@ -25,6 +26,7 @@ const getCachedNodeStream = require("./cache");
 const batch = require("./batch");
 
 
+let REACT_ID = 1;
 let BATCH_EVERY = 100;
 const tuneAsynchronicity = num => {
   if (!isInteger(num) || num < 1) {
@@ -48,6 +50,10 @@ function *renderAttrs (attrs) {
       if (attrVal !== true) { yield `="${attrVal}"`; }
     }
   }
+  if (REACT_ID === 1) {
+    yield " data-reactroot=\"\"";
+  }
+  yield ` data-reactid="${REACT_ID++}"`;
 }
 
 function renderChildren (children, context) {
@@ -179,6 +185,8 @@ function traverse (node, context) {
 }
 
 function renderToStream (node) {
+  // Reset REACT_ID so each call starts from 1.
+  REACT_ID = 1;
   const rootContext = getRootContext();
   return traverse(node, rootContext).thru(batch(BATCH_EVERY));
 }
@@ -186,7 +194,8 @@ function renderToStream (node) {
 function renderToString (node) {
   return renderToStream(node)
     .reduce((memo, segment) => (memo.push(segment), memo), [])
-    .then(segments => segments.join(""));
+    .then(segments => segments.join(""))
+    .then(markup => addChecksumToMarkup(markup));
 }
 
 
