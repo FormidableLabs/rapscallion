@@ -6,8 +6,8 @@ const toNodeStream = require("./consumers/node-stream");
 
 
 class Renderer {
-  constructor (jsx, sequence) {
-    this.sequence = sequence || render(jsx);
+  constructor (vdomNode, sequence) {
+    this.sequence = sequence || render(vdomNode);
     this.batchSize = 100;
     this.next = this.sequence.next.bind(this.sequence);
   }
