@@ -12,8 +12,8 @@
   ],
   "main": "src/index.js",
   "scripts": {
-    "test": "npm run lint && npm run test-only",
-    "test-only": "mocha spec/exec.js",
+    "check": "npm run lint && npm run test",
+    "test": "mocha spec/exec.js",
     "lint": "eslint ./src ./spec",
     "benchmark": "babel-node benchmark/benchmark.js",
     "concurrency": "babel-node benchmark/concurrency.js",
