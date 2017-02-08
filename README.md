@@ -21,14 +21,13 @@ Rapscallion is a React VirtualDOM renderer for the server.  Its notable features
 
 
 - [Installation](#installation)
-- [API](#api)
-  - [`renderToString`](#rendertostring)
-  - [`renderToStream`](#rendertostream)
-  - [`toNodeStream`](#tonodestream)
-  - [`streamTemplate`](#streamtemplate)
-  - [`tuneAsynchronicity`](#tuneasynchronicity)
+- [Top-level API](#top-level-api)
+  - [`render`](#render)
+  - [`Renderer#toPromise`](#renderertopromise)
+  - [`Renderer#toStream`](#renderertostream)
+  - [`Renderer#tuneAsynchronicity`](#renderertuneasynchronicity)
+  - [`template`](#template)
 - [Caching](#caching)
-- [Stream templates](#stream-templates)
 - [Benchmarks](#benchmarks)
 - [License](#license)
 
