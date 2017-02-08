@@ -10,7 +10,7 @@ Rapscallion is a React VirtualDOM renderer for the server.  Its notable features
 - With no concurrent renders, Rapscallion is roughly the same speed as React's `renderToString`.
 - With 10 **concurrent renders**, Rapscallion is roughly **twice the speed** of `renderToString`.
 - It provides a streaming interface so that you can **start sending content to the client immediately**.
-- It provides a stream templating feature, so that you can **wrap your component's HTML in boilerplate** without giving up benefits of streaming.
+- It provides a templating feature, so that you can **wrap your component's HTML in boilerplate** without giving up benefits of streaming.
 - It provides a **component caching** API to further speed-up your rendering.
 
 
@@ -44,88 +44,119 @@ $ npm install --save rapscallion
 In Node.js:
 ```javascript
 const {
-  renderToStream,
-  renderToString,
-  toNodeStream,
-  streamTemplate,
-  tuneAsynchronicity
+  render,
+  template
 } = require("rapscallion");
 
 // ...
 ```
 
 
-## API
+## Top-level API
 
 
-### `renderToString`
+### `render`
 
-`renderToString(VirtualDomNode) -> Promise<String>`
+`render(VirtualDomNode) -> Renderer`
 
-This function evaluates a React VirtualDOM Element, and returns a Promise that resolves to the component's evaluated HTML string.
+This function returns a Renderer, an interface for rendering your VirtualDOM element.  Methods are enumerated below.
+
+-----
+
+### `Renderer#toPromise`
+
+`renderer.toPromise() -> Promise<String>`
+
+This function evaluates the React VirtualDOM Element originally provided to the renderer, and returns a Promise that resolves to the component's evaluated HTML string.
 
 **Example:**
 
 ```javascript
-renderToString(<MyComponent {...props} />)
-    .then(htmlString => console.log(htmlString));
+render(<MyComponent {...props} />)
+  .toPromise()
+  .then(htmlString => console.log(htmlString));
 ```
 
 
 -----
 
-### `renderToStream`
+### `Renderer#toStream`
 
-`renderToStream(VirtualDomNode) -> MostStream<StringSegment>`
+`renderer.toStream() -> NodeStream<StringSegment>`
 
-This function evalues a React VirtualDOM Element, and returns a [Most.js](https://github.com/cujojs/most) stream.  This stream will emit string segments of HTML as the DOM tree is asynchronously traversed and evaluated.
-
-**Example:**
-
-```javascript
-const componentStream = renderToStream(<MyComponent prop="stuff" />);
-componentStream.observe(segment => process.stdout.write(segment));
-```
-
-
------
-
-### `toNodeStream`
-
-`toNodeStream(MostStream<StringSegment>) -> NodeStream<StringSegment>`
-
-This function translates [Most.js](https://github.com/cujojs/most) streams to Node streams.  You'll be able to pipe the output of these Node streams to an HTTP Response object or to disk.
+This function evaluates a React VirtualDOM Element, and returns a Node stream.  This stream will emit string segments of HTML as the DOM tree is asynchronously traversed and evaluated.
 
 **Example:**
 
 ```javascript
 app.get('/example', function(req, res){
-  const componentHtmlStream = renderToStream(<MyComponent />);
-  toNodeStream(componentHtmlStream).pipe(res);
+  render(<MyComponent prop="stuff" />)
+    .toStream()
+    .pipe(res);
 });
 ```
 
 
 -----
 
-### `streamTemplate`
+### `Renderer#tuneAsynchronicity`
 
-``streamTemplate`TEMPLATE LITERAL` -> MostStream<StringSegment>``
+`renderer.tuneAsynchronicity(PositiveInteger) -> undefined`
 
-See the [section below](#stream-templates) for usage instructions.
+Rapscallion allows you to tune the asynchronicity of your renders.  By default, rapscallion batches events in your stream of HTML segments.  These batches are processed in a synchronous-like way.  This gives you the benefits of asynchronous rendering without losing too much synchronous rendering performance.
+
+The default value is `100`, which means the Rapscallion will process one hundred segments of HTML text before giving control back to the event loop.
+
+You may want to change this number if your server is under heavy load.  Possible values are the set of all positive integers.  Lower numbers will be "more asynchronous" (shorter periods between I/O processing) and higher numbers will be "more synchronous" (higher performance).
 
 
 -----
 
-### `tuneAsynchronicity`
+### `template`
 
-`tuneAsynchronicity(PositiveInteger)`
+``template`TEMPLATE LITERAL` -> Renderer``
 
-Rapscallion allows you to tune the asynchronicity of your renders.  By default, rapscallion batches events in your stream of HTML segments.  These batches are processed in a synchronous-like way.  This gives you the benefits of asynchronous rendering without losing too much synchronous rendering performance.
+With React's default `renderToString`, it is a common pattern to define a function that takes the rendered output and inserts it into some HTML boilerplate; `<html>` tags and the like.
 
-The default value is `100` and equates to the approximate speed-performance of React's `renderToString`.  With this value, Rapscallion takes about the same amount of time as React to render a VirtualDOM tree.
+Rapscallion allows you to stream the rendered content of your components as they are generated.  However, this makes it somewhat less simple to wrap that component in your HTML boilerplate.
 
-However, you may want to change this number if your server is under heavy load.  Possible values are the set of all positive integers.  Lower numbers will be "more asynchronous" (shorter periods between I/O processing) and higher numbers will be "more synchronous" (higher performance).
+Fortunately, Rapscallion provides _streaming templates_.  They look very similar to normal template strings, with a couple of exceptions.
+
+1. You add `template` as a [template-literal tag](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#Tagged_template_literals).
+2. Using template-literal expression interpolation, you can insert streams into the template.
+3. You can also insert functions into the template that will be evaluated after the previous content has been streamed.
+
+The return value is a Renderer.
+
+That may not be clear in the abstract, so here's an example:
+
+```javascript
+import { render, template } from "rapscallion";
+
+// ...
+
+app.get('/example', function(req, res){
+  // ...
+
+  const store = createStore(/* ... */);
+  const componentRenderer = render(<MyComponent store={store} />);
+
+  const responseRenderer = streamTemplate`
+    <html>
+    <body>
+      ${componentRenderer}
+      <script>
+        window._initialState = ${() => JSON.stringify(store.getState())};
+      </script>
+    </body>
+    </html>
+  `;
+
+  responseRenderer.toStream().pipe(res);
+});
+```
+
+Note that the template comprises a stream of HTML text (`componentRenderer`) and a function that evaluates to the store's state - something you'll often want to do with SSR.
 
 
 ## Caching
@@ -155,73 +186,28 @@ const Parent = ({ toVal }) => (
 
 Promise.resolve()
   // The first render will take the expected duration.
-  .then(() => renderToString(<Parent toVal={5} />))
+  .then(() => render(<Parent toVal={5} />).toPromise())
   // The second render will be much faster, due to multiple cache hits.
-  .then(() => renderToString(<Parent toVal={6} />))
+  .then(() => render(<Parent toVal={6} />).toPromise())
   // The third render will be near-instantaneous, due to a top-level cache hit.
-  .then(() => renderToString(<Parent toVal={6} />));
+  .then(() => render(<Parent toVal={6} />).toPromise());
 ```
-
-
-## Stream templates
-
-With React's default `renderToString`, it is a common pattern to define a function that takes the rendered output and inserts it into some HTML boilerplate; `<html>` tags and the like.
-
-Rapscallion allows you to stream the rendered content of your components as they are generated.  However, this makes it somewhat less simple to wrap that component in your HTML boilerplate.
-
-Fortunately, Rapscallion provides _stream templates_.  They look very similar to normal template strings, with a couple of exceptions.
-
-1. You add `streamTemplate` as a [template literal tag](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#Tagged_template_literals).
-2. Using template literals' expression interpolation, you can insert streams into the template.
-3. You can also insert functions into the template that will be evaluated after the previous content has been streamed.
-
-The return value is a [Most.js](https://github.com/cujojs/most) stream.
-
-That may not be clear in the abstract, so here's an example:
-
-```javascript
-import { renderToStream, streamTemplate, toNodeStream } from "rapscallion";
-
-// ...
-
-app.get('/example', function(req, res){
-  // ...
-
-  const store = createStore(/* ... */);
-  const componentHtmlStream = renderToStream(<MyComponent store={store} />);
-
-  const responseStream = streamTemplate`
-    <html>
-    <body>
-      ${componentHtmlStream}
-      <script>
-        window._initialState = ${() => JSON.stringify(store.getState())};
-      </script>
-    </body>
-    </html>
-  `;
-
-  toNodeStream(responseStream).pipe(res);
-});
-```
-
-Note that the template includes both a stream of HTML text (`componentHtmlStream`) and a function that evaluates to the store's state - something you'll often want to do with SSR.
 
 
 ## Benchmarks
 
-The below benchmarks _do not_ represent a typical use-case.  Instead, they represent the absolute _best case scenario_ for component caching - up to 2,100x faster!
+The below benchmarks _do not_ represent a typical use-case.  Instead, they represent the absolute _best case scenario_ for component caching - up to 1,200x faster!
 
-However, you'll note that even without caching, a concurrent workload will be processed in roughly half the time of React, without any of the blocking!
+However, you'll note that even without caching, a concurrent workload will be processed 50% faster, without any of the blocking!
 
 ```
 Starting benchmark for 10 concurrent render operations...
-renderToString took 6.595226639 seconds.
-rapscallion, no caching took 3.490436779 seconds.
-rapscallion, caching DIVs took 0.814969248 seconds.
-rapscallion, caching DIVs (second time) took 0.002369651 seconds.
-rapscallion, caching Components took 0.123907298 seconds.
-rapscallion, caching Components (second time) took 0.003139111 seconds.
+renderToString took 1.388883695 seconds
+rapscallion, no caching took 0.962666792 seconds; ~1.44x faster
+rapscallion, caching DIVs took 0.215825732 seconds; ~6.43x faster
+rapscallion, caching DIVs (second time) took 0.003815807 seconds; ~363.98x faster
+rapscallion, caching Components took 0.086096541 seconds; ~16.13x faster
+rapscallion, caching Components (second time) took 0.001247051 seconds; ~1113.73x faster
 ```
 
 
