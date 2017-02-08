@@ -1,5 +1,5 @@
 import { default as React, Component, PropTypes } from "react";
-import { renderToString } from "../src";
+import { render } from "../src";
 
 
 class Grandparent extends Component {
@@ -45,5 +45,5 @@ Child.contextTypes = {
 };
 
 
-renderToString(<Grandparent />)
+render(<Grandparent />).toPromise()
   .then(html => console.log(html));

@@ -1,5 +1,5 @@
 import { default as React } from "react";
-import { renderToString } from "../src";
+import { render } from "../src";
 
 
 const A = ({ prop }) => {
@@ -29,7 +29,7 @@ const C = ({ a, children }) => {
       <span>{ children }</span>
     </div>
   );
-}
+};
 
-renderToString(<A prop="stuff" />)
+render(<A prop="stuff" />).toPromise()
   .then(html => console.log(html));
