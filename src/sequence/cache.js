@@ -37,18 +37,15 @@ class SequenceCache {
     this.forkCursors[forkIdx] = 0;
 
     return new ForkedSequence(this.getNext.bind(this, forkIdx));
-    // return { next: this.getNext.bind(this, forkIdx) };
   }
 
   forkCompressed () {
     let sentCompressed = false;
-    return {
-      next: () => {
-        if (sentCompressed) { return EXHAUSTED; }
-        sentCompressed = true;
-        return this.compressedBuffer;
-      }
-    };
+    return new ForkedSequence(() => {
+      if (sentCompressed) { return EXHAUSTED; }
+      sentCompressed = true;
+      return this.compressedBuffer;
+    });
   }
 
   getNext (forkIdx) {

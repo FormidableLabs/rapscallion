@@ -1,6 +1,6 @@
 import { default as React, Component } from "react";
 
-import { renderToString } from "../src";
+import { render } from "../src";
 
 
 
@@ -32,8 +32,8 @@ describe("caching", () => {
 
     it("returns cached HTML for <div>", () => {
       return Promise.resolve()
-        .then(() => renderToString(<Parent val="first" cacheChild />))
-        .then(() => renderToString(<Parent val="second" cacheChild />))
+        .then(() => render(<Parent val="first" cacheChild />).toPromise())
+        .then(() => render(<Parent val="second" cacheChild />).toPromise())
         .then(html => {
           expect(html).to.equal("<div>first</div>");
         });
@@ -41,8 +41,8 @@ describe("caching", () => {
 
     it("returns cached HTML for <Child>", () => {
       return Promise.resolve()
-        .then(() => renderToString(<Parent val="first" cacheParent />))
-        .then(() => renderToString(<Parent val="second" cacheParent />))
+        .then(() => render(<Parent val="first" cacheParent />).toPromise())
+        .then(() => render(<Parent val="second" cacheParent />).toPromise())
         .then(html => {
           expect(html).to.equal("<div>first</div>");
         });
@@ -72,8 +72,8 @@ describe("caching", () => {
 
     it("returns cached HTML for <div>", () => {
       return Promise.resolve()
-        .then(() => renderToString(<Parent val="first" cacheChild />))
-        .then(() => renderToString(<Parent val="second" cacheChild />))
+        .then(() => render(<Parent val="first" cacheChild />).toPromise())
+        .then(() => render(<Parent val="second" cacheChild />).toPromise())
         .then(html => {
           expect(html).to.equal("<div>first</div>");
         });
@@ -81,8 +81,8 @@ describe("caching", () => {
 
     it("returns cached HTML for <Child>", () => {
       return Promise.resolve()
-        .then(() => renderToString(<Parent val="first" cacheParent />))
-        .then(() => renderToString(<Parent val="second" cacheParent />))
+        .then(() => render(<Parent val="first" cacheParent />).toPromise())
+        .then(() => render(<Parent val="second" cacheParent />).toPromise())
         .then(html => {
           expect(html).to.equal("<div>first</div>");
         });
