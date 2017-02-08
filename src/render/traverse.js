@@ -1,4 +1,4 @@
-const { isArray, isFunction, isString } = require("lodash");
+const { isArray, isFunction, isString, isNumber } = require("lodash");
 
 const { getChildContext, getContext } = require("./context");
 const { syncSetState } = require("./state");
@@ -187,6 +187,8 @@ function traverse (seq, node, context) {
   if (isString(node)) {
     // Text node.
     seq.emit(() => htmlStringEscape(node));
+  } else if (isNumber(node)) {
+    seq.emit(() => node.toString());
   } else if (isString(node.type)) {
     // Plain-jane DOM element, not a React component.
     seq.emit(() =>
