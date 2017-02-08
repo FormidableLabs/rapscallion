@@ -1,4 +1,3 @@
-const most = require("most");
 const { encode } = require("he");
 
 
@@ -8,19 +7,18 @@ const ENCODE_OPTS = {
 };
 
 
-const toDashCase = str => str.replace(CAPITAL_CHAR, char => `-${char.toLowerCase()}`);
+const toDashCase = str => {
+  if (str === "className") { return "class"; }
+  return str.replace(CAPITAL_CHAR, char => `-${char.toLowerCase()}`);
+};
 
 const htmlStringEscape = str => encode(str, ENCODE_OPTS);
 
 const hasOwn = (obj, key) => Object.prototype.hasOwnProperty.call(obj, key);
 
-const concatAll = streams =>
-  streams.reduce((memo, stream) => memo.concat(stream), most.empty());
-
 
 module.exports = {
   toDashCase,
   htmlStringEscape,
-  hasOwn,
-  concatAll
+  hasOwn
 };

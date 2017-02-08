@@ -1,4 +1,3 @@
-const most = require("most");
 const {
   compose,
   filter,
@@ -7,6 +6,9 @@ const {
   zip
 } = require("lodash/fp");
 
+const { sequence, BaseSequence } = require("./sequence");
+const Renderer = require("./renderer");
+
 
 const zipTemplateSegments = compose(
   filter(ident),
@@ -14,29 +16,22 @@ const zipTemplateSegments = compose(
   zip
 );
 
+function getSequenceEvent (segment) {
+  const segmentType = typeof segment;
 
-function streamTemplate (strings, ...values) {
-  const templateSegments = zipTemplateSegments(strings, values);
+  if (segmentType === "string") { return segment; }
+  if (segmentType === "function") { return segment(); }
+  if (segment instanceof BaseSequence) { return segment; }
+  if (segment instanceof Renderer) { return segment.sequence; }
 
-  return most.from(templateSegments)
-    .concatMap(segment => {
-      const segmentType = typeof segment;
-
-      /* eslint-disable indent */
-      switch (segmentType) {
-        case "string": {
-          return most.just(segment);
-        }
-        case "function": {
-          return most.just(segment());
-        }
-        default: {
-          if (segment instanceof most.Stream) { return segment; }
-          throw new Error("Unknown value in stream template.", segment);
-        }
-      }
-      /* eslint-enable indent */
-    });
+  throw new Error("Unknown value in stream template.", segment);
 }
 
-module.exports = streamTemplate;
+function template (strings, ...values) {
+  const seq = sequence();
+  const templateSegments = zipTemplateSegments(strings, values);
+  templateSegments.forEach(segment => seq.emit(() => getSequenceEvent(segment)));
+  return new Renderer(null, seq);
+}
+
+module.exports = template;

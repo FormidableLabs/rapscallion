@@ -1,6 +1,6 @@
 import { default as React, Component } from "react";
 
-import { renderToString } from "../src";
+import { render } from "../src";
 
 
 class C extends Component {
@@ -27,7 +27,7 @@ class C extends Component {
 describe("lifecycle methods", () => {
   it("calls componentWillMount on stateful components", () => {
     const cb = sinon.spy();
-    return renderToString(<C cb={cb} />).then(() => {
+    return render(<C cb={cb} />).toPromise().then(() => {
       expect(cb).to.have.been.calledOnce;
     });
   });
@@ -35,7 +35,7 @@ describe("lifecycle methods", () => {
   it("allows state to be set", () => {
     const cb = instance => instance.setState({ val: "set" });
 
-    return renderToString(<C cb={cb} />).then(html => {
+    return render(<C cb={cb} />).toPromise().then(html => {
       expect(html).to.equal("<div>set</div>");
     });
   });
@@ -48,7 +48,7 @@ describe("lifecycle methods", () => {
         };
       });
 
-    return renderToString(<C cb={cb} myProp="myProp" />).then(html => {
+    return render(<C cb={cb} myProp="myProp" />).toPromise().then(html => {
       expect(html).to.equal("<div>was not-set, now is set, can get at myProp</div>");
     });
   });
@@ -62,7 +62,7 @@ describe("lifecycle methods", () => {
       instance.setState({}, setStateCb);
     };
 
-    return renderToString(<C cb={cb} />).then(() => {
+    return render(<C cb={cb} />).toPromise().then(() => {
       expect(setStateCb)
         .to.have.been.calledOnce.and
         .to.have.been.calledOn(_instance);
@@ -76,7 +76,7 @@ describe("lifecycle methods", () => {
         this.setState({ val: "set-again" });
       });
 
-    return renderToString(<C cb={cb} />).then(html => {
+    return render(<C cb={cb} />).toPromise().then(html => {
       expect(html).to.equal("<div>set-again</div>");
     });
   });
