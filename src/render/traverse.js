@@ -86,27 +86,29 @@ function evalClassComponent (seq, instance, childContext) {
  *
  * Here it is demonstrated in code:
  *
- *   const NotNullComponent = () => <div />;
- *   const notNullComponentNode = <NotNullComponent />;
- *   const notNullComponentNodeTypeInstance = new notNullComponentNode.type;
- *   notNullComponentNodeTypeInstance instanceof notNullComponentNode.type;
- *   // false
- *   notNullComponentNodeTypeInstance;
- *   // { '$$typeof': Symbol(react.element),
- *   //   type: 'div',
- *   //   key: null,
- *   //   ref: null,
- *   //   props: {},
- *   //   _owner: null,
- *   //   _store: {} }
+ * ```js
+ * const NotNullComponent = () => <div />;
+ * const notNullComponentNode = <NotNullComponent />;
+ * const notNullComponentNodeTypeInstance = new notNullComponentNode.type;
+ * notNullComponentNodeTypeInstance instanceof notNullComponentNode.type;
+ * // false
+ * notNullComponentNodeTypeInstance;
+ * // { '$$typeof': Symbol(react.element),
+ * //   type: 'div',
+ * //   key: null,
+ * //   ref: null,
+ * //   props: {},
+ * //   _owner: null,
+ * //   _store: {} }
  *
- *   const NullComponent = () => null;
- *   const nullComponentNode = <NullComponent />;
- *   const nullComponentNodeTypeInstance = new nullComponentNode.type;
- *   nullComponentNodeTypeInstance
- *   // NullComponent {}
- *   nullComponentNodeTypeInstance instanceof nullComponentNode.type
- *   // true
+ * const NullComponent = () => null;
+ * const nullComponentNode = <NullComponent />;
+ * const nullComponentNodeTypeInstance = new nullComponentNode.type;
+ * nullComponentNodeTypeInstance
+ * // NullComponent {}
+ * nullComponentNodeTypeInstance instanceof nullComponentNode.type
+ * // true
+ * ```
  *
  * @param      {VDOM?}   instance  Something that may or may not be VDOM.
  * @param      {VDOM}    node      The node that was used to construct the instance.
