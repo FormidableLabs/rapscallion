@@ -106,7 +106,7 @@ class SequenceCache {
   }
 
   /**
-   * Checks whether all forks have completed pulling for the original
+   * Checks whether all forks have completed pulling from the original
    * source.  If so, the cache is considered ready to compress.
    *
    * @return     {Boolean}     Whether the cache is ready to be compressed.

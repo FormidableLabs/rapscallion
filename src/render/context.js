@@ -53,7 +53,7 @@ function getContext (componentPrototype, context) {
 }
 
 /**
- * Create an empty context object to be pased into the root of a component's
+ * Create an empty context object to be passed into the root of a component's
  * evaluation traversal.
  *
  * @return     {Object}       The root context.

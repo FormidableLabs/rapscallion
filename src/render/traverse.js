@@ -14,9 +14,9 @@ const renderAttrs = require("./attrs");
  * `traverse` function below.
  *
  * @param      {Array|VDOM}    children  One or more VDOM nodes to be evaluated.
- * @param      {Object}    context   Context for the node's children.
+ * @param      {Object}        context   Context for the node's children.
  *
- * @return     {Sequence}  The sub-sequence for the provided children.
+ * @return     {Sequence}                The sub-sequence for the provided children.
  */
 function renderChildren (children, context) {
   if (!children) { return null; }
@@ -109,7 +109,7 @@ function evalClassComponent (seq, instance, childContext) {
  *   // true
  *
  * @param      {VDOM?}   instance  Something that may or may not be VDOM.
- * @param      {VDOM}   node      The node that was used to construct the instance.
+ * @param      {VDOM}    node      The node that was used to construct the instance.
  *
  * @return     {boolean}  True if null component, False otherwise.
  */

@@ -14,7 +14,7 @@ function asyncBatch (sequence, batchSize, arrayBuffer, resolve) {
 
 /**
  * Consumes the provided sequence and returns a promise with the concatenation of all
- * sequence segmence.
+ * sequence segments.
  *
  * @param      {Sequence}    sequence   Source sequence.
  * @param      {Integer}     batchSize  The number of HTML segments to render

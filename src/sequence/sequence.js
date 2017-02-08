@@ -19,7 +19,7 @@ class BaseSequence {}
  * When the iterator encounters another invocation, it pushes another piece of state onto the
  * stack and only resumes the original interator once the pushed iterator completes.
  * 
- * A Sequence is conseptually similar.  Event-generating functions are pushed onto a FIFO
+ * A Sequence is conceptually similar.  Event-generating functions are pushed onto a FIFO
  * queue, and are evaluated (in order) one at a time whenever its parent Sequence's `next`
  * method is invoked.  If a normal value is returned from one of those functions, that value
  * is returned from the `next` invocation.
