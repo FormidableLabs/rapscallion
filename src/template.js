@@ -6,6 +6,7 @@ const {
   zip
 } = require("lodash/fp");
 
+const { sequence, BaseSequence } = require("./sequence");
 const Renderer = require("./renderer");
 
 
@@ -15,38 +16,22 @@ const zipTemplateSegments = compose(
   zip
 );
 
+function getSequenceEvent (segment) {
+  const segmentType = typeof segment;
 
-// eslint-disable-next-line consistent-return
-function *templateGenerator (strings, values) {
-  const templateSegments = zipTemplateSegments(strings, values);
+  if (segmentType === "string") { return segment; }
+  if (segmentType === "function") { return segment(); }
+  if (segment instanceof BaseSequence) { return segment; }
+  if (segment instanceof Renderer) { return segment.sequence; }
 
-  for (let idx; idx < templateSegments.length; idx++) {
-    const segment = templateSegments[idx];
-    const segmentType = typeof segment;
-
-    /* eslint-disable indent */
-    switch (segmentType) {
-      case "string": {
-        return yield segment;
-      }
-      case "function": {
-        return yield segment();
-      }
-      default: {
-        // Support any object that conforms to the iterator protocol.
-        if (segment && segment.next) {
-          return yield* segment;
-        }
-        throw new Error("Unknown value in stream template.", segment);
-      }
-    }
-    /* eslint-enable indent */
-  }
+  throw new Error("Unknown value in stream template.", segment);
 }
 
 function template (strings, ...values) {
-  const gen = templateGenerator(strings, values);
-  return new Renderer(gen);
+  const seq = sequence();
+  const templateSegments = zipTemplateSegments(strings, values);
+  templateSegments.forEach(segment => seq.emit(() => getSequenceEvent(segment)));
+  return new Renderer(null, seq);
 }
 
 module.exports = template;

@@ -1,4 +1,5 @@
 const {
+  BaseSequence,
   Sequence,
   sequence,
   EXHAUSTED
@@ -7,6 +8,7 @@ const {
 const getCachedSequence = require("./cache");
 
 module.exports = {
+  BaseSequence,
   Sequence,
   sequence,
   EXHAUSTED,

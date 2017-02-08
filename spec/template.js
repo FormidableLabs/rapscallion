@@ -1,49 +1,67 @@
 import { default as React } from "react";
 
-import { renderToStream, streamTemplate } from "../src";
+import { render, template } from "../src";
+
+
+function resolveStreamOnDone (stream, cb) {
+  return new Promise(resolve => {
+    stream
+      .on("data", cb)
+      .on("end", resolve);
+  });
+}
 
 
 describe("stream templates", () => {
   it("renders string-only templates", () => {
-    const tmpl = streamTemplate`this is my content`;
+    const tmpl = template`this is my content`;
 
     let output = "";
-    return tmpl.observe(segment => output += segment).then(() => {
+    return resolveStreamOnDone(
+      tmpl.toStream(),
+      segment => output += segment
+    ).then(() => {
       expect(output).to.equal("this is my content");
     });
   });
 
-  it("renders component streams", () => {
+  it("renders components", () => {
     const A = () => (
       <div>
         component content
       </div>
     );
 
-    const tmpl = streamTemplate`before${renderToStream(<A />)}after`;
+    const tmpl = template`before${render(<A />)}after`;
 
     let output = "";
     let segmentCount = 0;
 
-    return tmpl.observe(segment => {
-      output += segment;
-      segmentCount++;
-    }).then(() => {
+    return resolveStreamOnDone(
+      tmpl.toStream(),
+      segment => {
+        output += segment;
+        segmentCount++;
+      }
+    ).then(() => {
       expect(output).to.equal("before<div>component content</div>after");
       expect(segmentCount).to.be.above(1);
     });
   });
 
   it("renders function content", () => {
-    const tmpl = streamTemplate`before${() => "-middle-"}after`;
+    const tmpl = template`before${() => "-middle-"}after`;
 
     let output = "";
     let segmentCount = 0;
 
-    return tmpl.observe(segment => {
-      output += segment;
-      segmentCount++;
-    }).then(() => {
+    return resolveStreamOnDone(
+      tmpl.toStream(),
+      segment => {
+        output += segment;
+        segmentCount++;
+      }
+    ).then(() => {
       expect(output).to.equal("before-middle-after");
       expect(segmentCount).to.be.above(1);
     });
@@ -65,13 +83,14 @@ describe("stream templates", () => {
       );
     };
 
-    const tmpl = streamTemplate`${() => someState}${renderToStream(<B />)}${() => someState}`;
+    const tmpl = template`${() => someState}${render(<B />)}${() => someState}`;
 
     let output = "";
 
-    return tmpl.observe(segment => {
-      output += segment;
-    }).then(() => {
+    return resolveStreamOnDone(
+      tmpl.toStream(),
+      segment => output += segment
+    ).then(() => {
       expect(output).to.equal("before<div><div></div></div>after");
     });
   });

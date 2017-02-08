@@ -6,8 +6,8 @@ const toNodeStream = require("./consumers/node-stream");
 
 
 class Renderer {
-  constructor (jsx) {
-    this.sequence = render(jsx);
+  constructor (jsx, sequence) {
+    this.sequence = sequence || render(jsx);
     this.batchSize = 100;
     this.next = this.sequence.next.bind(this.sequence);
   }
