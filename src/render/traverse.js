@@ -6,6 +6,8 @@ const { getCachedSequence, sequence } = require("../sequence");
 const { htmlStringEscape, hasOwn } = require("./util");
 const renderAttrs = require("./attrs");
 
+const { REACT_ID } = require("../symbols");
+
 
 /**
  * Evaluates the children of a plain-jane VDOM node (like a <div>).
@@ -46,7 +48,10 @@ function renderChildren (children, context) {
  * @return     {undefined}          No return value.
  */
 function renderNode (seq, node, context) {
-  seq.emit(() => `<${node.type}${renderAttrs(node.props)}>`);
+  seq.emit(() => `<${node.type}`);
+  seq.emit(() => renderAttrs(node.props, seq));
+  seq.emit(() => REACT_ID);
+  seq.emit(() => ">");
   seq.emit(() => renderChildren(node.props.children, context));
   seq.emit(() => `</${node.type}>`);
 }

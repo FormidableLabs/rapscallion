@@ -1,4 +1,5 @@
 const { EXHAUSTED } = require("../sequence");
+const { REACT_ID } = require("../symbols");
 
 
 /**
@@ -25,6 +26,28 @@ function pullBatch (sequence, batchSize, pushable) {
   return false;
 }
 
+
+function getReactIdPushable (pushable, reactIdStart, dataReactAttrs) {
+  let reactIdIdx = reactIdStart;
+  return {
+    push: el => {
+      if (el === REACT_ID) {
+        if (!dataReactAttrs) { return; }
+        pushable.push(
+          reactIdIdx === reactIdStart ?
+            " data-reactroot=\"\"" :
+            ` data-reactid="${reactIdIdx}"`
+        );
+        reactIdIdx++;
+      } else {
+        pushable.push(el);
+      }
+    }
+  };
+}
+
+
 module.exports = {
-  pullBatch
+  pullBatch,
+  getReactIdPushable
 };

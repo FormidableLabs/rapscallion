@@ -25,6 +25,7 @@ Rapscallion is a React VirtualDOM renderer for the server.  Its notable features
   - [`render`](#render)
   - [`Renderer#toPromise`](#renderertopromise)
   - [`Renderer#toStream`](#renderertostream)
+  - [`Renderer#includeDataReactAttrs`](#includedatareactattrs)
   - [`Renderer#tuneAsynchronicity`](#renderertuneasynchronicity)
   - [`template`](#template)
 - [Caching](#caching)
@@ -94,6 +95,15 @@ app.get('/example', function(req, res){
     .pipe(res);
 });
 ```
+
+
+-----
+
+### `includeDataReactAttrs`
+
+`renderer.includeDataReactAttrs(Boolean) -> undefined`
+
+This allows you to set whether you'd like to include properties like `data-reactid` in your rendered markup.
 
 
 -----

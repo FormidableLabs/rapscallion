@@ -13,15 +13,20 @@ class Renderer {
   constructor (vdomNode, sequence) {
     this.sequence = sequence || render(vdomNode);
     this.batchSize = 100;
+    this.dataReactAttrs = false;
     this.next = this.sequence.next.bind(this.sequence);
   }
 
   toPromise () {
-    return toPromise(this.sequence, this.batchSize);
+    return toPromise(this.sequence, this.batchSize, this.dataReactAttrs);
   }
 
   toStream () {
-    return toNodeStream(this.sequence, this.batchSize);
+    return toNodeStream(this.sequence, this.batchSize, this.dataReactAttrs);
+  }
+
+  includeDataReactAttrs (yesNo) {
+    this.dataReactAttrs = yesNo;
   }
 
   tuneAsynchronicity (batchSize) {
