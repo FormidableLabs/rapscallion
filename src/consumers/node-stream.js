@@ -1,6 +1,6 @@
 const { Readable } = require("stream");
 
-const { pullBatch, getReactIdPushable } = require("./common");
+const { pullBatch, getReactIdPushable, getChecksumWrapper } = require("./common");
 
 
 /**
@@ -22,8 +22,10 @@ function toNodeStream (sequence, batchSize, dataReactAttrs) {
     }
   });
 
-  const reactIdPushable = getReactIdPushable(stream, 0, dataReactAttrs);
+  const checksumWrapper = getChecksumWrapper(stream);
+  const reactIdPushable = getReactIdPushable(checksumWrapper, 0, dataReactAttrs);
 
+  stream.checksum = checksumWrapper.checksum;
   return stream;
 }
 

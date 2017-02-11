@@ -38,7 +38,7 @@ describe("stream templates", () => {
     let segmentCount = 0;
 
     return resolveStreamOnDone(
-      tmpl.toStream(),
+      tmpl.includeDataReactAttrs(false).toStream(),
       segment => {
         output += segment;
         segmentCount++;
@@ -56,7 +56,7 @@ describe("stream templates", () => {
     let segmentCount = 0;
 
     return resolveStreamOnDone(
-      tmpl.toStream(),
+      tmpl.includeDataReactAttrs(false).toStream(),
       segment => {
         output += segment;
         segmentCount++;
@@ -88,7 +88,7 @@ describe("stream templates", () => {
     let output = "";
 
     return resolveStreamOnDone(
-      tmpl.toStream(),
+      tmpl.includeDataReactAttrs(false).toStream(),
       segment => output += segment
     ).then(() => {
       expect(output).to.equal("before<div><div></div></div>after");

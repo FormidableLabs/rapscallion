@@ -1,5 +1,9 @@
 /* global setImmediate */
-const { pullBatch, getReactIdPushable } = require("./common");
+const { pullBatch, getReactIdPushable, getChecksumWrapper } = require("./common");
+
+
+const TAG_END = /\/?>/;
+const COMMENT_START = /^<\!\-\-/;
 
 
 // eslint-disable-next-line max-params
@@ -32,7 +36,8 @@ function asyncBatch (
  */
 function toPromise (sequence, batchSize, dataReactAttrs) {
   const arrayBuffer = [];
-  const reactIdPushable = getReactIdPushable(arrayBuffer, 0, dataReactAttrs);
+  const checksumWrapper = getChecksumWrapper(arrayBuffer);
+  const reactIdPushable = getReactIdPushable(checksumWrapper, 0, dataReactAttrs);
 
   return new Promise(resolve =>
     setImmediate(
@@ -43,7 +48,16 @@ function toPromise (sequence, batchSize, dataReactAttrs) {
       dataReactAttrs,
       resolve
     )
-  ).then(() => arrayBuffer.join(""));
+  ).then(() => {
+    let html = arrayBuffer.join("");
+
+    if (dataReactAttrs && !COMMENT_START.test(html)) {
+      const checksum = checksumWrapper.checksum();
+      html = html.replace(TAG_END, ` data-react-checksum="${checksum}"$&`);
+    }
+
+    return html;
+  });
 }
 
 

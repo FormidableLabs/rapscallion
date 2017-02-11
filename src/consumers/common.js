@@ -1,3 +1,5 @@
+const adler32 = require("adler-32");
+
 const { EXHAUSTED } = require("../sequence");
 const { REACT_ID } = require("../symbols");
 
@@ -46,8 +48,20 @@ function getReactIdPushable (pushable, reactIdStart, dataReactAttrs) {
   };
 }
 
+function getChecksumWrapper (pushable) {
+  let checksum;
+  return {
+    push: data => {
+      checksum = adler32.str(data, checksum);
+      pushable.push(data);
+    },
+    checksum: () => checksum
+  };
+}
+
 
 module.exports = {
   pullBatch,
-  getReactIdPushable
+  getReactIdPushable,
+  getChecksumWrapper
 };

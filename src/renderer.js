@@ -13,7 +13,7 @@ class Renderer {
   constructor (vdomNode, sequence) {
     this.sequence = sequence || render(vdomNode);
     this.batchSize = 100;
-    this.dataReactAttrs = false;
+    this.dataReactAttrs = true;
     this.next = this.sequence.next.bind(this.sequence);
   }
 
@@ -27,6 +27,7 @@ class Renderer {
 
   includeDataReactAttrs (yesNo) {
     this.dataReactAttrs = yesNo;
+    return this;
   }
 
   tuneAsynchronicity (batchSize) {
