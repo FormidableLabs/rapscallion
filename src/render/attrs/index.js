@@ -7,6 +7,11 @@ const transformAttrKey = require("./transform-attr-key");
 const mapWithKey = map.convert({ cap: false });
 
 
+const attrsNotToRender = {
+  children: true,
+  dangerouslySetInnerHTML: true
+};
+
 /**
  * Render an object of key/value pairs into their HTML attribute equivalent.
  *
@@ -20,7 +25,7 @@ function renderAttrs (attrs) {
   for (let attrKey in attrs) {
     if (
       hasOwn(attrs, attrKey) &&
-      attrKey !== "children"
+      !attrsNotToRender[attrKey]
     ) {
       let attrVal = attrs[attrKey];
 

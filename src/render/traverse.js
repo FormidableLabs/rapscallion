@@ -52,7 +52,11 @@ function renderNode (seq, node, context) {
   seq.emit(() => renderAttrs(node.props, seq));
   seq.emit(() => REACT_ID);
   seq.emit(() => ">");
-  seq.emit(() => renderChildren(node.props.children, context));
+  if (node.props.dangerouslySetInnerHTML) {
+    seq.emit(() => node.props.dangerouslySetInnerHTML.__html || "");
+  } else {
+    seq.emit(() => renderChildren(node.props.children, context));
+  }
   seq.emit(() => `</${node.type}>`);
 }
 
