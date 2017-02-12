@@ -15,6 +15,7 @@ class Renderer {
     this.batchSize = 100;
     this.dataReactAttrs = true;
     this.next = this.sequence.next.bind(this.sequence);
+    this._stream = null;
   }
 
   toPromise () {
@@ -22,7 +23,16 @@ class Renderer {
   }
 
   toStream () {
-    return toNodeStream(this.sequence, this.batchSize, this.dataReactAttrs);
+    return this._stream = toNodeStream(this.sequence, this.batchSize, this.dataReactAttrs);
+  }
+
+  checksum () {
+    if (!this._stream) {
+      throw new Error(
+        "Renderer#checksum can only be invoked for a renderer converted to node stream."
+      );
+    }
+    return this._stream.checksum();
   }
 
   includeDataReactAttrs (yesNo) {
