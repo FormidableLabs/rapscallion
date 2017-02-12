@@ -1,4 +1,7 @@
+const adler32 = require("adler-32");
+
 const { EXHAUSTED } = require("../sequence");
+const { REACT_ID } = require("../symbols");
 
 
 /**
@@ -25,6 +28,37 @@ function pullBatch (sequence, batchSize, pushable) {
   return false;
 }
 
+
+function getReactIdPushable (pushable, reactIdStart, dataReactAttrs) {
+  let reactIdIdx = reactIdStart;
+  return {
+    push: el => {
+      if (el === REACT_ID) {
+        if (!dataReactAttrs) { return; }
+        if (reactIdIdx === reactIdStart) { pushable.push(" data-reactroot=\"\""); }
+        pushable.push(` data-reactid="${reactIdIdx}"`);
+        reactIdIdx++;
+      } else {
+        pushable.push(el);
+      }
+    }
+  };
+}
+
+function getChecksumWrapper (pushable) {
+  let checksum;
+  return {
+    push: data => {
+      checksum = adler32.str(data, checksum);
+      pushable.push(data);
+    },
+    checksum: () => checksum
+  };
+}
+
+
 module.exports = {
-  pullBatch
+  pullBatch,
+  getReactIdPushable,
+  getChecksumWrapper
 };

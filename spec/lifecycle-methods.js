@@ -27,7 +27,7 @@ class C extends Component {
 describe("lifecycle methods", () => {
   it("calls componentWillMount on stateful components", () => {
     const cb = sinon.spy();
-    return render(<C cb={cb} />).toPromise().then(() => {
+    return render(<C cb={cb} />).includeDataReactAttrs(false).toPromise().then(() => {
       expect(cb).to.have.been.calledOnce;
     });
   });
@@ -35,7 +35,7 @@ describe("lifecycle methods", () => {
   it("allows state to be set", () => {
     const cb = instance => instance.setState({ val: "set" });
 
-    return render(<C cb={cb} />).toPromise().then(html => {
+    return render(<C cb={cb} />).includeDataReactAttrs(false).toPromise().then(html => {
       expect(html).to.equal("<div>set</div>");
     });
   });
@@ -48,9 +48,11 @@ describe("lifecycle methods", () => {
         };
       });
 
-    return render(<C cb={cb} myProp="myProp" />).toPromise().then(html => {
-      expect(html).to.equal("<div>was not-set, now is set, can get at myProp</div>");
-    });
+    return render(<C cb={cb} myProp="myProp" />)
+      .includeDataReactAttrs(false)
+      .toPromise().then(html => {
+        expect(html).to.equal("<div>was not-set, now is set, can get at myProp</div>");
+      });
   });
 
   it("invokes provided setState callbacks", () => {
@@ -62,7 +64,7 @@ describe("lifecycle methods", () => {
       instance.setState({}, setStateCb);
     };
 
-    return render(<C cb={cb} />).toPromise().then(() => {
+    return render(<C cb={cb} />).includeDataReactAttrs(false).toPromise().then(() => {
       expect(setStateCb)
         .to.have.been.calledOnce.and
         .to.have.been.calledOn(_instance);
@@ -76,7 +78,7 @@ describe("lifecycle methods", () => {
         this.setState({ val: "set-again" });
       });
 
-    return render(<C cb={cb} />).toPromise().then(html => {
+    return render(<C cb={cb} />).includeDataReactAttrs(false).toPromise().then(html => {
       expect(html).to.equal("<div>set-again</div>");
     });
   });

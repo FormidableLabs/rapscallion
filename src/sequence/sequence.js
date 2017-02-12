@@ -71,7 +71,7 @@ class Sequence extends BaseSequence {
       return this.nextFromDelegate();
     }
 
-    if (next === null) {
+    if (!next) {
       return this.next();
     }
 

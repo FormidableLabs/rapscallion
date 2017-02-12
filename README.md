@@ -25,7 +25,9 @@ Rapscallion is a React VirtualDOM renderer for the server.  Its notable features
   - [`render`](#render)
   - [`Renderer#toPromise`](#renderertopromise)
   - [`Renderer#toStream`](#renderertostream)
+  - [`Renderer#includeDataReactAttrs`](#rendererincludedatareactattrs)
   - [`Renderer#tuneAsynchronicity`](#renderertuneasynchronicity)
+  - [`Renderer#checksum`](#rendererchecksum)
   - [`template`](#template)
 - [Caching](#caching)
 - [Benchmarks](#benchmarks)
@@ -85,6 +87,8 @@ render(<MyComponent {...props} />)
 
 This function evaluates a React VirtualDOM Element, and returns a Node stream.  This stream will emit string segments of HTML as the DOM tree is asynchronously traversed and evaluated.
 
+In addition to the normal API for Node streams, the returned stream object has a `checksum` method.  When invoked, this will return the checksum that has been calculated up to this point for the stream.  If the stream has ended, the checksum will be the same as would be included by `React.renderToString`.
+
 **Example:**
 
 ```javascript
@@ -98,6 +102,15 @@ app.get('/example', function(req, res){
 
 -----
 
+### `Renderer#includeDataReactAttrs`
+
+`renderer.includeDataReactAttrs(Boolean) -> undefined`
+
+This allows you to set whether you'd like to include properties like `data-reactid` in your rendered markup.
+
+
+-----
+
 ### `Renderer#tuneAsynchronicity`
 
 `renderer.tuneAsynchronicity(PositiveInteger) -> undefined`
@@ -107,6 +120,19 @@ Rapscallion allows you to tune the asynchronicity of your renders.  By default, 
 The default value is `100`, which means the Rapscallion will process one hundred segments of HTML text before giving control back to the event loop.
 
 You may want to change this number if your server is under heavy load.  Possible values are the set of all positive integers.  Lower numbers will be "more asynchronous" (shorter periods between I/O processing) and higher numbers will be "more synchronous" (higher performance).
+
+
+### `Renderer#checksum`
+
+`renderer.checksum() -> Integer`
+
+In a synchronous rendering environment, the generated markup's checksum would be calculated after all generation has completed.  It would then be attached to the start of the HTML string before being sent to the client.
+
+However, in the case of a stream, the checksum is only known once all markup is generated, and the first bits of HTML are already on their way to the client by then.
+
+The renderer's `checksum` method will give you access to the checksum that has been calculated up to this point.  If the rendered has completed generating all markup for the provided component, this value will be identical to that provided by React's `renderToString` function.
+
+For an example of how to attach this value to the DOM on the client side, see the example in the [template](#template) section below.
 
 
 -----
@@ -145,7 +171,11 @@ app.get('/example', function(req, res){
     <body>
       ${componentRenderer}
       <script>
+        // Expose initial state to client store bootstrap code.
         window._initialState = ${() => JSON.stringify(store.getState())};
+        // Attach checksum to the component's root element.
+        document.querySelector("#id-for-component-root").setAttribute("data-react-checksum", "${componentRenderer.checksum()}")
+        // Bootstrap your component here...
       </script>
     </body>
     </html>
@@ -156,6 +186,8 @@ app.get('/example', function(req, res){
 ```
 
 Note that the template comprises a stream of HTML text (`componentRenderer`) and a function that evaluates to the store's state - something you'll often want to do with SSR.
+
+Additionally, we attach the checksum to the rendered component's DOM element on the client side.
 
 
 ## Caching

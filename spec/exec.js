@@ -19,3 +19,4 @@ require("./context");
 require("./lifecycle-methods");
 require("./special-cases");
 require("./template");
+require("./parity");

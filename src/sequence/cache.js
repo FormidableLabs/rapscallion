@@ -5,7 +5,7 @@ const {
   sequence: makeNewSequence,
   EXHAUSTED
 } = require("./sequence");
-
+const compress = require("./compress");
 
 const cache = Object.create(null);
 
@@ -52,18 +52,16 @@ class SequenceCache {
   }
 
   /**
-   * Return a new sequence that consists of a reduction of the original source
-   * sequence's events.  Only one event will be provided before the returned
-   * sequence is exhausted.
+   * Emit elements from the compressed buffer, followed by the EXHAUSTED symbol.
    *
    * @return     {Sequence}     The forked, compressed sequence.
    */
   forkCompressed () {
-    let sentCompressed = false;
+    let segmentIdx = 0;
     return new ForkedSequence(() => {
-      if (sentCompressed) { return EXHAUSTED; }
-      sentCompressed = true;
-      return this.compressedBuffer;
+      return segmentIdx < this.compressedBuffer.length ?
+        this.compressedBuffer[segmentIdx++] :
+        EXHAUSTED;
     });
   }
 
@@ -119,15 +117,16 @@ class SequenceCache {
   }
 
   /**
-   * Transform the buffer array of events into a single value, and null
-   * everything out that could be garbage collected.
+   * Compress all adjacent string segments in the buffer into single elements,
+   * and null everything out that could be garbage collected.  The compressedBuffer
+   * will contain the minimalist cache-friendly buffer.
    *
    * @return     {undefined}   No return value.
    */
   compress () {
     // Cannot join strings to Symbol(EXHAUSTED).
     this.buffer.pop();
-    this.compressedBuffer = this.buffer.map(value => value).join("");
+    this.compressedBuffer = compress(this.buffer);
     this.buffer = null;
     this.source = null;
     this.sourceCursor = null;

@@ -32,8 +32,14 @@ describe("caching", () => {
 
     it("returns cached HTML for <div>", () => {
       return Promise.resolve()
-        .then(() => render(<Parent val="first" cacheChild />).toPromise())
-        .then(() => render(<Parent val="second" cacheChild />).toPromise())
+        .then(() => render(<Parent val="first" cacheChild />)
+          .includeDataReactAttrs(false)
+          .toPromise()
+        )
+        .then(() => render(<Parent val="second" cacheChild />)
+          .includeDataReactAttrs(false)
+          .toPromise()
+        )
         .then(html => {
           expect(html).to.equal("<div>first</div>");
         });
@@ -41,8 +47,14 @@ describe("caching", () => {
 
     it("returns cached HTML for <Child>", () => {
       return Promise.resolve()
-        .then(() => render(<Parent val="first" cacheParent />).toPromise())
-        .then(() => render(<Parent val="second" cacheParent />).toPromise())
+        .then(() => render(<Parent val="first" cacheParent />)
+          .includeDataReactAttrs(false)
+          .toPromise()
+        )
+        .then(() => render(<Parent val="second" cacheParent />)
+          .includeDataReactAttrs(false)
+          .toPromise()
+        )
         .then(html => {
           expect(html).to.equal("<div>first</div>");
         });
@@ -72,8 +84,14 @@ describe("caching", () => {
 
     it("returns cached HTML for <div>", () => {
       return Promise.resolve()
-        .then(() => render(<Parent val="first" cacheChild />).toPromise())
-        .then(() => render(<Parent val="second" cacheChild />).toPromise())
+        .then(() => render(<Parent val="first" cacheChild />)
+          .includeDataReactAttrs(false)
+          .toPromise()
+        )
+        .then(() => render(<Parent val="second" cacheChild />)
+          .includeDataReactAttrs(false)
+          .toPromise()
+        )
         .then(html => {
           expect(html).to.equal("<div>first</div>");
         });
@@ -81,8 +99,14 @@ describe("caching", () => {
 
     it("returns cached HTML for <Child>", () => {
       return Promise.resolve()
-        .then(() => render(<Parent val="first" cacheParent />).toPromise())
-        .then(() => render(<Parent val="second" cacheParent />).toPromise())
+        .then(() => render(<Parent val="first" cacheParent />)
+          .includeDataReactAttrs(false)
+          .toPromise()
+        )
+        .then(() => render(<Parent val="second" cacheParent />)
+          .includeDataReactAttrs(false)
+          .toPromise()
+        )
         .then(html => {
           expect(html).to.equal("<div>first</div>");
         });

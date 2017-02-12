@@ -13,15 +13,31 @@ class Renderer {
   constructor (vdomNode, sequence) {
     this.sequence = sequence || render(vdomNode);
     this.batchSize = 100;
+    this.dataReactAttrs = true;
     this.next = this.sequence.next.bind(this.sequence);
+    this._stream = null;
   }
 
   toPromise () {
-    return toPromise(this.sequence, this.batchSize);
+    return toPromise(this.sequence, this.batchSize, this.dataReactAttrs);
   }
 
   toStream () {
-    return toNodeStream(this.sequence, this.batchSize);
+    return this._stream = toNodeStream(this.sequence, this.batchSize, this.dataReactAttrs);
+  }
+
+  checksum () {
+    if (!this._stream) {
+      throw new Error(
+        "Renderer#checksum can only be invoked for a renderer converted to node stream."
+      );
+    }
+    return this._stream.checksum();
+  }
+
+  includeDataReactAttrs (yesNo) {
+    this.dataReactAttrs = yesNo;
+    return this;
   }
 
   tuneAsynchronicity (batchSize) {

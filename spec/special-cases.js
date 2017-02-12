@@ -8,7 +8,7 @@ describe("special cases", () => {
     const NullComponent = () => null;
     const Parent = () => <div><NullComponent /></div>;
 
-    return render(<Parent />).toPromise().then(html => {
+    return render(<Parent />).includeDataReactAttrs(false).toPromise().then(html => {
       expect(html).to.equal("<div></div>");
     });
   });
