@@ -25,7 +25,7 @@ function renderStyleAttribute (styles) {
  * @param {String} name style attribute name
  * @param {String} value style attribute value
  * @returns {String} parsed style value
- * @see https://github.com/facebook/react/blob/32f5b034ed229d048f76ae74e18d270edc801dbf/src/renderers/dom/shared/dangerousStyleValue.js
+ * @see https://github.com/facebook/react/blob/master/src/renderers/dom/shared/dangerousStyleValue.js
  */
 function parseStyleValue (name, value) {
   // Use loose equality check to catch undefined as well.

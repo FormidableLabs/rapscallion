@@ -15,7 +15,7 @@ const hasOwn = (obj, key) => Object.prototype.hasOwnProperty.call(obj, key);
  * @param {String} string style attribute name
  * @returns {String} hyphenate style attribute name
  * @see https://modernizr.com/docs/#prefixed
- * @see https://github.com/facebook/fbjs/blob/e66ba20ad5be433eb54423f2b097d829324d9de6/packages/fbjs/src/core/hyphenateStyleName.js
+ * @see https://github.com/facebook/fbjs/blob/master/packages/fbjs/src/core/hyphenateStyleName.js
  */
 const hyphenateStyleName = (string) => kebabCase(string).replace(/^ms-/, "-ms-");
 
