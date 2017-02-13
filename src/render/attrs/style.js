@@ -1,11 +1,14 @@
 const { hasOwn } = require("../util");
 const { map } = require("lodash/fp");
 const { isNumber } = require("lodash");
+const { hypenateStyleName } = require("../util");
 const isUnitlessNumber = require("./is-unitless-number");
 
 const mapWithKey = map.convert({ cap: false });
 
-const mapToParsedStyles = mapWithKey(parseStyle);
+const mapToParsedStyles = mapWithKey((value, name) => (
+  `${hypenateStyleName(name)}:${parseStyleValue(name, value)};`
+));
 
 /**
  * Maps and transforms the object passed as the
@@ -15,17 +18,6 @@ const mapToParsedStyles = mapWithKey(parseStyle);
  */
 function renderStyleAttribute (styles) {
   return mapToParsedStyles(styles).join("");
-}
-
-/**
- * Parses the style value and returns a stringified
- * @param {String} value style attribute parsedValue
- * @param {String} name style attribute name
- * @return {String} parsed style key/pair value
- */
-function parseStyle (value, name) {
-  const parsedValue = parseStyleValue(name, value);
-  return `${name}:${parsedValue};`;
 }
 
 /**
