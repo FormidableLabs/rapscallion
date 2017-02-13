@@ -1,11 +1,8 @@
-const { map, isFunction } = require("lodash/fp");
+const { isFunction } = require("lodash/fp");
 const { hasOwn } = require("../util");
 
 const transformAttrKey = require("./transform-attr-key");
 const { renderStyleAttribute } = require("./style");
-
-const mapWithKey = map.convert({ cap: false });
-
 
 const attrsNotToRender = {
   children: true,
@@ -47,11 +44,5 @@ function renderAttrs (attrs) {
 
   return attrString.join("");
 }
-
-const mapPairToString = mapWithKey((val, key) => `${key}:${key}`);
-function styleObjToString (obj) {
-  return mapPairToString(obj).join(";");
-}
-
 
 module.exports = renderAttrs;
