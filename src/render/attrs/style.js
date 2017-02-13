@@ -1,13 +1,13 @@
 const { hasOwn } = require("../util");
 const { map } = require("lodash/fp");
 const { isNumber } = require("lodash");
-const { hypenateStyleName } = require("../util");
+const { hyphenateStyleName } = require("../util");
 const isUnitlessNumber = require("./is-unitless-number");
 
 const mapWithKey = map.convert({ cap: false });
 
 const mapToParsedStyles = mapWithKey((value, name) => (
-  `${hypenateStyleName(name)}:${parseStyleValue(name, value)};`
+  `${hyphenateStyleName(name)}:${parseStyleValue(name, value)};`
 ));
 
 /**
