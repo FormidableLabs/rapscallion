@@ -16,6 +16,6 @@ const Foobar = () => (
   />
 );
 
-describe("a hierarchy three levels deep", () => {
+describe("the style prop", () => {
   checkParity(Foobar, {});
 });
