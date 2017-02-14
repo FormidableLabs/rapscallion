@@ -5,12 +5,16 @@ const {
   EXHAUSTED
 } = require("./sequence");
 
-const getCachedSequence = require("./cache");
+const {
+  getCachedSequence,
+  setCacheStrategy
+} = require("./cache");
 
 module.exports = {
   BaseSequence,
   Sequence,
   sequence,
   EXHAUSTED,
-  getCachedSequence
+  getCachedSequence,
+  setCacheStrategy
 };
