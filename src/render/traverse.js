@@ -77,58 +77,6 @@ function evalClassComponent (seq, instance, childContext) {
 }
 
 /**
- * Determines if the instance's constructor is an SFC that returns null.
- *
- * The following check looks really strange... why _wouldn't_ `instance`
- * be an instance of `node.type`?  The answer has to do with JavaScript's
- * behavior when values are returned from a constructor invoked with `new`.
- * If an object is returned from the constructor, the function is treated
- * as if it had been invoked without `new`.
- *
- * This behavior is defined in section 9.2.2 step 13a of the ECMAScript
- * Language Specification, 7th Edition, here:
- * http://www.ecma-international.org/ecma-262/7.0/index.html#sec-ecmascript-function-objects-construct-argumentslist-newtarget
- *
- * However, in the circumstance of object construction, a `null` return value
- * is treated the same as `undefined` and an empty object with prototype
- * Constructor will be returned.
- *
- * Here it is demonstrated in code:
- *
- * ```js
- * const NotNullComponent = () => <div />;
- * const notNullComponentNode = <NotNullComponent />;
- * const notNullComponentNodeTypeInstance = new notNullComponentNode.type;
- * notNullComponentNodeTypeInstance instanceof notNullComponentNode.type;
- * // false
- * notNullComponentNodeTypeInstance;
- * // { '$$typeof': Symbol(react.element),
- * //   type: 'div',
- * //   key: null,
- * //   ref: null,
- * //   props: {},
- * //   _owner: null,
- * //   _store: {} }
- *
- * const NullComponent = () => null;
- * const nullComponentNode = <NullComponent />;
- * const nullComponentNodeTypeInstance = new nullComponentNode.type;
- * nullComponentNodeTypeInstance
- * // NullComponent {}
- * nullComponentNodeTypeInstance instanceof nullComponentNode.type
- * // true
- * ```
- *
- * @param      {VDOM?}   instance  Something that may or may not be VDOM.
- * @param      {VDOM}    node      The node that was used to construct the instance.
- *
- * @return     {boolean}  True if null component, False otherwise.
- */
-function isNullComponent (instance, node) {
-  return instance instanceof node.type;
-}
-
-/**
  * Evaluate a stateless functional component and continue traversing its
  * rendered VDOM.
  *
@@ -157,6 +105,13 @@ function evalStatelessComponent (seq, node, childContext) {
  */
 function evalComponent (seq, node, context) {
   const componentContext = getContext(node.type, context);
+
+  if (!(node.type.prototype && node.type.prototype.isReactComponent)) {
+    const instance = node.type(node.props, componentContext);
+    const childContext = getChildContext(node.type, instance, context);
+    return evalStatelessComponent(seq, instance, childContext);
+  }
+
   // eslint-disable-next-line new-cap
   const instance = new node.type(node.props, componentContext);
 
@@ -167,14 +122,7 @@ function evalComponent (seq, node, context) {
 
   const childContext = getChildContext(node.type, instance, context);
 
-  if (isFunction(instance.render)) {
-    evalClassComponent(seq, instance, childContext);
-    return;
-  }
-
-  if (isNullComponent(instance, node)) { return; }
-
-  evalStatelessComponent(seq, instance, childContext);
+  return evalClassComponent(seq, instance, childContext);
 }
 
 /**
