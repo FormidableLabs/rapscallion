@@ -1,7 +1,9 @@
 import { default as React } from "react";
 
+import { checkParity } from "./_util";
 
-const Component = () => (
+
+const Foobar = () => (
   <div
     style={{
       padding: 10,
@@ -14,10 +16,6 @@ const Component = () => (
   />
 );
 
-
-const description = "style prop";
-
-export {
-  description,
-  Component
-};
+describe("a hierarchy three levels deep", () => {
+  checkParity(Foobar, {});
+});

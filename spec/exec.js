@@ -20,3 +20,4 @@ require("./deep-hierarchies");
 require("./lifecycle-methods");
 require("./special-cases");
 require("./template");
+require("./styles");
