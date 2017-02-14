@@ -7,8 +7,7 @@
 Rapscallion is a React VirtualDOM renderer for the server.  Its notable features are as follows:
 
 - Rendering is **asynchronous and non-blocking**.
-- With no concurrent renders, Rapscallion is roughly the same speed as React's `renderToString`.
-- With 10 **concurrent renders**, Rapscallion is roughly **twice the speed** of `renderToString`.
+- Rapscallion is roughly **50% faster** than `renderToString`.
 - It provides a streaming interface so that you can **start sending content to the client immediately**.
 - It provides a templating feature, so that you can **wrap your component's HTML in boilerplate** without giving up benefits of streaming.
 - It provides a **component caching** API to further speed-up your rendering.
@@ -233,12 +232,12 @@ However, you'll note that even without caching, a concurrent workload will be pr
 
 ```
 Starting benchmark for 10 concurrent render operations...
-renderToString took 1.388883695 seconds
-rapscallion, no caching took 0.962666792 seconds; ~1.44x faster
-rapscallion, caching DIVs took 0.215825732 seconds; ~6.43x faster
-rapscallion, caching DIVs (second time) took 0.003815807 seconds; ~363.98x faster
-rapscallion, caching Components took 0.086096541 seconds; ~16.13x faster
-rapscallion, caching Components (second time) took 0.001247051 seconds; ~1113.73x faster
+renderToString took 2.070856530 seconds
+rapscallion, no caching took 1.367071118 seconds; ~1.51x faster
+rapscallion, caching DIVs took 0.338295709 seconds; ~6.12x faster
+rapscallion, caching DIVs (second time) took 0.062100831 seconds; ~33.34x faster
+rapscallion, caching Components took 0.154033206 seconds; ~13.44x faster
+rapscallion, caching Components (second time) took 0.069516880 seconds; ~29.78x faster
 ```
 
 
