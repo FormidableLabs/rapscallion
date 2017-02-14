@@ -16,7 +16,7 @@ global.assert = chai.assert;
 
 require("./cache");
 require("./context");
+require("./deep-hierarchies");
 require("./lifecycle-methods");
 require("./special-cases");
 require("./template");
-require("./parity");

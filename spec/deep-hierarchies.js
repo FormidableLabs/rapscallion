@@ -1,5 +1,7 @@
 import { default as React } from "react";
 
+import { checkParity } from "./_util";
+
 
 const Foo = () => (
   <div>
@@ -28,11 +30,6 @@ class FooBar extends React.Component {
   }
 }
 
-const props = {};
-const description = "a hierarchy three levels deep";
-
-export {
-  description,
-  props,
-  FooBar as Component
-};
+describe("a hierarchy three levels deep", () => {
+  checkParity(FooBar, {});
+});
