@@ -18,8 +18,13 @@ function setCacheStrategy (opts) {
   cacheStrategy = asyncStrategy(opts);
 }
 
+function useDefaultCacheStrategy () {
+  cacheStrategy = defaultStrategy();
+}
+
 
 module.exports = {
   getCachedSequence,
-  setCacheStrategy
+  setCacheStrategy,
+  useDefaultCacheStrategy
 };

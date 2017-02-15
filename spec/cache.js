@@ -1,10 +1,10 @@
 import { default as React, Component } from "react";
 
-import { render } from "../src";
+import { render, setCacheStrategy, Promise } from "../src";
+import { useDefaultCacheStrategy } from "../src/sequence/cache";
 
 
-
-describe("caching", () => {
+const runAllTests = () => {
   describe("for stateful components", () => {
     const staticDivKey = `div:static:${Math.random()}`;
     const staticChildKey = `child:static:${Math.random()}`;
@@ -112,4 +112,28 @@ describe("caching", () => {
         });
     });
   });
+};
+
+describe("naive caching", () => {
+  runAllTests();
+});
+
+describe("async caching", () => {
+  beforeEach(() => {
+    const asyncCache = Object.create(null);
+
+    setCacheStrategy({
+      get: key => Promise.resolve(asyncCache[key] && JSON.parse(asyncCache[key]) || null),
+      set: (key, val) => {
+        asyncCache[key] = JSON.stringify(val);
+        return Promise.resolve();
+      }
+    });
+  });
+
+  afterEach(() => {
+    useDefaultCacheStrategy();
+  });
+
+  runAllTests();
 });
