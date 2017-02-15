@@ -14,6 +14,7 @@ const Bar = () => (
   <div>
     <div id="sibling" />
     {
+      // eslint-disable-next-line no-magic-numbers
       range(5).map(idx =>
         <Foo key={idx} />
       )
