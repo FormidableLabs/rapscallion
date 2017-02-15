@@ -10,7 +10,7 @@ const { sequence, BaseSequence } = require("./sequence");
 const Renderer = require("./renderer");
 
 
-const zipTemplateSegments = compose(
+const interlaceTemplateSegments = compose(
   filter(ident),
   flatten,
   zip
@@ -29,7 +29,7 @@ function getSequenceEvent (segment) {
 
 function template (strings, ...values) {
   const seq = sequence();
-  const templateSegments = zipTemplateSegments(strings, values);
+  const templateSegments = interlaceTemplateSegments(strings, values);
   templateSegments.forEach(segment => seq.emit(() => getSequenceEvent(segment)));
   return new Renderer(null, seq);
 }
