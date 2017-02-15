@@ -146,6 +146,8 @@ However, `setCacheStrategy` is provided to allow you to integrate your own cachi
 - `get` should accept a single argument, the key, and return a Promise resolving to a cached value.  If no cached value is found, the Promise should resolve to `null`.
 - `set` should accept two arguments, a key and its value, and return a Promise that resolves when the `set` operation has completed.
 
+All values, both those returned from `get` and passed to `set`, will be Arrays with both string and integer elements.  Keep that in mind if you need to serialize the data for your cache backend.
+
 **Example:**
 
 ```javascript
