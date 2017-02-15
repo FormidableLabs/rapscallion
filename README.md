@@ -20,7 +20,7 @@ Rapscallion is a React VirtualDOM renderer for the server.  Its notable features
 
 
 - [Installation](#installation)
-- [Top-level API](#top-level-api)
+- [API](#api)
   - [`render`](#render)
   - [`Renderer#toPromise`](#renderertopromise)
   - [`Renderer#toStream`](#renderertostream)
@@ -53,7 +53,7 @@ const {
 ```
 
 
-## Top-level API
+## API
 
 
 ### `render`
@@ -122,6 +122,8 @@ The default value is `100`, which means the Rapscallion will process one hundred
 You may want to change this number if your server is under heavy load.  Possible values are the set of all positive integers.  Lower numbers will be "more asynchronous" (shorter periods between I/O processing) and higher numbers will be "more synchronous" (higher performance).
 
 
+-----
+
 ### `Renderer#checksum`
 
 `renderer.checksum() -> Integer`
@@ -134,6 +136,8 @@ The renderer's `checksum` method will give you access to the checksum that has b
 
 For an example of how to attach this value to the DOM on the client side, see the example in the [template](#template) section below.
 
+
+-----
 
 ### `setCacheStrategy`
 
@@ -165,8 +169,8 @@ setCacheStrategy({
 
 For more information on how to cache your component HTML, read through the [caching section](#caching) below.
 
------
 
+-----
 
 ### `template`
 
@@ -221,6 +225,8 @@ Note that the template comprises a stream of HTML text (`componentRenderer`) and
 Additionally, we attach the checksum to the rendered component's DOM element on the client side.
 
 
+-----
+
 ## Caching
 
 Caching is performed on a per-component level, is completely opt-in, and should be used judiciously.  The gist is this: you define a `cacheKey` prop on your component, and that component will only be rendered once for that particular key. `cacheKey` can be set on both React components and html React elements.
@@ -256,6 +262,8 @@ Promise.resolve()
 ```
 
 
+-----
+
 ## Benchmarks
 
 The below benchmarks _do not_ represent a typical use-case.  Instead, they represent the absolute _best case scenario_ for component caching - up to 1,200x faster!
@@ -272,6 +280,8 @@ rapscallion, caching Components took 0.154033206 seconds; ~13.44x faster
 rapscallion, caching Components (second time) took 0.069516880 seconds; ~29.78x faster
 ```
 
+
+-----
 
 ## License
 
