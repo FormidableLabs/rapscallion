@@ -1,4 +1,4 @@
-const { isArray, isFunction, isString, isNumber } = require("lodash");
+const { isArray, isFunction, isString, isNumber, flatten } = require("lodash");
 
 const { getChildContext, getContext } = require("./context");
 const { syncSetState } = require("./state");
@@ -26,7 +26,7 @@ function renderChildren (children, context) {
   const newSequence = sequence();
 
   if (isArray(children)) {
-    children.forEach(child => {
+    flatten(children).forEach(child => {
       const childSequence = sequence();
       newSequence.emit(() => childSequence);
       traverse(childSequence, child, context);

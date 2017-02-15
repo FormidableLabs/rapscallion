@@ -15,6 +15,7 @@ global.Assertion = chai.Assertion;
 global.assert = chai.assert;
 
 require("./cache");
+require("./children");
 require("./context");
 require("./deep-hierarchies");
 require("./lifecycle-methods");
