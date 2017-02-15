@@ -21,7 +21,7 @@ const Bar = () => (
   </div>
 );
 
-describe.only("children", () => {
+describe("children", () => {
   describe("specified as an array", () => {
     checkParity(Bar, {});
   });
