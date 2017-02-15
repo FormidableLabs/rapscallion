@@ -1,7 +1,7 @@
 const defaultStrategy = require("./strategies/default");
 
 
-let cacheStrategy = defaultStrategy;
+let cacheStrategy = defaultStrategy();
 
 
 function getCachedSequence (sequence, node, sequenceFactory) {

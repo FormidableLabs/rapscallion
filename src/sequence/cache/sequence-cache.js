@@ -1,4 +1,4 @@
-const { values } = require("lodash");
+const { values, noop } = require("lodash");
 
 const { EXHAUSTED, BaseSequence } = require("../sequence");
 const compress = require("../compress");
@@ -14,10 +14,6 @@ class ForkedSequence extends BaseSequence {
     this.next = next;
   }
 }
-
-
-function noop () {}
-
 
 /**
  * An object that forks an input source sequence into multiple output sequences.
@@ -40,9 +36,7 @@ class SequenceCache {
    * @return     {Sequence}    The forked sequence.
    */
   fork () {
-    if (this.compressedBuffer) {
-      return this.forkCompressed();
-    }
+    if (this.compressedBuffer) { return this.forkCompressed(); }
 
     const forkIdx = this.forks++;
     this.forkCursors[forkIdx] = 0;
@@ -137,5 +131,6 @@ class SequenceCache {
 
 
 module.exports = {
-  SequenceCache
+  SequenceCache,
+  ForkedSequence
 };

@@ -1,5 +1,8 @@
 /* eslint-disable */
 
+const Promise = require("bluebird");
+
+
 const EXHAUSTED = Symbol.for("EXHAUSTED");
 
 
@@ -66,6 +69,19 @@ class Sequence extends BaseSequence {
 
     const next = nextFn();
 
+    return next instanceof Promise ?
+      next.then(_next => this.getNextValue(_next)) :
+      this.getNextValue(next);
+  }
+
+  /**
+   * Return the next value from the sequence or its delegate.
+   *
+   * @param      {Any|EXHAUSTED}  next    The next value (unresolved).
+   *
+   * @return     {Any|EXHAUSTED}          The next value (resolved);
+   */
+  getNextValue (next) {
     if (next instanceof BaseSequence) {
       this.delegate = next;
       return this.nextFromDelegate();
