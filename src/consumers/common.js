@@ -1,7 +1,11 @@
 const adler32 = require("adler-32");
+const Promise = require("bluebird");
 
 const { EXHAUSTED } = require("../sequence");
 const { REACT_ID } = require("../symbols");
+
+
+const INCOMPLETE = Symbol();
 
 
 /**
@@ -15,17 +19,23 @@ const { REACT_ID } = require("../symbols");
  *                                       returning control call to the caller.
  * @param      {Array|Stream}            pushable   Destination for all segments.
  *
- * @return     {boolean}                 Indicates whether there are more values to
+ * @return     {boolean|Promise}         Indicates whether there are more values to
  *                                       be retrieved, or if this the last batch.
  */
 function pullBatch (sequence, batchSize, pushable) {
   let iter = batchSize;
   while (iter--) {
     const next = sequence.next();
-    if (next === EXHAUSTED) { return true; }
+    if (
+      next === EXHAUSTED ||
+      next instanceof Promise
+    ) {
+      return next;
+    }
+
     pushable.push(next);
   }
-  return false;
+  return INCOMPLETE;
 }
 
 
@@ -60,5 +70,6 @@ function getChecksumWrapper (pushable) {
 module.exports = {
   pullBatch,
   getReactIdPushable,
-  getChecksumWrapper
+  getChecksumWrapper,
+  INCOMPLETE
 };

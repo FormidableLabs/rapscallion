@@ -1,5 +1,13 @@
 /* global setImmediate */
-const { pullBatch, getReactIdPushable, getChecksumWrapper } = require("./common");
+const Promise = require("bluebird");
+
+const { EXHAUSTED } = require("../sequence");
+const {
+  pullBatch,
+  getReactIdPushable,
+  getChecksumWrapper,
+  INCOMPLETE
+} = require("./common");
 
 
 const TAG_END = /\/?>/;
@@ -14,11 +22,16 @@ function asyncBatch (
   dataReactAttrs,
   resolve
 ) {
-  const isLast = pullBatch(sequence, batchSize, pushable);
-  if (isLast) {
-    resolve();
-  } else {
+  const result = pullBatch(sequence, batchSize, pushable);
+  if (result === INCOMPLETE) {
     setImmediate(asyncBatch, sequence, batchSize, pushable, dataReactAttrs, resolve);
+  } else if (result === EXHAUSTED) {
+    resolve();
+  } else if (result instanceof Promise) {
+    result.then(next => {
+      pushable.push(next);
+      setImmediate(asyncBatch, sequence, batchSize, pushable, dataReactAttrs, resolve);
+    });
   }
 }
 

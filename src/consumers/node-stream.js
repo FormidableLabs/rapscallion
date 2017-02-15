@@ -1,5 +1,7 @@
+const Promise = require("bluebird");
 const { Readable } = require("stream");
 
+const { EXHAUSTED } = require("../sequence");
 const { pullBatch, getReactIdPushable, getChecksumWrapper } = require("./common");
 
 
@@ -15,12 +17,27 @@ const { pullBatch, getReactIdPushable, getChecksumWrapper } = require("./common"
  * @return     {Readable}                  A readable Node stream.
  */
 function toNodeStream (sequence, batchSize, dataReactAttrs) {
-  const stream = new Readable({
-    read () {
-      const isLast = pullBatch(sequence, batchSize, reactIdPushable);
-      if (isLast) { this.push(null); }
+  let sourceIsReady = true;
+
+  const read = () => {
+    // If source is not ready, defer any reads until the promise resolves.
+    if (!sourceIsReady) { return; }
+
+    const result = pullBatch(sequence, batchSize, reactIdPushable);
+
+    if (result === EXHAUSTED) {
+      stream.push(null);
+    } else if (result instanceof Promise) {
+      sourceIsReady = false;
+      result.then(next => {
+        sourceIsReady = true;
+        reactIdPushable.push(next);
+        read();
+      });
     }
-  });
+  };
+
+  const stream = new Readable({ read });
 
   const checksumWrapper = getChecksumWrapper(stream);
   const reactIdPushable = getReactIdPushable(checksumWrapper, 1, dataReactAttrs);

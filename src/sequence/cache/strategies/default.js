@@ -25,9 +25,7 @@ const cache = Object.create(null);
  */
 function getCachedSequence (sequence, node, sequenceFactory) {
   const cacheKey = node.props && node.props.cacheKey;
-  if (!cacheKey) {
-    return sequenceFactory(sequence, node);
-  }
+  if (!cacheKey) { return sequenceFactory(sequence, node); }
 
   let cacheEntry = cache[cacheKey];
 
@@ -45,4 +43,4 @@ function getCachedSequence (sequence, node, sequenceFactory) {
 }
 
 
-module.exports = getCachedSequence;
+module.exports = () => getCachedSequence;
