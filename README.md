@@ -266,18 +266,18 @@ Promise.resolve()
 
 ## Benchmarks
 
-The below benchmarks _do not_ represent a typical use-case.  Instead, they represent the absolute _best case scenario_ for component caching - up to 1,200x faster!
+The below benchmarks _do not_ represent a typical use-case.  Instead, they represent the absolute _best case scenario_ for component caching.
 
-However, you'll note that even without caching, a concurrent workload will be processed 50% faster, without any of the blocking!
+However, you'll note that even without caching, a concurrent workload will be processed almost 50% faster, without any of the blocking!
 
 ```
 Starting benchmark for 10 concurrent render operations...
-renderToString took 2.070856530 seconds
-rapscallion, no caching took 1.367071118 seconds; ~1.51x faster
-rapscallion, caching DIVs took 0.338295709 seconds; ~6.12x faster
-rapscallion, caching DIVs (second time) took 0.062100831 seconds; ~33.34x faster
-rapscallion, caching Components took 0.154033206 seconds; ~13.44x faster
-rapscallion, caching Components (second time) took 0.069516880 seconds; ~29.78x faster
+renderToString took 2.138940631 seconds
+rapscallion, no caching took 1.488518342 seconds; ~1.43x faster
+rapscallion, caching DIVs took 0.295781047 seconds; ~7.23x faster
+rapscallion, caching DIVs (second time) took 0.111968410 seconds; ~19.1x faster
+rapscallion, caching Components took 0.186903500 seconds; ~11.44x faster
+rapscallion, caching Components (second time) took 0.075220726 seconds; ~28.43x faster
 ```
 
 
