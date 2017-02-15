@@ -201,7 +201,7 @@ app.get('/example', function(req, res){
   const store = createStore(/* ... */);
   const componentRenderer = render(<MyComponent store={store} />);
 
-  const responseRenderer = streamTemplate`
+  const responseRenderer = template`
     <html>
     <body>
       ${componentRenderer}
