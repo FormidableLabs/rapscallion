@@ -27,6 +27,7 @@ Rapscallion is a React VirtualDOM renderer for the server.  Its notable features
   - [`Renderer#includeDataReactAttrs`](#rendererincludedatareactattrs)
   - [`Renderer#tuneAsynchronicity`](#renderertuneasynchronicity)
   - [`Renderer#checksum`](#rendererchecksum)
+  - [`setCacheStrategy`](#setcachestrategy)
   - [`template`](#template)
 - [Caching](#caching)
 - [Benchmarks](#benchmarks)
@@ -134,7 +135,36 @@ The renderer's `checksum` method will give you access to the checksum that has b
 For an example of how to attach this value to the DOM on the client side, see the example in the [template](#template) section below.
 
 
+### `setCacheStrategy`
+
+`setCacheStrategy({ get: ..., set: ... */ }) -> undefined`
+
+The default cache strategy provided by Rapscallion is a naive one.  It is synchronous and in-memory, with no cache invalidation or TTL for cache entries.
+
+However, `setCacheStrategy` is provided to allow you to integrate your own caching solutions.  The function expects an options argument with two keys:
+
+- `get` should accept a single argument, the key, and return a Promise resolving to a cached value.  If no cached value is found, the Promise should resolve to `null`.
+- `set` should accept two arguments, a key and its value, and return a Promise that resolves when the `set` operation has completed.
+
+**Example:**
+
+```javascript
+const { setCacheStrategy } = require("rapscallion");
+const redis = require("redis");
+
+const client = redis.createClient();
+const redisGet = Promise.promisify(redisClient.get, { context: redisClient });
+const redisSet = Promise.promisify(redisClient.set, { context: redisClient });
+setCacheStrategy({
+  get: key => redisGet(key).then(val => val && JSON.parse(val) || null),
+  set: (key, val) => redisSet(key, JSON.stringify(val))
+});
+```
+
+For more information on how to cache your component HTML, read through the [caching section](#caching) below.
+
 -----
+
 
 ### `template`
 
