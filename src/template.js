@@ -7,6 +7,7 @@ const {
 } = require("lodash/fp");
 
 const { sequence, BaseSequence } = require("./sequence");
+const render = require("./render");
 const Renderer = require("./renderer");
 
 
@@ -20,7 +21,10 @@ function getSequenceEvent (segment) {
   const segmentType = typeof segment;
 
   if (segmentType === "string") { return segment; }
-  if (segmentType === "function") { return segment(); }
+  if (segmentType === "object" && typeof segment.type === "function") {
+    return render(segment);
+  }
+  if (segmentType === "function") { return getSequenceEvent(segment()); }
   if (segment instanceof BaseSequence) { return segment; }
   if (segment instanceof Renderer) { return segment.sequence; }
 

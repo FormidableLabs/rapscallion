@@ -180,17 +180,60 @@ With React's default `renderToString`, it is a common pattern to define a functi
 
 Rapscallion allows you to stream the rendered content of your components as they are generated.  However, this makes it somewhat less simple to wrap that component in your HTML boilerplate.
 
-Fortunately, Rapscallion provides _streaming templates_.  They look very similar to normal template strings, with a couple of exceptions.
+Fortunately, Rapscallion provides _rendering templates_.  They look very similar to normal template strings, except that you'll prepend it with `template` as a [template-literal tag](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#Tagged_template_literals).
 
-1. You add `template` as a [template-literal tag](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#Tagged_template_literals).
-2. Using template-literal expression interpolation, you can insert streams into the template.
-3. You can also insert functions into the template that will be evaluated after the previous content has been streamed.
+#### Valid expressions
 
-The return value is a Renderer.
+Like string templates, rendering templates allow you to insert expressions of various types.  The following expression types are allowed:
 
-That may not be clear in the abstract, so here's an example:
+- **string:** any expression that evaluates to a string, i.e. `` template`<html>${ "my string" }</html>` ``
+- **vdom:** any React VirtualDOM object, i.e. `` template`<html>${ <MyComponent /> }</html>``
+- **Renderer:** any `Renderer` instance, i.e. `` template `<html>${ render(<div />) }</html>` ``
+- **function:** any function that, when invoked, evaluates to one of the other valid expression types, i.e. `` template`<html>${ () => "my string" }</html>` ``
 
-```javascript
+One important thing to note is that a rendering template returns a `Renderer` instance when evaluated.  This means that templates can be composed like so:
+
+```
+const myComponent = template`
+<div>
+  ${ <MyComponent /> }
+</div>
+`;
+
+const html = template`
+<html>
+${ <MyHeader /> }
+<body>
+  ${ myComponent }
+</body>
+</html>
+`;
+```
+
+#### Behavior
+
+To utilize rendering templates effectively, it will be important to understand their following three properties:
+
+1. template segments are evaluated _asynchronously_;
+2. template segments are evaluated _in order_; and
+3. template segments are evaluated _lazily_, as they are consumed.
+
+These properties are actually true of all `Renderer`s.  However, they present potential pitfalls in the more complex situations that templates often represent.  The asynchronicity is the easiest of the three properties to understand, so not much time will be spent on that.  It is the lazy orderedness that can introduce interesting ramifications.
+
+Here are a handful of consequences of these properties that might not be readily apparent:
+
+- You cannot instantiate a component, pass it a store, and immediately pull out an updated state from the store.  You have to wait until after the component is fully rendered before any side-effects of that rendering occur.
+- The same is true of checksums.  You can't get a checksum of a component that hasn't been rendered yet.
+- If an error occurs half-way through a render, and you are streaming content to the user, it is too late to send a `404` - because you've already sent a `200`.  You'll have to find other ways to present error conditions to the client.
+
+However, these properties also allow the computation cost to be spread across the lifetime of the render, and ultimately make things like asynchronous rendering possible.
+
+
+#### Example
+
+All of this may be somewhat unclear in the abstract, so here's a fuller example:
+
+```
 import { render, template } from "rapscallion";
 
 // ...
@@ -205,12 +248,15 @@ app.get('/example', function(req, res){
     <html>
     <body>
       ${componentRenderer}
+      ${
+        <MyOtherComponent />
+      }
       <script>
         // Expose initial state to client store bootstrap code.
         window._initialState = ${() => JSON.stringify(store.getState())};
         // Attach checksum to the component's root element.
         document.querySelector("#id-for-component-root").setAttribute("data-react-checksum", "${componentRenderer.checksum()}")
-        // Bootstrap your component here...
+        // Bootstrap your application here...
       </script>
     </body>
     </html>
@@ -220,7 +266,7 @@ app.get('/example', function(req, res){
 });
 ```
 
-Note that the template comprises a stream of HTML text (`componentRenderer`) and a function that evaluates to the store's state - something you'll often want to do with SSR.
+Note that the template comprises a stream of HTML text (`componentRenderer`), the HTML from a second component (`MyOtherComponent`), and a function that evaluates to the store's state - something you'll often want to do with SSR.
 
 Additionally, we attach the checksum to the rendered component's DOM element on the client side.
 
