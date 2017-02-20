@@ -1,21 +1,18 @@
 const { getChildContext, getContext } = require("./context");
 const { syncSetState } = require("./state");
-const { getCachedSequence, sequence } = require("../sequence");
 const { htmlStringEscape } = require("./util");
 const renderAttrs = require("./attrs");
 
 const { REACT_ID } = require("../symbols");
 
 
-function renderChildrenArray (newSequence, children, context) {
+function renderChildrenArray (seq, children, context) {
   for (let idx = 0; idx < children.length; idx++) {
     const child = children[idx];
     if (child instanceof Array) {
-      renderChildrenArray(newSequence, child, context);
+      renderChildrenArray(seq, child, context);
     } else {
-      const childSequence = sequence();
-      newSequence.emit(() => childSequence);
-      traverse(childSequence, child, context);
+      traverse(seq, child, context);
     }
   }
 }
@@ -31,17 +28,14 @@ function renderChildrenArray (newSequence, children, context) {
  *
  * @return     {Sequence}                The sub-sequence for the provided children.
  */
-function renderChildren (children, context) {
-  if (!children) { return null; }
+function renderChildren (seq, children, context) {
+  if (!children) { return; }
 
-  const newSequence = sequence();
   if (children instanceof Array) {
-    renderChildrenArray(newSequence, children, context);
+    renderChildrenArray(seq, children, context);
   } else {
-    traverse(newSequence, children, context);
+    traverse(seq, children, context);
   }
-
-  return newSequence;
 }
 
 /**
@@ -61,41 +55,9 @@ function renderNode (seq, node, context) {
   if (node.props.dangerouslySetInnerHTML) {
     seq.emit(() => node.props.dangerouslySetInnerHTML.__html || "");
   } else {
-    seq.emit(() => renderChildren(node.props.children, context));
+    seq.delegate(() => renderChildren(seq, node.props.children, context));
   }
   seq.emit(() => `</${node.type}>`);
-}
-
-/**
- * Evaluates a component instance for constructors with prototype of
- * React.Component.
- *
- * @param      {Sequence}   seq           Sequence that receives HTML segments.
- * @param      {Component}  instance      An instance of a React.Component subclass.
- * @param      {Object}     childContext  Context for the component's children.
- *
- * @return     {undefined}                No return value.
- */
-function evalClassComponent (seq, instance, childContext) {
-  const newSequence = sequence();
-  traverse(newSequence, instance.render(), childContext);
-  seq.emit(() => newSequence);
-}
-
-/**
- * Evaluate a stateless functional component and continue traversing its
- * rendered VDOM.
- *
- * @param      {Sequence}  seq           Sequence that receives HTML segments.
- * @param      {VDOM}      node          The output of invoking a React SFC.
- * @param      {Object}    childContext  React context for the SFC's children.
- *
- * @return     {undefined}               No return value.
- */
-function evalStatelessComponent (seq, node, childContext) {
-  const newSequence = sequence();
-  traverse(newSequence, node, childContext);
-  seq.emit(() => newSequence);
 }
 
 /**
@@ -115,7 +77,8 @@ function evalComponent (seq, node, context) {
   if (!(node.type.prototype && node.type.prototype.isReactComponent)) {
     const instance = node.type(node.props, componentContext);
     const childContext = getChildContext(node.type, instance, context);
-    return evalStatelessComponent(seq, instance, childContext);
+    traverse(seq, instance, childContext);
+    return;
   }
 
   // eslint-disable-next-line new-cap
@@ -128,7 +91,7 @@ function evalComponent (seq, node, context) {
 
   const childContext = getChildContext(node.type, instance, context);
 
-  return evalClassComponent(seq, instance, childContext);
+  traverse(seq, instance.render(), childContext);
 }
 
 /**
@@ -158,14 +121,16 @@ function traverse (seq, node, context) {
   case "object": {
     if (typeof node.type === "string") {
       // Plain-jane DOM element, not a React component.
-      seq.emit(() =>
-        getCachedSequence(seq, node, (_seq, _node) => renderNode(_seq, _node, context))
+      seq.delegate(() =>
+        renderNode(seq, node, context)
+        // getCachedSequence(seq, node, (_seq, _node) => renderNode(_seq, _node, context))
       );
       return;
     } else if (node.$$typeof) {
       // React component.
-      seq.emit(() =>
-        getCachedSequence(seq, node, (_seq, _node) => evalComponent(_seq, _node, context))
+      seq.delegate(() =>
+        evalComponent(seq, node, context)
+        // getCachedSequence(seq, node, (_seq, _node) => evalComponent(_seq, _node, context))
       );
       return;
     }

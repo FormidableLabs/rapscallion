@@ -1,6 +1,7 @@
 const { isInteger } = require("lodash");
 
 const render = require("./render");
+const { sequence } = require("./sequence");
 const toPromise = require("./consumers/promise");
 const toNodeStream = require("./consumers/node-stream");
 
@@ -10,19 +11,26 @@ const toNodeStream = require("./consumers/node-stream");
  * is documented in the README.
  */
 class Renderer {
-  constructor (vdomNode, sequence) {
-    this.sequence = sequence || render(vdomNode);
+  constructor (vdomNode, seq) {
+    this.sequence = seq || sequence();
+    this.vdomNode = vdomNode;
+
     this.batchSize = 100;
     this.dataReactAttrs = true;
-    this.next = this.sequence.next.bind(this.sequence);
     this._stream = null;
   }
 
+  _render (seq) {
+    render(seq || this.sequence, this.vdomNode);
+  }
+
   toPromise () {
+    this._render();
     return toPromise(this.sequence, this.batchSize, this.dataReactAttrs);
   }
 
   toStream () {
+    this._render();
     return this._stream = toNodeStream(this.sequence, this.batchSize, this.dataReactAttrs);
   }
 
