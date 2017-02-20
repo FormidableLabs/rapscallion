@@ -1,13 +1,24 @@
-const { isArray, isFunction, isString, isNumber, flatten } = require("lodash");
-
 const { getChildContext, getContext } = require("./context");
 const { syncSetState } = require("./state");
 const { getCachedSequence, sequence } = require("../sequence");
-const { htmlStringEscape, hasOwn } = require("./util");
+const { htmlStringEscape } = require("./util");
 const renderAttrs = require("./attrs");
 
 const { REACT_ID } = require("../symbols");
 
+
+function renderChildrenArray (newSequence, children, context) {
+  for (let idx = 0; idx < children.length; idx++) {
+    const child = children[idx];
+    if (child instanceof Array) {
+      renderChildrenArray(newSequence, child, context);
+    } else {
+      const childSequence = sequence();
+      newSequence.emit(() => childSequence);
+      traverse(childSequence, child, context);
+    }
+  }
+}
 
 /**
  * Evaluates the children of a plain-jane VDOM node (like a <div>).
@@ -24,13 +35,8 @@ function renderChildren (children, context) {
   if (!children) { return null; }
 
   const newSequence = sequence();
-
-  if (isArray(children)) {
-    flatten(children).forEach(child => {
-      const childSequence = sequence();
-      newSequence.emit(() => childSequence);
-      traverse(childSequence, child, context);
-    });
+  if (children instanceof Array) {
+    renderChildrenArray(newSequence, children, context);
   } else {
     traverse(newSequence, children, context);
   }
@@ -115,7 +121,7 @@ function evalComponent (seq, node, context) {
   // eslint-disable-next-line new-cap
   const instance = new node.type(node.props, componentContext);
 
-  if (isFunction(instance.componentWillMount)) {
+  if (typeof instance.componentWillMount === "function") {
     instance.setState = syncSetState;
     instance.componentWillMount();
   }
@@ -137,28 +143,36 @@ function evalComponent (seq, node, context) {
  */
 function traverse (seq, node, context) {
   // A Component's render function might return `null`.
-  if (!node) {
-    return;
-  }
+  if (!node) { return; }
 
-  if (isString(node)) {
+  switch (typeof node) {
+  case "string": {
     // Text node.
     seq.emit(() => htmlStringEscape(node));
-  } else if (isNumber(node)) {
-    seq.emit(() => node.toString());
-  } else if (isString(node.type)) {
-    // Plain-jane DOM element, not a React component.
-    seq.emit(() =>
-      getCachedSequence(seq, node, (_seq, _node) => renderNode(_seq, _node, context))
-    );
-  } else if (hasOwn(node, "$$typeof")) {
-    // React component.
-    seq.emit(() =>
-      getCachedSequence(seq, node, (_seq, _node) => evalComponent(_seq, _node, context))
-    );
-  } else {
-    throw new TypeError(`Unknown node of type: ${node.type}`);
+    return;
   }
+  case "number": {
+    seq.emit(() => node.toString());
+    return;
+  }
+  case "object": {
+    if (typeof node.type === "string") {
+      // Plain-jane DOM element, not a React component.
+      seq.emit(() =>
+        getCachedSequence(seq, node, (_seq, _node) => renderNode(_seq, _node, context))
+      );
+      return;
+    } else if (node.$$typeof) {
+      // React component.
+      seq.emit(() =>
+        getCachedSequence(seq, node, (_seq, _node) => evalComponent(_seq, _node, context))
+      );
+      return;
+    }
+  }
+  }
+
+  throw new TypeError(`Unknown node of type: ${node.type}`);
 }
 
 
