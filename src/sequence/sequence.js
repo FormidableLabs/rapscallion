@@ -22,6 +22,9 @@ class BaseSequence {}
  * When the iterator encounters another invocation, it pushes another piece of state onto the
  * stack and only resumes the original interator once the pushed iterator completes.
  * 
+ * 
+ * TODO: REWRITE THIS EXPLANATION
+ *
  * A Sequence is conceptually similar.  Event-generating functions are pushed onto a FIFO
  * queue, and are evaluated (in order) one at a time whenever its parent Sequence's `next`
  * method is invoked.  If a normal value is returned from one of those functions, that value
@@ -38,9 +41,41 @@ class BaseSequence {}
 class Sequence extends BaseSequence {
   constructor () {
     super();
-    this.delegate = null;
-    this.index = 0;
+    this.stack = [];
+
+    // Frame-specific state:
     this.eventGenQueue = [];
+    this.delegates = Object.create(null);
+    this.cursor = 0;
+  }
+
+  pushFrame (delegate) {
+    // Save state attached to parent frame.
+    this.stack.push({
+      eventGenQueue: this.eventGenQueue,
+      delegates: this.delegates,
+      cursor: this.cursor
+    });
+
+    // Initialize the new frame.
+    this.eventGenQueue = [];
+    this.delegates = Object.create(null);
+    this.cursor = 0;
+
+    // Let the delegate do its thing...
+    delegate();
+  }
+
+  popFrame () {
+    const parentFrame = this.stack.pop();
+    if (parentFrame) {
+      const { eventGenQueue, delegates, cursor } = parentFrame;
+      this.eventGenQueue = eventGenQueue;
+      this.delegates = delegates;
+      this.cursor = cursor;
+
+      return this.next();
+    }
   }
 
   /**
@@ -49,6 +84,11 @@ class Sequence extends BaseSequence {
    * @param      {Function}  fn      Event-generator function.
    */
   emit (fn) {
+    this.eventGenQueue.push(fn);
+  }
+
+  delegate (fn) {
+    this.delegates[this.eventGenQueue.length] = true;
     this.eventGenQueue.push(fn);
   }
 
@@ -62,54 +102,16 @@ class Sequence extends BaseSequence {
    * @return     {Any|EXHAUSTED}  Any value, or the EXHAUSTED symbol.
    */
   next () {
-    if (this.delegate) { return this.nextFromDelegate(); }
+    const nextIsDelegate = this.delegates[this.cursor];
+    const nextFn = this.eventGenQueue[this.cursor++];
+    if (!nextFn) { return this.popFrame() || EXHAUSTED; }
 
-    const nextFn = this.eventGenQueue[this.index++];
-    if (!nextFn) { return EXHAUSTED; }
-
-    const next = nextFn();
-
-    return next instanceof Promise ?
-      next.then(_next => this.getNextValue(_next)) :
-      this.getNextValue(next);
-  }
-
-  /**
-   * Return the next value from the sequence or its delegate.
-   *
-   * @param      {Any|EXHAUSTED}  next    The next value (unresolved).
-   *
-   * @return     {Any|EXHAUSTED}          The next value (resolved);
-   */
-  getNextValue (next) {
-    if (next instanceof BaseSequence) {
-      this.delegate = next;
-      return this.nextFromDelegate();
-    }
-
-    if (!next) {
+    if (nextIsDelegate) {
+      this.pushFrame(nextFn);
       return this.next();
     }
 
-    return next;
-  }
-
-  /**
-   * Return a value from this instance's delegate sequence.  If the delegate
-   * has exhausted its supply of events, return the next value from this
-   * instance's queue.
-   *
-   * @return     {Any|EXHAUSTED}  Any value, or the EXHAUSTED symbol.
-   */
-  nextFromDelegate () {
-    const delegatedNext = this.delegate.next();
-
-    if (delegatedNext === EXHAUSTED) {
-      this.delegate = null
-      return this.next();
-    }
-
-    return delegatedNext;
+    return nextFn();
   }
 }
 
