@@ -94,4 +94,19 @@ describe("stream templates", () => {
       expect(output).to.equal("before<div><div></div></div>after");
     });
   });
+
+  it("supports template composition", () => {
+    const A = () => <div>A</div>;
+    const B = () => <div>B</div>;
+    const tmpl = template`${render(<A />)}-${render(<B />)}`;
+
+    let output = "";
+    return resolveStreamOnDone(
+      tmpl.includeDataReactAttrs(false).toStream(),
+      segment => output += segment
+    ).then(() => {
+      expect(output).to.equal("<div>A</div>-<div>B</div>");
+    });
+
+  });
 });
