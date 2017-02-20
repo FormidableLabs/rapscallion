@@ -48,8 +48,11 @@ function asyncBatch (
  * @return     {Promise}                   A promise resolving to the HTML string.
  */
 function toPromise (sequence, batchSize, dataReactAttrs) {
-  const arrayBuffer = [];
-  const checksumWrapper = getChecksumWrapper(arrayBuffer);
+  const buffer = {
+    value: "",
+    push (segment) { this.value += segment; }
+  };
+  const checksumWrapper = getChecksumWrapper(buffer);
   const reactIdPushable = getReactIdPushable(checksumWrapper, 1, dataReactAttrs);
 
   return new Promise(resolve =>
@@ -62,7 +65,7 @@ function toPromise (sequence, batchSize, dataReactAttrs) {
       resolve
     )
   ).then(() => {
-    let html = arrayBuffer.join("");
+    let html = buffer.value;
 
     if (dataReactAttrs && !COMMENT_START.test(html)) {
       const checksum = checksumWrapper.checksum();

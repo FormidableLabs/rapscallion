@@ -40,14 +40,15 @@ function pullBatch (sequence, batchSize, pushable) {
 
 
 function getReactIdPushable (pushable, reactIdStart, dataReactAttrs) {
-  let reactIdIdx = reactIdStart;
   return {
-    push: el => {
+    reactIdStart,
+    reactIdIdx: reactIdStart,
+    push (el) {
       if (el === REACT_ID) {
         if (!dataReactAttrs) { return; }
-        if (reactIdIdx === reactIdStart) { pushable.push(" data-reactroot=\"\""); }
-        pushable.push(` data-reactid="${reactIdIdx}"`);
-        reactIdIdx++;
+        if (this.reactIdIdx === this.reactIdStart) { pushable.push(" data-reactroot=\"\""); }
+        pushable.push(` data-reactid="${this.reactIdIdx}"`);
+        this.reactIdIdx++;
       } else {
         pushable.push(el);
       }
