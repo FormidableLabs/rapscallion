@@ -121,17 +121,11 @@ function traverse (seq, node, context) {
   case "object": {
     if (typeof node.type === "string") {
       // Plain-jane DOM element, not a React component.
-      seq.delegate(() =>
-        renderNode(seq, node, context)
-        // getCachedSequence(seq, node, (_seq, _node) => renderNode(_seq, _node, context))
-      );
+      seq.delegateCached(node, (_seq, _node) => renderNode(_seq, _node, context));
       return;
     } else if (node.$$typeof) {
       // React component.
-      seq.delegate(() =>
-        evalComponent(seq, node, context)
-        // getCachedSequence(seq, node, (_seq, _node) => evalComponent(_seq, _node, context))
-      );
+      seq.delegateCached(node, (_seq, _node) => evalComponent(_seq, _node, context));
       return;
     }
   }

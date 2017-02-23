@@ -6,10 +6,11 @@ const asyncStrategy = require("./strategies/async");
 
 let cacheStrategy = defaultStrategy();
 
+// eslint-disable-next-line max-params
+const getFrameCache = (node, cacheKey, delegateFn, Sequence) => {
+  return cacheStrategy(node, cacheKey, delegateFn, Sequence);
+};
 
-function getCachedSequence (sequence, node, sequenceFactory) {
-  return cacheStrategy(sequence, node, sequenceFactory);
-}
 
 function setCacheStrategy (opts) {
   if (!isFunction(opts && opts.get) || !isFunction(opts && opts.set)) {
@@ -24,7 +25,7 @@ function useDefaultCacheStrategy () {
 
 
 module.exports = {
-  getCachedSequence,
+  getFrameCache,
   setCacheStrategy,
   useDefaultCacheStrategy
 };

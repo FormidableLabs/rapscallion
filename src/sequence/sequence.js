@@ -1,47 +1,14 @@
-/* eslint-disable */
+const { assign, omit } = require("lodash");
 
-const Promise = require("bluebird");
-
-
-const EXHAUSTED = Symbol.for("EXHAUSTED");
+const { EXHAUSTED } = require("./common");
+const { getFrameCache } = require("./cache");
 
 
-/**
- * A base class to be used by all classes conforming to the Sequence-next protocol.
- */
-class BaseSequence {}
-
-/**
- * A lazy tree iterator, inspired by how programs are executed.
- * 
- * At any point in executing a program, two pieces of state will be tracked:
- *
- *   1. A stack, where each element is a piece of state corresponding to an invocation, and
- *   2. An iterator over statements in the invoked function, tied to its state.
- *   
- * When the iterator encounters another invocation, it pushes another piece of state onto the
- * stack and only resumes the original interator once the pushed iterator completes.
- * 
- * 
- * TODO: REWRITE THIS EXPLANATION
- *
- * A Sequence is conceptually similar.  Event-generating functions are pushed onto a FIFO
- * queue, and are evaluated (in order) one at a time whenever its parent Sequence's `next`
- * method is invoked.  If a normal value is returned from one of those functions, that value
- * is returned from the `next` invocation.
- * 
- * However, if another Sequence is returned from an event-generating function, the current
- * sequence delegates its event-generation to the child sequence until the child's events
- * have been exhausted.  The parent will then continue evaluating its own event-generation
- * queue until _it_ has been exhausted.
- * 
- * Sequences are consumed by instantiating, pushing event-generators onto the queue, and
- * calling `next` until the `EXHAUSTED` symbol is returned.
- */
-class Sequence extends BaseSequence {
+class Sequence {
   constructor () {
-    super();
     this.stack = [];
+
+    this.next = this.next.bind(this);
 
     // Frame-specific state:
     this.eventGenQueue = [];
@@ -76,20 +43,36 @@ class Sequence extends BaseSequence {
 
       return this.next();
     }
+    return null;
   }
 
-  /**
-   * Push an event-generator function onto the queue, to be evaluated later.
-   *
-   * @param      {Function}  fn      Event-generator function.
-   */
   emit (fn) {
     this.eventGenQueue.push(fn);
   }
 
-  delegate (fn) {
+  delegate (delegateFn) {
     this.delegates[this.eventGenQueue.length] = true;
-    this.eventGenQueue.push(fn);
+    this.eventGenQueue.push(delegateFn);
+  }
+
+  delegateCached (node, delegateFn) {
+    const cacheKey = node.props && node.props.cacheKey;
+
+    if (!cacheKey) {
+      this.delegate(() => delegateFn(this, node));
+      return;
+    }
+
+    this.delegates[this.eventGenQueue.length] = true;
+
+    const _node = assign({}, node, {
+      props: omit(node.props, ["cacheKey"])
+    });
+
+    const frameIterator = getFrameCache(_node, cacheKey, delegateFn, Sequence);
+
+    // The callback will be invoked by `pushFrame`, followed by a call to `next`..
+    this.eventGenQueue.push(() => frameIterator.patch(this));
   }
 
   /**
@@ -116,8 +99,6 @@ class Sequence extends BaseSequence {
 }
 
 module.exports = {
-  BaseSequence,
   Sequence,
-  sequence: () => new Sequence(),
-  EXHAUSTED
+  sequence: () => new Sequence()
 };
