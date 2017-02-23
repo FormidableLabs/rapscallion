@@ -1,14 +1,13 @@
 const {
-  BaseSequence,
-  Sequence,
-  sequence,
   EXHAUSTED
+} = require("./common");
+const {
+  Sequence,
+  sequence
 } = require("./sequence");
-
 const { getCachedSequence } = require("./cache");
 
 module.exports = {
-  BaseSequence,
   Sequence,
   sequence,
   EXHAUSTED,
