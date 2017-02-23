@@ -11,7 +11,7 @@ process.env.NODE_ENV = "production";
 
 
 const CONCURRENCY = 10;
-const DEPTH = 7;
+const DEPTH = 8;
 const CACHE_DIVS = "CACHE_DIVS";
 const CACHE_COMPONENT = "CACHE_COMPONENT";
 
