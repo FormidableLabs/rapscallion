@@ -17,17 +17,6 @@ function renderChildrenArray (seq, children, context) {
   }
 }
 
-/**
- * Evaluates the children of a plain-jane VDOM node (like a <div>).
- * These children may be of any valid output type: Component instances,
- * VDOM, or text nodes.  Traversal is recursive, involving the
- * `traverse` function below.
- *
- * @param      {Array|VDOM}    children  One or more VDOM nodes to be evaluated.
- * @param      {Object}        context   Context for the node's children.
- *
- * @return     {Sequence}                The sub-sequence for the provided children.
- */
 function renderChildren (seq, children, context) {
   if (!children) { return; }
 
