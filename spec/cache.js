@@ -4,26 +4,25 @@ import { render, setCacheStrategy, Promise } from "../src";
 import { useDefaultCacheStrategy } from "../src/sequence/cache";
 
 
+const getParentKey = () => `div:static:${Math.random()}`;
+const getChildKey = () => `child:static:${Math.random()}`;
+
+
 const runAllTests = () => {
   describe("for stateful components", () => {
-    const staticDivKey = `div:static:${Math.random()}`;
-    const staticChildKey = `child:static:${Math.random()}`;
-
     class Child extends Component {
       render () {
-        const cacheKey = this.props.cacheChild ? staticDivKey : null;
         return (
-          <div cacheKey={cacheKey}>{this.props.val}</div>
+          <div cacheKey={this.props.childKey}>{this.props.val}</div>
         );
       }
     }
 
     class Parent extends Component {
       render () {
-        const cacheKey = this.props.cacheParent ? staticChildKey : null;
         return (
           <Child
-            cacheKey={cacheKey}
+            cacheKey={this.props.parentKey}
             {...this.props}
           />
         );
@@ -31,84 +30,83 @@ const runAllTests = () => {
     }
 
     it("returns cached HTML for <div>", () => {
+      const childKey = getChildKey();
       return Promise.resolve()
-        .then(() => render(<Parent val="first" cacheChild />)
+        .then(() => render(<Parent val="firstA" childKey={childKey} />)
           .includeDataReactAttrs(false)
           .toPromise()
         )
-        .then(() => render(<Parent val="second" cacheChild />)
+        .then(() => render(<Parent val="secondA" childKey={childKey} />)
           .includeDataReactAttrs(false)
           .toPromise()
         )
         .then(html => {
-          expect(html).to.equal("<div>first</div>");
+          expect(html).to.equal("<div>firstA</div>");
         });
     });
 
     it("returns cached HTML for <Child>", () => {
+      const parentKey = getParentKey();
       return Promise.resolve()
-        .then(() => render(<Parent val="first" cacheParent />)
+        .then(() => render(<Parent val="firstB" parentKey={parentKey} />)
           .includeDataReactAttrs(false)
           .toPromise()
         )
-        .then(() => render(<Parent val="second" cacheParent />)
+        .then(() => render(<Parent val="secondB" parentKey={parentKey} />)
           .includeDataReactAttrs(false)
           .toPromise()
         )
         .then(html => {
-          expect(html).to.equal("<div>first</div>");
+          expect(html).to.equal("<div>firstB</div>");
         });
     });
   });
 
   describe("for stateless functional components", () => {
-    const staticDivKey = `div:static:${Math.random()}`;
-    const staticChildKey = `child:static:${Math.random()}`;
-
     const Child = props => {
-      const cacheKey = props.cacheChild ? staticDivKey : null;
       return (
-        <div cacheKey={cacheKey}>{props.val}</div>
+        <div cacheKey={props.childKey}>{props.val}</div>
       );
     };
 
     const Parent = props => {
-      const cacheKey = props.cacheParent ? staticChildKey : null;
       return (
         <Child
-          cacheKey={cacheKey}
+          cacheKey={props.parentKey}
           {...props}
         />
       );
     };
 
     it("returns cached HTML for <div>", () => {
+      const childKey = getChildKey();
       return Promise.resolve()
-        .then(() => render(<Parent val="first" cacheChild />)
+        .then(() => render(<Parent val="firstC" childKey={childKey} />)
           .includeDataReactAttrs(false)
           .toPromise()
         )
-        .then(() => render(<Parent val="second" cacheChild />)
+        .then(() => render(<Parent val="secondC" childKey={childKey} />)
           .includeDataReactAttrs(false)
           .toPromise()
         )
         .then(html => {
-          expect(html).to.equal("<div>first</div>");
+          expect(html).to.equal("<div>firstC</div>");
         });
     });
 
     it("returns cached HTML for <Child>", () => {
+      const parentKey = getParentKey();
       return Promise.resolve()
-        .then(() => render(<Parent val="first" cacheParent />)
+        .then(() => render(<Parent val="firstD" parentKey={parentKey} />)
           .includeDataReactAttrs(false)
           .toPromise()
         )
-        .then(() => render(<Parent val="second" cacheParent />)
+        .then(() => render(<Parent val="secondD" parentKey={parentKey} />)
           .includeDataReactAttrs(false)
           .toPromise()
         )
         .then(html => {
-          expect(html).to.equal("<div>first</div>");
+          expect(html).to.equal("<div>firstD</div>");
         });
     });
   });
