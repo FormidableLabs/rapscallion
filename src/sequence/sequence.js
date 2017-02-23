@@ -1,4 +1,5 @@
 const { assign, omit } = require("lodash");
+const Promise = require("bluebird");
 
 const { EXHAUSTED } = require("./common");
 const { getFrameCache } = require("./cache");
@@ -72,7 +73,11 @@ class Sequence {
     const frameIterator = getFrameCache(_node, cacheKey, delegateFn, Sequence);
 
     // The callback will be invoked by `pushFrame`, followed by a call to `next`..
-    this.eventGenQueue.push(() => frameIterator.patch(this));
+    this.eventGenQueue.push(() => {
+      return frameIterator instanceof Promise ?
+        frameIterator.then(_frameIterator => _frameIterator.patch(this)) :
+        frameIterator.patch(this);
+    });
   }
 
   /**
