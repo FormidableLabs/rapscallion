@@ -4,7 +4,7 @@ const { htmlStringEscape } = require("../render/util");
 const { REACT_ID } = require("../symbols");
 
 
-const _isVanillaDomTag = /^[a-z][a-z\-]*$/;
+const _isVanillaDomTag = /^[a-z][a-z0-9\-]*$/;
 const isVanillaDomTag = tag => _isVanillaDomTag.test(tag);
 
 
