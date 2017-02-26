@@ -4,7 +4,7 @@ import { range } from "lodash";
 
 import { render } from "..";
 import { time } from "./_util";
-
+import PrerenderedComponent from "./prerendered-component";
 
 // Accessing process.env.NODE_ENV is expensive.
 // Replace process.env to equivalent plain JS objects.
@@ -152,6 +152,22 @@ Promise.resolve()
               depth={DEPTH}
               leafText="hi there! © <"
               cacheMe={CACHE_COMPONENT}
+            />
+          ).toPromise()
+        )
+      ),
+      baseTime
+    )
+  )
+  .then(() =>
+    time(
+      "rapscallion, pre-rendered",
+      () => Promise.all(
+        range(CONCURRENCY).map(() =>
+          render(
+            <PrerenderedComponent
+              depth={DEPTH}
+              leafText="hi there! © <"
             />
           ).toPromise()
         )

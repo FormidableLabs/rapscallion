@@ -1,0 +1,8 @@
+{
+  "babelrc": false,
+  "plugins": [
+    "../../src/transform/server",
+    "transform-es2015-modules-commonjs",
+    "transform-es2015-arrow-functions"
+  ]
+}
