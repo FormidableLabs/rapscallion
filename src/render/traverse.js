@@ -102,6 +102,40 @@ function evalComponent (seq, node, context) {
   traverse(seq, instance.render(), childContext);
 }
 
+function evalSegment (seq, segment, context) {
+  if (typeof segment === "string") {
+    seq.emit(() => segment);
+  } else if (segment.__prerendered__ === "expression") {
+    if (typeof segment.expression === "string") {
+      seq.emit(() => htmlStringEscape(segment.expression));
+    } else if (segment.expression instanceof Array) {
+      segment.expression.forEach(subsegment => traverse(seq, subsegment, context));
+    } else {
+      traverse(segment.expression);
+    }
+  } else {
+    traverse(seq, segment, context);
+  }
+}
+
+function evalPreRendered (seq, node, context) {
+  const prerenderType = node.__prerendered__;
+  if (prerenderType === "dom") {
+    node.segments.forEach(segment => {
+      if (segment instanceof Array) {
+        segment.forEach(subsegment => evalSegment(seq, subsegment, context));
+      } else {
+        evalSegment(seq, segment, context);
+      }
+    });
+  } else if (prerenderType === "attr") {
+    const { name, value } = node;
+    if (value) { seq.emit(() => ` ${name}="${value}"`); }
+  } else if (prerenderType === "component") {
+    evalComponent(seq, node, context);
+  }
+}
+
 /**
  * This function will recursively traverse the VDOM tree, emitting HTML segments
  * to the provided sequence.
@@ -127,7 +161,10 @@ function traverse (seq, node, context) {
     return;
   }
   case "object": {
-    if (typeof node.type === "string") {
+    if (node.__prerendered__) {
+      evalPreRendered(seq, node, context);
+      return;
+    } else if (typeof node.type === "string") {
       // Plain-jane DOM element, not a React component.
       seq.delegateCached(node, (_seq, _node) => renderNode(_seq, _node, context));
       return;
