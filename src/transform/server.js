@@ -38,7 +38,8 @@ module.exports = () => ({
       const children = node.children
         .map(child => {
           if (t.isJSXText(child)) {
-            return child.value.trim();
+            const trimmed = child.value.trim();
+            return trimmed && t.stringLiteral(trimmed);
           } else if (t.isJSXExpressionContainer(child)) {
             return child.expression;
           }
