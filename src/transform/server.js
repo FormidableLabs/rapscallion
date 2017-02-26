@@ -71,14 +71,19 @@ module.exports = () => ({
 });
 
 const getComponentProps = attributes =>
-  attributes.map(({ name, value }) =>
-    t.objectProperty(
+  attributes.map(attr => {
+    if (t.isJSXSpreadAttribute(attr)) {
+      return t.spreadProperty(attr.argument);
+    }
+
+    const { name, value } = attr;
+    return t.objectProperty(
       t.identifier(name.name),
       t.isJSXExpressionContainer(value) ?
         value.expression :
         value
-    )
-  );
+    );
+  });
 
 const pushVanillaVdom = (segments, node) => {
   const { openingElement, children, closingElement } = node;
