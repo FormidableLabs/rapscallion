@@ -1,5 +1,7 @@
 const t = require("babel-types");
+
 const { htmlStringEscape } = require("../render/util");
+const { REACT_ID } = require("../symbols");
 
 
 const _isVanillaDomTag = /^[a-z][a-z\-]*$/;
@@ -136,6 +138,10 @@ const pushAttributes = (segments, attrs) => {
       );
     }
   });
+  segments.push(
+    // This is used by the renderer to insert `data-react-id`s.
+    t.numericLiteral(REACT_ID)
+  );
 };
 
 const compress = segments => {

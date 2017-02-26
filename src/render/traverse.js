@@ -105,6 +105,8 @@ function evalComponent (seq, node, context) {
 function evalSegment (seq, segment, context) {
   if (typeof segment === "string") {
     seq.emit(() => segment);
+  } else if (segment === REACT_ID) {
+    seq.emit(() => REACT_ID);
   } else if (segment.__prerendered__ === "expression") {
     if (typeof segment.expression === "string") {
       seq.emit(() => htmlStringEscape(segment.expression));
