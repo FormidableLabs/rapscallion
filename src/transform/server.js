@@ -13,44 +13,50 @@ module.exports = () => ({
   visitor: {
     JSXElement: path => {
       const { node } = path;
-
-      // <div />
-      if (isVanillaDomTag(node.openingElement.name.name)) {
-        let segments = [];
-        pushVanillaVdom(segments, node);
-
-        segments = compress(segments);
-        segments = expressionifyStringSegments(segments);
-
-        path.replaceWith(buildObjectExpression({
-          __prerendered__: t.stringLiteral("dom"),
-          segments: t.arrayExpression(segments)
-        }));
-        return;
-      }
-
-      // <Component />
-      const children = node.children
-        .map(child => {
-          if (t.isJSXText(child)) {
-            const trimmed = child.value.trim();
-            return trimmed && t.stringLiteral(trimmed);
-          } else if (t.isJSXExpressionContainer(child)) {
-            return child.expression;
-          }
-          return child;
-        })
-        .filter(x => x);
-
-      path.replaceWith(buildObjectExpression({
-        __prerendered__: t.stringLiteral("component"),
-        type: t.identifier(node.openingElement.name.name),
-        props: t.objectExpression(getComponentProps(node.openingElement.attributes)),
-        children: t.arrayExpression(children)
-      }));
+      path.replaceWith(
+        isVanillaDomTag(node.openingElement.name.name) ?
+          prerenderDom(node) :
+          prerenderComponent(node)
+      );
     }
   }
 });
+
+// <Component />
+const prerenderComponent = node => {
+  const children = node.children
+    .map(child => {
+      if (t.isJSXText(child)) {
+        const trimmed = child.value.trim();
+        return trimmed && t.stringLiteral(trimmed);
+      } else if (t.isJSXExpressionContainer(child)) {
+        return child.expression;
+      }
+      return child;
+    })
+    .filter(x => x);
+
+  return buildObjectExpression({
+    __prerendered__: t.stringLiteral("component"),
+    type: t.identifier(node.openingElement.name.name),
+    props: t.objectExpression(getComponentProps(node.openingElement.attributes)),
+    children: t.arrayExpression(children)
+  });
+};
+
+// <div />
+const prerenderDom = node => {
+  let segments = [];
+  pushVanillaVdom(segments, node);
+
+  segments = compress(segments);
+  segments = expressionifyStringSegments(segments);
+
+  return buildObjectExpression({
+    __prerendered__: t.stringLiteral("dom"),
+    segments: t.arrayExpression(segments)
+  });
+};
 
 const getComponentProps = attributes =>
   attributes.map(attr => {
