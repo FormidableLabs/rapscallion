@@ -14,6 +14,7 @@ module.exports = () => ({
     JSXElement: path => {
       const { node } = path;
 
+      // <div />
       if (isVanillaDomTag(node.openingElement.name.name)) {
         let segments = [];
         pushVanillaVdom(segments, node);
@@ -21,22 +22,14 @@ module.exports = () => ({
         segments = compress(segments);
         segments = expressionifyStringSegments(segments);
 
-        path.replaceWith(
-          t.objectExpression([
-            t.objectProperty(
-              t.identifier("__prerendered__"),
-              t.stringLiteral("dom")
-            ),
-            t.objectProperty(
-              t.identifier("segments"),
-              t.arrayExpression(segments)
-            )
-          ])
-        );
+        path.replaceWith(buildObjectExpression({
+          __prerendered__: t.stringLiteral("dom"),
+          segments: t.arrayExpression(segments)
+        }));
         return;
       }
 
-      // It is a <Component> reference.
+      // <Component />
       const children = node.children
         .map(child => {
           if (t.isJSXText(child)) {
@@ -49,26 +42,12 @@ module.exports = () => ({
         })
         .filter(x => x);
 
-      path.replaceWith(
-        t.objectExpression([
-          t.objectProperty(
-            t.identifier("__prerendered__"),
-            t.stringLiteral("component")
-          ),
-          t.objectProperty(
-            t.identifier("type"),
-            t.identifier(node.openingElement.name.name)
-          ),
-          t.objectProperty(
-            t.identifier("props"),
-            t.objectExpression(getComponentProps(node.openingElement.attributes))
-          ),
-          t.objectProperty(
-            t.identifier("children"),
-            t.arrayExpression(children)
-          )
-        ])
-      );
+      path.replaceWith(buildObjectExpression({
+        __prerendered__: t.stringLiteral("component"),
+        type: t.identifier(node.openingElement.name.name),
+        props: t.objectExpression(getComponentProps(node.openingElement.attributes)),
+        children: t.arrayExpression(children)
+      }));
     }
   }
 });
@@ -106,10 +85,10 @@ const pushVanillaVdom = (segments, node) => {
       if (trimmed) { segments.push(htmlStringEscape(trimmed)); }
     } else if (t.isJSXExpressionContainer(child)) {
       segments.push(
-        t.objectExpression([
-          t.objectProperty(t.identifier("__prerendered__"), t.stringLiteral("expression")),
-          t.objectProperty(t.identifier("expression"), child.expression)
-        ])
+        buildObjectExpression({
+          __prerendered__: t.stringLiteral("expression"),
+          expression: child.expression
+        })
       );
     } else {
       segments.push(child);
@@ -130,11 +109,11 @@ const pushAttributes = (segments, attrs) => {
       segments.push(` ${name}="${value.value}"`);
     } else {
       segments.push(
-        t.objectExpression([
-          t.objectProperty(t.identifier("__prerendered__"), t.stringLiteral("attr")),
-          t.objectProperty(t.identifier("name"), t.stringLiteral(name)),
-          t.objectProperty(t.identifier("value"), value.expression)
-        ])
+        buildObjectExpression({
+          __prerendered__: t.stringLiteral("attr"),
+          name: t.stringLiteral(name),
+          value: value.expression
+        })
       );
     }
   });
@@ -165,4 +144,13 @@ const expressionifyStringSegments = segments => {
       t.stringLiteral(segment) :
       segment
   );
+};
+
+const buildObjectExpression = obj => {
+  return t.objectExpression(Object.keys(obj).map(key => {
+    return t.objectProperty(
+      t.identifier(key),
+      obj[key]
+    );
+  }));
 };
