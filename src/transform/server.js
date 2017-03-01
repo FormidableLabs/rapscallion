@@ -49,8 +49,8 @@ const prerenderDom = node => {
   let segments = [];
   pushVanillaVdom(segments, node);
 
-  segments = compress(segments);
   segments = expressionifyStringSegments(segments);
+  segments = compress(segments);
 
   return buildObjectExpression({
     __prerendered__: t.stringLiteral("dom"),
@@ -131,15 +131,15 @@ const pushAttributes = (segments, attrs) => {
   );
 };
 
-const compress = segments => {
-  return segments.reduce((memo, segment) => {
+const compress = elements => {
+  return elements.reduce((memo, element) => {
     const prevIdx = memo.length - 1;
     const prev = memo[prevIdx];
 
-    if (typeof segment === "string" && typeof prev === "string") {
-      memo[prevIdx] += segment;
+    if (t.isStringLiteral(prev) && t.isStringLiteral(element)) {
+      prev.value += element.value;
     } else {
-      memo.push(segment);
+      memo.push(element);
     }
 
     return memo;
