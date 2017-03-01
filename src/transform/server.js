@@ -107,6 +107,7 @@ const pushVanillaVdom = (segments, node) => {
 const pushAttributes = (segments, attrs) => {
   attrs.forEach(attr => {
     const { name: { name }, value } = attr;
+
     if (!value) {
       // If no value is specified, this is a boolean HTML attribute that is set.
       segments.push(` ${name}`);
@@ -117,8 +118,9 @@ const pushAttributes = (segments, attrs) => {
       segments.push(
         buildObjectExpression({
           __prerendered__: t.stringLiteral("attr"),
-          name: t.stringLiteral(name),
-          value: value.expression
+          attrObj: buildObjectExpression({
+            [name]: value.expression
+          })
         })
       );
     }

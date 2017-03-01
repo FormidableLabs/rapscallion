@@ -107,6 +107,8 @@ function evalSegment (seq, segment, context) {
     seq.emit(() => segment);
   } else if (segment === REACT_ID) {
     seq.emit(() => REACT_ID);
+  } else if (segment.__prerendered__ === "attr") {
+    seq.emit(() => renderAttrs(segment.attrObj));
   } else if (segment.__prerendered__ === "expression") {
     if (typeof segment.expression === "string") {
       seq.emit(() => htmlStringEscape(segment.expression));
