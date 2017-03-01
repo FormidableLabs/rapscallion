@@ -1,4 +1,5 @@
 const t = require("babel-types");
+const { flatten } = require("lodash");
 
 const { htmlStringEscape } = require("../render/util");
 const { REACT_ID } = require("../symbols");
@@ -11,16 +12,37 @@ const isVanillaDomTag = tag => _isVanillaDomTag.test(tag);
 module.exports = () => ({
   manipulateOptions: (opts, parserOpts) => parserOpts.plugins.push("jsx"),
   visitor: {
-    JSXElement: path => {
-      const { node } = path;
-      path.replaceWith(
-        isVanillaDomTag(node.openingElement.name.name) ?
-          prerenderDom(node) :
-          prerenderComponent(node)
-      );
+    JSXElement: {
+      enter: path => {
+        const { node } = path;
+        path.replaceWith(
+          isVanillaDomTag(node.openingElement.name.name) ?
+            prerenderDom(node) :
+            prerenderComponent(node)
+        );
+      }
+    },
+    ObjectExpression: {
+      exit: path => {
+        const obj = objectExpressionToObject(path.node);
+        if (!obj.__prerendered__) { return; }
+        // Mutating, since this is an exit visitor and its way easier...
+        flattenDomSegments(obj);
+      }
     }
   }
 });
+
+const flattenDomSegments = (obj) => {
+  if (!obj.segments) { return; }
+  obj.segments.elements = compress(flatten(obj.segments.elements.map(segment => {
+    if (!t.isObjectExpression(segment)) { return segment; }
+    const segmentObj = objectExpressionToObject(segment);
+    if (!segmentObj.segments) { return segment; }
+    // This will be an ArrayExpression
+    return segmentObj.segments.elements;
+  })));
+};
 
 // <Component />
 const prerenderComponent = node => {
@@ -161,4 +183,12 @@ const buildObjectExpression = obj => {
       obj[key]
     );
   }));
+};
+
+const objectExpressionToObject = objExpr => {
+  const obj = Object.create(null);
+  objExpr.properties.forEach(property => {
+    obj[property.key.name || property.key.value] = property.value;
+  });
+  return obj;
 };
