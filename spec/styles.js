@@ -1,9 +1,7 @@
-import { default as React } from "react";
+import { checkParity, getRootNode } from "./_util";
 
-import { checkParity } from "./_util";
-
-
-const Foobar = () => (
+const code = `
+const FooBar = () => (
   <div
     style={{
       padding: 10,
@@ -16,6 +14,10 @@ const Foobar = () => (
   />
 );
 
+return FooBar;
+`;
+
 describe("the style prop", () => {
-  checkParity(Foobar, {});
+  const FooBar = getRootNode(code);
+  checkParity(FooBar, {});
 });
