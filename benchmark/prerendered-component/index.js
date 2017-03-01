@@ -10,7 +10,10 @@ const Component = module.exports = ({ depth, leafText, cacheMe }) => {
   if (depth === 1) {
     return (
       <div>
-        {leafText}
+        <span>This is static leaf content.</span>
+        <div>
+          {leafText}
+        </div>
       </div>
     );
   }
@@ -24,6 +27,7 @@ const Component = module.exports = ({ depth, leafText, cacheMe }) => {
           null
       }
     >
+      <span>This is static sibling content.</span>
       {
         range(depth).map(idx => (
           <Component
