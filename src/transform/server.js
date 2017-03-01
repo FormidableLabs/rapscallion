@@ -79,7 +79,7 @@ const pushVanillaVdom = (segments, node) => {
   segments.push(`<${openingElement.name.name}`);
   pushAttributes(segments, openingElement.attributes);
   if (openingElement.selfClosing) {
-    segments.push("/>");
+    segments.push(`></${openingElement.name.name}>`);
     return;
   }
 
