@@ -28,6 +28,9 @@ module.exports = () => ({
         if (!obj.__prerendered__) { return; }
         // Mutating, since this is an exit visitor and its way easier...
         flattenDomSegments(obj);
+        if (path.node.__isHoistable__) {
+          path.hoist();
+        }
       }
     }
   }
@@ -74,10 +77,14 @@ const prerenderDom = node => {
   segments = expressionifyStringSegments(segments);
   segments = compress(segments);
 
-  return buildObjectExpression({
+  const objExpr = buildObjectExpression({
     __prerendered__: t.stringLiteral("dom"),
     segments: t.arrayExpression(segments)
   });
+
+  objExpr.__isHoistable__ = isHoistable(segments);
+
+  return objExpr;
 };
 
 const getComponentProps = attributes =>
@@ -191,4 +198,18 @@ const objectExpressionToObject = objExpr => {
     obj[property.key.name || property.key.value] = property.value;
   });
   return obj;
+};
+
+const isHoistable = arrayElements => {
+  return arrayElements.reduce((memo, el) => {
+    if (!memo) { return memo; }
+    if (
+      t.isStringLiteral(el) ||
+      t.isNumericLiteral(el) ||
+      t.isObjectExpression(el) && el.__isHoistable__
+    ) {
+      return true;
+    }
+    return false;
+  }, true);
 };
