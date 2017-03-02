@@ -7,7 +7,7 @@ const { REACT_ID } = require("../symbols");
 
 const specialNodes = [
   "br"
-]
+];
 
 function renderChildrenArray (seq, children, context) {
   for (let idx = 0; idx < children.length; idx++) {
