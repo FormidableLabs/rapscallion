@@ -5,6 +5,9 @@ const renderAttrs = require("./attrs");
 
 const { REACT_ID } = require("../symbols");
 
+const specialNodes = [
+  "br"
+]
 
 function renderChildrenArray (seq, children, context) {
   for (let idx = 0; idx < children.length; idx++) {
@@ -129,9 +132,6 @@ function traverse (seq, node, context) {
     return;
   }
   case "object": {
-    const specialNodes = [
-      "br"
-    ]
     if (
       typeof node.type === "string" &&
       !specialNodes.includes(node.type)
