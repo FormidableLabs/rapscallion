@@ -26,7 +26,10 @@ function renderAttrs (attrs) {
     ) {
       let attrVal = attrs[attrKey];
 
-      if (!attrVal || isFunction(attrVal)) { continue; }
+      if (
+        !attrVal || isFunction(attrVal) ||
+        !(Object.keys(attrVal).length > 0)
+      ) { continue; }
 
       attrKey = transformAttrKey(attrKey);
 
