@@ -256,7 +256,7 @@ app.get('/example', function(req, res){
       }
       <script>
         // Expose initial state to client store bootstrap code.
-        window._initialState = ${() => JSON.stringify(store.getState())};
+        window._initialState = ${() => JSON.stringify(store.getState()).replace(/</g, '\\u003c')};
         // Attach checksum to the component's root element.
         document.querySelector("#id-for-component-root").setAttribute("data-react-checksum", "${componentRenderer.checksum()}")
         // Bootstrap your application here...
