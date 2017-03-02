@@ -6,6 +6,10 @@ import { render } from "../src";
 import { time } from "./_util";
 
 
+// Accessing process.env.NODE_ENV is expensive.
+// Replace process.env to equivalent plain JS objects.
+process.env = Object.assign({}, process.env);
+
 // Make sure React is in production mode.
 process.env.NODE_ENV = "production";
 
