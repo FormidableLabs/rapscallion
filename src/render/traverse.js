@@ -50,6 +50,27 @@ function renderNode (seq, node, context) {
 }
 
 /**
+ * Evaluates an alternative (special) VDOM node (like a <br/>).
+ *
+ * @param      {Sequence}  seq      Sequence that receives HTML segments.
+ * @param      {VDOM}      node     VDOM node to be rendered.
+ * @param      {Object}    context  Context for the node's children.
+ *
+ * @return     {undefined}          No return value.
+ */
+function renderSpecialNode (seq, node, context) {
+  seq.emit(() => `<${node.type}`);
+  seq.emit(() => renderAttrs(node.props, seq));
+  seq.emit(() => REACT_ID);
+  seq.emit(() => "/>");
+  if (node.props.dangerouslySetInnerHTML) {
+    seq.emit(() => node.props.dangerouslySetInnerHTML.__html || "");
+  } else {
+    seq.delegate(() => renderChildren(seq, node.props.children, context));
+  }
+}
+
+/**
  * Prior to being rendered, React components are represented in the same
  * way as true HTML DOM elements.  This function evaluates the component
  * and traverses through its rendered elements.
@@ -108,9 +129,18 @@ function traverse (seq, node, context) {
     return;
   }
   case "object": {
-    if (typeof node.type === "string") {
+    const specialNodes = [
+      "br"
+    ]
+    if (
+      typeof node.type === "string" &&
+      !specialNodes.includes(node.type)
+    ) {
       // Plain-jane DOM element, not a React component.
       seq.delegateCached(node, (_seq, _node) => renderNode(_seq, _node, context));
+      return;
+    } else if (typeof node.type === "string") {
+      seq.delegateCached(node, (_seq, _node) => renderSpecialNode(_seq, _node, context));
       return;
     } else if (node.$$typeof) {
       // React component.
