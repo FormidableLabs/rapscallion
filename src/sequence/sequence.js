@@ -57,7 +57,9 @@ class Sequence {
   }
 
   delegateCached (node, delegateFn) {
-    const cacheKey = node.props && node.props.cacheKey;
+    const cacheKey =
+      node.props && node.props.cacheKey ||
+      node.attrObj && node.attrObj.cacheKey;
 
     if (!cacheKey) {
       this.delegate(() => delegateFn(this, node));
