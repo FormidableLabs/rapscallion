@@ -23,12 +23,12 @@ module.exports = () => ({
       }
     },
     ObjectExpression: {
-      exit: path => {
+      exit: (path, state) => {
         const obj = objectExpressionToObject(path.node);
         if (!obj.__prerendered__) { return; }
         // Mutating, since this is an exit visitor and its way easier...
         flattenDomSegments(obj);
-        if (path.node.__isHoistable__) {
+        if (path.node.__isHoistable__ && state.opts && state.opts.hoist) {
           path.hoist();
         }
       }
