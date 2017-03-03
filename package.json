@@ -10,8 +10,9 @@
     "html",
     "stream"
   ],
-  "main": "src/index.js",
+  "main": "index.js",
   "scripts": {
+    "build": "npm run check && rm -rf lib/ && babel -d lib/ src/",
     "check": "npm run lint && npm run test",
     "test": "mocha spec/exec.js",
     "lint": "eslint src spec",
@@ -21,6 +22,9 @@
     "check-context-output": "babel-node benchmark/test-html-output-with-context.js",
     "check-templated-output": "babel-node benchmark/test-templated-output.js"
   },
+  "files": [
+    "lib"
+  ],
   "repository": {
     "type": "git",
     "url": "git://github.com/FormidableLabs/rapscallion.git"
@@ -34,6 +38,7 @@
     "babel-plugin-transform-es2015-arrow-functions": "^6.22.0",
     "babel-plugin-transform-es2015-modules-commonjs": "^6.22.0",
     "babel-plugin-transform-react-jsx": "^6.22.0",
+    "babel-preset-latest": "^6.22.0",
     "chai": "^3.5.0",
     "eslint": "2.10.2",
     "eslint-config-formidable": "^2.0.1",
