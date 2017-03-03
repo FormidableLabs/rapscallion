@@ -58,7 +58,7 @@
   "dependencies": {
     "adler-32": "^1.0.0",
     "bluebird": "^3.4.7",
-    "he": "^1.1.1",
+    "escape-html": "^1.0.3",
     "lodash": "^4.17.4"
   }
 }
