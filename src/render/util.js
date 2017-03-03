@@ -1,11 +1,13 @@
-const { encode } = require("he");
+const escapeHtml = require("escape-html");
 const { kebabCase } = require("lodash");
 
+const htmlStringEscape = str => {
+  if (typeof str === "boolean" || typeof str === "number") {
+    return String(str);
+  }
+  return escapeHtml(str);
+};
 
-const ENCODE_OPTS = { strict: true };
-
-
-const htmlStringEscape = str => encode(str, ENCODE_OPTS);
 const hasOwn = (obj, key) => Object.prototype.hasOwnProperty.call(obj, key);
 /**
  * Takes a camelCase string and returns a hyphenated version. Adapted
