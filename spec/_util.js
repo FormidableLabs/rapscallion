@@ -15,17 +15,20 @@ function resolveStreamOnDone (stream, cb) {
   });
 }
 
-
 export const checkParity = (Component, props) => {
+  checkElementParity(<Component {...props} />);
+};
+
+export const checkElementParity = (element) => {
   it("has parity with React#renderToString via Render#toPromise", () => {
-    return render(<Component {...props} />)
+    return render(element)
       .toPromise()
       .then(htmlString => {
-        expect(htmlString).to.equal(reactRenderToString(<Component {...props} />));
+        expect(htmlString).to.equal(reactRenderToString(element));
       });
   });
   it("has parity with React#renderToString via Render#toStream", () => {
-    const stream = render(<Component {...props} />).toStream();
+    const stream = render(element).toStream();
 
     let output = "";
     return resolveStreamOnDone(stream, segment => output += segment)
@@ -33,7 +36,7 @@ export const checkParity = (Component, props) => {
         const checksum = stream.checksum();
         output = output.replace(TAG_END, ` data-react-checksum="${checksum}"$&`);
 
-        expect(output).to.equal(reactRenderToString(<Component {...props} />));
+        expect(output).to.equal(reactRenderToString(element));
       });
   });
 };
