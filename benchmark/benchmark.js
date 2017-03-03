@@ -2,7 +2,7 @@ import { default as React } from "react";
 import { renderToString } from "react-dom/server";
 import { range } from "lodash";
 
-import { render } from "../src";
+import { render } from "..";
 import { time } from "./_util";
 
 
