@@ -165,13 +165,81 @@ Promise.resolve()
   )
   .then(() =>
     time(
-      "rapscallion, pre-rendered",
+      "rapscallion (pre-rendered), no caching",
       () => Promise.all(
         range(CONCURRENCY).map(() =>
           render(
             <PrerenderedComponent
               depth={DEPTH}
               leafText="hi there! © <"
+            />
+          ).toPromise()
+        )
+      ),
+      baseTime
+    )
+  )
+  .then(() =>
+    time(
+      "rapscallion (pre-rendered), caching DIVs",
+      () => Promise.all(
+        range(CONCURRENCY).map(() =>
+          render(
+            <Component
+              depth={DEPTH}
+              leafText="hi there! © <"
+              cacheMe={CACHE_DIVS}
+            />
+          ).toPromise()
+        )
+      ),
+      baseTime
+    )
+  )
+  .then(() =>
+    time(
+      "rapscallion (pre-rendered), caching DIVs (second time)",
+      () => Promise.all(
+        range(CONCURRENCY).map(() =>
+          render(
+            <Component
+              depth={DEPTH}
+              leafText="hi there! © <"
+              cacheMe={CACHE_DIVS}
+            />
+          ).toPromise()
+        )
+      ),
+      baseTime
+    )
+  )
+  .then(() =>
+    time(
+      "rapscallion (pre-rendered), caching Components",
+      () => Promise.all(
+        range(CONCURRENCY).map(() =>
+          render(
+            <Component
+              depth={DEPTH}
+              leafText="hi there! © <"
+              cacheMe={CACHE_COMPONENT}
+            />
+          ).toPromise()
+        )
+      ),
+      baseTime
+    )
+  )
+  .then(() =>
+    time(
+      "rapscallion (pre-rendered), caching Components (second time)",
+      () => Promise.all(
+        range(CONCURRENCY).map(() =>
+          render(
+            <Component
+              depth={DEPTH}
+              leafText="hi there! © <"
+              cacheMe={CACHE_COMPONENT}
             />
           ).toPromise()
         )
