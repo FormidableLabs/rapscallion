@@ -5,23 +5,23 @@ const renderAttrs = require("./attrs");
 
 const { REACT_ID } = require("../symbols");
 
-const omittedCloseTags = [
-  "area",
-  "base",
-  "br",
-  "col",
-  "embed",
-  "hr",
-  "img",
-  "input",
-  "keygen",
-  "link",
-  "meta",
-  "param",
-  "source",
-  "track",
-  "wbr"
-];
+const omittedCloseTags = {
+  "area": true,
+  "base": true,
+  "br": true,
+  "col": true,
+  "embed": true,
+  "hr": true,
+  "img": true,
+  "input": true,
+  "keygen": true,
+  "link": true,
+  "meta": true,
+  "param": true,
+  "source": true,
+  "track": true,
+  "wbr": true
+};
 
 function renderChildrenArray (seq, children, context) {
   for (let idx = 0; idx < children.length; idx++) {
@@ -57,13 +57,13 @@ function renderNode (seq, node, context) {
   seq.emit(() => `<${node.type}`);
   seq.emit(() => renderAttrs(node.props, seq));
   seq.emit(() => REACT_ID);
-  seq.emit(() => omittedCloseTags.includes(node.type) ? "/>" : ">");
+  seq.emit(() => omittedCloseTags[node.type] ? "/>" : ">");
   if (node.props.dangerouslySetInnerHTML) {
     seq.emit(() => node.props.dangerouslySetInnerHTML.__html || "");
   } else {
     seq.delegate(() => renderChildren(seq, node.props.children, context));
   }
-  if (!omittedCloseTags.includes(node.type)) {
+  if (!omittedCloseTags[node.type]) {
     seq.emit(() => `</${node.type}>`);
   }
 }
