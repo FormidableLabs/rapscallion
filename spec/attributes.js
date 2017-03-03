@@ -107,12 +107,12 @@ describe("property to attribute mapping", () => {
       checkElementParity(<div className="myClassName" />);
     });
 
-    describe('className prop with empty string value', () => {
+    describe("className prop with empty string value", () => {
       checkElementParity(<div className="" />);
     });
 
     // this probably is just masking programmer error, but it is existing behavior.
-    describe('className prop with true value', () => {
+    describe("className prop with true value", () => {
       checkElementParity(<div className={true} />); // eslint-disable-line react/jsx-boolean-value
     });
 
