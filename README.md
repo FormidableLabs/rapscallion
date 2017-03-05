@@ -35,9 +35,7 @@ Rapscallion is a React VirtualDOM renderer for the server.  Its notable features
 - [Caching](#caching)
 - [Babel Plugins](#babel-plugins)
   - [`babel-plugin-client`](#babel-plugin-client)
-    - [Use](#use)
   - [`babel-plugin-server`](#babel-plugin-server)
-  - [Use](#use-1)
 - [Benchmarks](#benchmarks)
 - [License](#license)
 
@@ -330,8 +328,6 @@ If you're utilizing Rapscallion's caching mechanisms, you will see warnings for 
 
 Rapscallion's client plugin will strip `cacheKey` props from your build, avoiding the errors and removing unnecessary bits from your client build.
 
-#### Use
-
 To use, add the following to your `.babelrc`:
 
 ```json
@@ -354,8 +350,6 @@ Rapscallion's server plugin is provided as a more efficient alternative.  It pro
 **Pre-rendering:** Rapscallion's server plugin also attempts to pre-render as much content as possible.  For example, if your component always starts with a `<div>`, that fact can be determined at build-time.  Transforming JSX into these pre-computed string segments avoids computation cost at run-time, and in some cases can make for a more shallow VDOM tree.
 
 To be clear, `rapscallion/babel-plugin-server` should be used _in place of_ `babel-plugin-transform-react-jsx`.
-
-### Use
 
 To use, add the following to your `.babelrc`:
 
