@@ -33,6 +33,11 @@ Rapscallion is a React VirtualDOM renderer for the server.  Its notable features
     - [Behavior](#behavior)
     - [Example](#example)
 - [Caching](#caching)
+- [Babel Plugins](#babel-plugins)
+  - [`babel-plugin-client`](#babel-plugin-client)
+    - [Use](#use)
+  - [`babel-plugin-server`](#babel-plugin-server)
+  - [Use](#use-1)
 - [Benchmarks](#benchmarks)
 - [License](#license)
 
