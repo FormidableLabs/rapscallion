@@ -334,7 +334,7 @@ Rapscallion's client plugin will strip `cacheKey` props from your build, avoidin
 
 To use, add the following to your `.babelrc`:
 
-```
+```json
 {
   "plugins": [
     "rapscallion/babel-plugin-client",
@@ -359,11 +359,23 @@ To be clear, `rapscallion/babel-plugin-server` should be used _in place of_ `bab
 
 To use, add the following to your `.babelrc`:
 
-```
+```json
 {
   "plugins": [
     "rapscallion/babel-plugin-server",
     // ...
+  ]
+}
+```
+
+The plugin also supports Rapscallion-aware JSX hoisting.  This may improve performance, but may also hurt.  We recommend you profile your application's rendering behavior to determine whether to enable hoisting.  To use:
+
+```json
+{
+  "plugins": [
+    ["rapscallion/babel-plugin-server", {
+      "hoist": true
+    }]
   ]
 }
 ```
