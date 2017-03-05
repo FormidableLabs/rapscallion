@@ -313,6 +313,59 @@ Promise.resolve()
 
 -----
 
+## Babel Plugins
+
+Rapscallion ships with two Babel plugins, one intended for your server build and one for your client build.  Each serves a different purpose.
+
+### `babel-plugin-client`
+
+When running in development mode, `ReactDOM.render` checks the DOM elements you define for any invalid HTML attributes.  When found, a warning is issued in the console.
+
+If you're utilizing Rapscallion's caching mechanisms, you will see warnings for the `cacheKey` props that you define on your elements.  Additionally, these properties are completely useless on the client, since they're only utilized during SSR.
+
+Rapscallion's client plugin will strip `cacheKey` props from your build, avoiding the errors and removing unnecessary bits from your client build.
+
+#### Use
+
+To use, add the following to your `.babelrc`:
+
+```
+{
+  "plugins": [
+    "rapscallion/babel-plugin-client",
+    // ...
+  ]
+}
+```
+
+### `babel-plugin-server`
+
+In typical scenarios, developers will use the `babel-plugin-transform-react-jsx` plugin to transform their JSX into `React.createElement` calls.  However, these `createElement` function calls involve run-time overhead that is ultimately unnecessary for SSR.
+
+Rapscallion's server plugin is provided as a more efficient alternative.  It provides two primary benefits:
+
+**Efficient VDOM data-structure:** Instead of transforming JSX into `React.createElement` calls, Rapscallion's server plugin transforms JSX into a simple object/array data-structure.  This data-structure is more efficient to traverse and avoids extraneous function invocations.
+
+**Pre-rendering:** Rapscallion's server plugin also attempts to pre-render as much content as possible.  For example, if your component always starts with a `<div>`, that fact can be determined at build-time.  Transforming JSX into these pre-computed string segments avoids computation cost at run-time, and in some cases can make for a more shallow VDOM tree.
+
+To be clear, `rapscallion/babel-plugin-server` should be used _in place of_ `babel-plugin-transform-react-jsx`.
+
+### Use
+
+To use, add the following to your `.babelrc`:
+
+```
+{
+  "plugins": [
+    "rapscallion/babel-plugin-server",
+    // ...
+  ]
+}
+```
+
+
+-----
+
 ## Benchmarks
 
 The below benchmarks _do not_ represent a typical use-case.  Instead, they represent the absolute _best case scenario_ for component caching.
