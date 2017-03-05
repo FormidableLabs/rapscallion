@@ -7,7 +7,7 @@
 Rapscallion is a React VirtualDOM renderer for the server.  Its notable features are as follows:
 
 - Rendering is **asynchronous and non-blocking**.
-- Rapscallion is roughly **50% faster** than `renderToString`.
+- Rapscallion is roughly **30% faster** than `renderToString`.
 - It provides a streaming interface so that you can **start sending content to the client immediately**.
 - It provides a templating feature, so that you can **wrap your component's HTML in boilerplate** without giving up benefits of streaming.
 - It provides a **component caching** API to further speed-up your rendering.
@@ -374,12 +374,17 @@ However, you'll note that even without caching, a concurrent workload will be pr
 
 ```
 Starting benchmark for 10 concurrent render operations...
-renderToString took 2.138940631 seconds
-rapscallion, no caching took 1.488518342 seconds; ~1.43x faster
-rapscallion, caching DIVs took 0.295781047 seconds; ~7.23x faster
-rapscallion, caching DIVs (second time) took 0.111968410 seconds; ~19.1x faster
-rapscallion, caching Components took 0.186903500 seconds; ~11.44x faster
-rapscallion, caching Components (second time) took 0.075220726 seconds; ~28.43x faster
+renderToString took 9.639041541 seconds
+rapscallion, no caching took 9.168861890 seconds; ~1.05x faster
+rapscallion, caching DIVs took 3.830723252 seconds; ~2.51x faster
+rapscallion, caching DIVs (second time) took 3.004709954 seconds; ~3.2x faster
+rapscallion, caching Components took 3.088687965 seconds; ~3.12x faster
+rapscallion, caching Components (second time) took 2.484650701 seconds; ~3.87x faster
+rapscallion (pre-rendered), no caching took 7.423578183 seconds; ~1.29x faster
+rapscallion (pre-rendered), caching DIVs took 3.202458180 seconds; ~3x faster
+rapscallion (pre-rendered), caching DIVs (second time) took 2.671346947 seconds; ~3.6x faster
+rapscallion (pre-rendered), caching Components took 2.578935599 seconds; ~3.73x faster
+rapscallion (pre-rendered), caching Components (second time) took 2.470472298 seconds; ~3.9x faster
 ```
 
 
