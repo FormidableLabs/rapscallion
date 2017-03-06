@@ -26,7 +26,7 @@ module.exports = () => ({
       exit: (path, state) => {
         const obj = objectExpressionToObject(path.node);
         if (!obj.__prerendered__) { return; }
-        // Mutating, since this is an exit visitor and its way easier...
+        // Mutating, since this is an exit visitor and it is way easier...
         flattenDomSegments(obj);
         if (path.node.__isHoistable__ && state.opts && state.opts.hoist) {
           path.hoist();
@@ -200,16 +200,8 @@ const objectExpressionToObject = objExpr => {
   return obj;
 };
 
-const isHoistable = arrayElements => {
-  return arrayElements.reduce((memo, el) => {
-    if (!memo) { return memo; }
-    if (
-      t.isStringLiteral(el) ||
-      t.isNumericLiteral(el) ||
-      t.isObjectExpression(el) && el.__isHoistable__
-    ) {
-      return true;
-    }
-    return false;
-  }, true);
-};
+const isHoistable = arrayElements => arrayElements.every(el =>
+  t.isStringLiteral(el) ||
+  t.isNumericLiteral(el) ||
+  t.isObjectExpression(el) && el.__isHoistable__
+);
