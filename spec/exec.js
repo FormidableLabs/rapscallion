@@ -19,6 +19,7 @@ require("./cache");
 require("./children");
 require("./context");
 require("./deep-hierarchies");
+require("./elements");
 require("./lifecycle-methods");
 require("./special-cases");
 require("./template");
