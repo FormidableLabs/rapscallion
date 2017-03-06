@@ -1,8 +1,7 @@
-import { default as React } from "react";
-
-import { checkParity } from "./_util";
+import { checkParity, getRootNode } from "./_util";
 
 
+const code = `
 const Foo = () => (
   <div>
     <h1 id="foobar">Hello, world</h1>
@@ -30,6 +29,10 @@ class FooBar extends React.Component {
   }
 }
 
+return FooBar;
+`;
+
 describe("a hierarchy three levels deep", () => {
+  const FooBar = getRootNode(code);
   checkParity(FooBar, {});
 });

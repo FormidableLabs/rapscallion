@@ -7,7 +7,7 @@
 Rapscallion is a React VirtualDOM renderer for the server.  Its notable features are as follows:
 
 - Rendering is **asynchronous and non-blocking**.
-- Rapscallion is roughly **50% faster** than `renderToString`.
+- Rapscallion is roughly **30% faster** than `renderToString`.
 - It provides a streaming interface so that you can **start sending content to the client immediately**.
 - It provides a templating feature, so that you can **wrap your component's HTML in boilerplate** without giving up benefits of streaming.
 - It provides a **component caching** API to further speed-up your rendering.
@@ -33,6 +33,9 @@ Rapscallion is a React VirtualDOM renderer for the server.  Its notable features
     - [Behavior](#behavior)
     - [Example](#example)
 - [Caching](#caching)
+- [Babel Plugins](#babel-plugins)
+  - [`babel-plugin-client`](#babel-plugin-client)
+  - [`babel-plugin-server`](#babel-plugin-server)
 - [Benchmarks](#benchmarks)
 - [License](#license)
 
@@ -313,6 +316,67 @@ Promise.resolve()
 
 -----
 
+## Babel Plugins
+
+Rapscallion ships with two Babel plugins, one intended for your server build and one for your client build.  Each serves a different purpose.
+
+### `babel-plugin-client`
+
+When running in development mode, `ReactDOM.render` checks the DOM elements you define for any invalid HTML attributes.  When found, a warning is issued in the console.
+
+If you're utilizing Rapscallion's caching mechanisms, you will see warnings for the `cacheKey` props that you define on your elements.  Additionally, these properties are completely useless on the client, since they're only utilized during SSR.
+
+Rapscallion's client plugin will strip `cacheKey` props from your build, avoiding the errors and removing unnecessary bits from your client build.
+
+To use, add the following to your `.babelrc`:
+
+```json
+{
+  "plugins": [
+    "rapscallion/babel-plugin-client",
+    // ...
+  ]
+}
+```
+
+### `babel-plugin-server`
+
+In typical scenarios, developers will use the `babel-plugin-transform-react-jsx` plugin to transform their JSX into `React.createElement` calls.  However, these `createElement` function calls involve run-time overhead that is ultimately unnecessary for SSR.
+
+Rapscallion's server plugin is provided as a more efficient alternative.  It provides two primary benefits:
+
+**Efficient VDOM data-structure:** Instead of transforming JSX into `React.createElement` calls, Rapscallion's server plugin transforms JSX into a simple object/array data-structure.  This data-structure is more efficient to traverse and avoids extraneous function invocations.
+
+**Pre-rendering:** Rapscallion's server plugin also attempts to pre-render as much content as possible.  For example, if your component always starts with a `<div>`, that fact can be determined at build-time.  Transforming JSX into these pre-computed string segments avoids computation cost at run-time, and in some cases can make for a more shallow VDOM tree.
+
+To be clear, `rapscallion/babel-plugin-server` should be used _in place of_ `babel-plugin-transform-react-jsx`.
+
+To use, add the following to your `.babelrc`:
+
+```json
+{
+  "plugins": [
+    "rapscallion/babel-plugin-server",
+    // ...
+  ]
+}
+```
+
+The plugin also supports Rapscallion-aware JSX hoisting.  This may improve performance, but may also hurt.  We recommend you profile your application's rendering behavior to determine whether to enable hoisting.  To use:
+
+```json
+{
+  "plugins": [
+    ["rapscallion/babel-plugin-server", {
+      "hoist": true
+    }]
+  ]
+}
+```
+
+
+-----
+
 ## Benchmarks
 
 The below benchmarks _do not_ represent a typical use-case.  Instead, they represent the absolute _best case scenario_ for component caching.
@@ -321,12 +385,17 @@ However, you'll note that even without caching, a concurrent workload will be pr
 
 ```
 Starting benchmark for 10 concurrent render operations...
-renderToString took 2.138940631 seconds
-rapscallion, no caching took 1.488518342 seconds; ~1.43x faster
-rapscallion, caching DIVs took 0.295781047 seconds; ~7.23x faster
-rapscallion, caching DIVs (second time) took 0.111968410 seconds; ~19.1x faster
-rapscallion, caching Components took 0.186903500 seconds; ~11.44x faster
-rapscallion, caching Components (second time) took 0.075220726 seconds; ~28.43x faster
+renderToString took 9.639041541 seconds
+rapscallion, no caching took 9.168861890 seconds; ~1.05x faster
+rapscallion, caching DIVs took 3.830723252 seconds; ~2.51x faster
+rapscallion, caching DIVs (second time) took 3.004709954 seconds; ~3.2x faster
+rapscallion, caching Components took 3.088687965 seconds; ~3.12x faster
+rapscallion, caching Components (second time) took 2.484650701 seconds; ~3.87x faster
+rapscallion (pre-rendered), no caching took 7.423578183 seconds; ~1.29x faster
+rapscallion (pre-rendered), caching DIVs took 3.202458180 seconds; ~3x faster
+rapscallion (pre-rendered), caching DIVs (second time) took 2.671346947 seconds; ~3.6x faster
+rapscallion (pre-rendered), caching Components took 2.578935599 seconds; ~3.73x faster
+rapscallion (pre-rendered), caching Components (second time) took 2.470472298 seconds; ~3.9x faster
 ```
 
 

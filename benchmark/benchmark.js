@@ -4,7 +4,7 @@ import { range } from "lodash";
 
 import { render } from "..";
 import { time } from "./_util";
-
+import PrerenderedComponent from "./prerendered-component";
 
 // Accessing process.env.NODE_ENV is expensive.
 // Replace process.env to equivalent plain JS objects.
@@ -24,7 +24,10 @@ const Component = ({ depth, leafText, cacheMe }) => {
   if (depth === 1) {
     return (
       <div>
-        {leafText}
+        <span>This is static leaf content.</span>
+        <div>
+          {leafText}
+        </div>
       </div>
     );
   }
@@ -38,6 +41,7 @@ const Component = ({ depth, leafText, cacheMe }) => {
           null
       }
     >
+      <span>This is static sibling content.</span>
       {
         range(depth).map(idx => (
           <Component
@@ -145,6 +149,90 @@ Promise.resolve()
   .then(() =>
     time(
       "rapscallion, caching Components (second time)",
+      () => Promise.all(
+        range(CONCURRENCY).map(() =>
+          render(
+            <Component
+              depth={DEPTH}
+              leafText="hi there! © <"
+              cacheMe={CACHE_COMPONENT}
+            />
+          ).toPromise()
+        )
+      ),
+      baseTime
+    )
+  )
+  .then(() =>
+    time(
+      "rapscallion (pre-rendered), no caching",
+      () => Promise.all(
+        range(CONCURRENCY).map(() =>
+          render(
+            <PrerenderedComponent
+              depth={DEPTH}
+              leafText="hi there! © <"
+            />
+          ).toPromise()
+        )
+      ),
+      baseTime
+    )
+  )
+  .then(() =>
+    time(
+      "rapscallion (pre-rendered), caching DIVs",
+      () => Promise.all(
+        range(CONCURRENCY).map(() =>
+          render(
+            <Component
+              depth={DEPTH}
+              leafText="hi there! © <"
+              cacheMe={CACHE_DIVS}
+            />
+          ).toPromise()
+        )
+      ),
+      baseTime
+    )
+  )
+  .then(() =>
+    time(
+      "rapscallion (pre-rendered), caching DIVs (second time)",
+      () => Promise.all(
+        range(CONCURRENCY).map(() =>
+          render(
+            <Component
+              depth={DEPTH}
+              leafText="hi there! © <"
+              cacheMe={CACHE_DIVS}
+            />
+          ).toPromise()
+        )
+      ),
+      baseTime
+    )
+  )
+  .then(() =>
+    time(
+      "rapscallion (pre-rendered), caching Components",
+      () => Promise.all(
+        range(CONCURRENCY).map(() =>
+          render(
+            <Component
+              depth={DEPTH}
+              leafText="hi there! © <"
+              cacheMe={CACHE_COMPONENT}
+            />
+          ).toPromise()
+        )
+      ),
+      baseTime
+    )
+  )
+  .then(() =>
+    time(
+      "rapscallion (pre-rendered), caching Components (second time)",
       () => Promise.all(
         range(CONCURRENCY).map(() =>
           render(

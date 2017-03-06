@@ -1,8 +1,8 @@
-import { default as React } from "react";
+import { checkParity, getRootNode } from "./_util";
+
+
+const code = `
 import { range } from "lodash";
-
-import { checkParity } from "./_util";
-
 
 const Foo = () => (
   <div>
@@ -22,8 +22,12 @@ const Bar = () => (
   </div>
 );
 
+return Bar;
+`;
+
 describe("children", () => {
   describe("specified as an array", () => {
+    const Bar = getRootNode(code);
     checkParity(Bar, {});
   });
 });
