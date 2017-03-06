@@ -137,17 +137,17 @@ describe("property to attribute mapping", () => {
     });
 
     // this probably is just masking programmer error, but it is existing behavior.
-    describe("className prop with true value", () => {
+    describe("htmlFor prop with true value", () => {
       checkElementParity(<div htmlFor={true} />); // eslint-disable-line react/jsx-boolean-value
     });
 
     // this probably is just masking programmer error, but it is existing behavior.
-    describe("className prop with false value", () => {
+    describe("htmlFor prop with false value", () => {
       checkElementParity(<div htmlFor={false} />);
     });
 
     // this probably is just masking programmer error, but it is existing behavior.
-    describe("className prop with false value", () => {
+    describe("htmlFor prop with false value", () => {
       checkElementParity(<div htmlFor />);
     });
 
