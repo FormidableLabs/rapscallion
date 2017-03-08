@@ -1,7 +1,7 @@
 const t = require("babel-types");
 const { flatten } = require("lodash");
 
-const { htmlStringEscape } = require("../render/util");
+const htmlStringEscape = require("../render/escape-html");
 const { REACT_ID } = require("../symbols");
 
 
