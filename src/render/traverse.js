@@ -2,6 +2,7 @@ const { getChildContext, getContext } = require("./context");
 const { syncSetState } = require("./state");
 const { htmlStringEscape } = require("./util");
 const renderAttrs = require("./attrs");
+const deasync = require("deasync");
 
 const { REACT_ID } = require("../symbols");
 
@@ -79,6 +80,7 @@ function renderNode (seq, node, context) {
  *
  * @return     {undefined}          No return value.
  */
+// eslint-disable-next-line max-statements
 function evalComponent (seq, node, context) {
   const componentContext = getContext(node.type, context);
 
@@ -89,17 +91,35 @@ function evalComponent (seq, node, context) {
     return;
   }
 
-  // eslint-disable-next-line new-cap
+   // eslint-disable-next-line new-cap
   const instance = new node.type(node.props, componentContext);
+
+  let res = null;
+  let promise = null;
 
   if (typeof instance.componentWillMount === "function") {
     instance.setState = syncSetState;
-    instance.componentWillMount();
+    res = instance.componentWillMount();
   }
 
-  const childContext = getChildContext(node.type, instance, context);
+  if (res && res.then) {
+    promise = res;
+  }
 
-  traverse(seq, instance.render(), childContext);
+  let done = false;
+
+  if (promise) {
+    promise.then(() => {done = true;});
+  } else {
+    done = true;
+  }
+
+  deasync.loopWhile(() => !done);
+
+  if (done) {
+    const childContext = getChildContext(node.type, instance, context);
+    traverse(seq, instance.render(), childContext);
+  }
 }
 
 function evalSegment (seq, segment, context) {
