@@ -8,6 +8,7 @@ const {
 
 const render = require("./render");
 const Renderer = require("./renderer");
+const { EXHAUSTED } = require("./sequence/common");
 
 
 const interlaceTemplateSegments = compose(
@@ -15,6 +16,27 @@ const interlaceTemplateSegments = compose(
   flatten,
   zip
 );
+
+function delegateToRenderer (seq, renderer) {
+  const oldNext = seq.next;
+
+  seq.delegate(() => {
+    renderer._queueRootNode();
+
+    // Patch the sequence's `next` method.
+    seq.next = () => {
+      const nextVal = renderer._next();
+
+      if (nextVal === EXHAUSTED) {
+        seq.next = oldNext;
+        return seq.popFrame() || EXHAUSTED;
+      }
+
+      return nextVal;
+    };
+  });
+
+}
 
 function getSequenceEvent (seq, segment) {
   const segmentType = typeof segment;
@@ -26,7 +48,7 @@ function getSequenceEvent (seq, segment) {
   } else if (segmentType === "function") {
     seq.delegate(() => getSequenceEvent(seq, segment()));
   } else if (segment instanceof Renderer) {
-    segment._queueRootNode(seq);
+    delegateToRenderer(seq, segment);
   } else {
     throw new Error(`Unknown value in template of type ${typeof segment}: ${segment}`);
   }

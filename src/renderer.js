@@ -61,7 +61,7 @@ class Renderer {
   }
 
   checksum () {
-    return this._checksum;
+    return this._checksum.toString();
   }
 
   includeDataReactAttrs (yesNo) {
