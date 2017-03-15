@@ -61,6 +61,9 @@ class Renderer {
   }
 
   checksum () {
+    if (!this._checksum) {
+      throw new Error("checksum method must be invoked after rendering has completed.");
+    }
     return this._checksum.toString();
   }
 
