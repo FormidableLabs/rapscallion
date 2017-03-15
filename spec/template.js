@@ -1,4 +1,5 @@
 import { default as React } from "react";
+import { renderToString as reactRenderToString } from "react-dom/server";
 
 import { render, template } from "../src";
 
@@ -32,13 +33,13 @@ describe("stream templates", () => {
       </div>
     );
 
-    const tmpl = template`before${render(<A />)}after`;
+    const tmpl = template`before${render(<A />).includeDataReactAttrs(false)}after`;
 
     let output = "";
     let segmentCount = 0;
 
     return resolveStreamOnDone(
-      tmpl.includeDataReactAttrs(false).toStream(),
+      tmpl.toStream(),
       segment => {
         output += segment;
         segmentCount++;
@@ -56,7 +57,7 @@ describe("stream templates", () => {
     let segmentCount = 0;
 
     return resolveStreamOnDone(
-      tmpl.includeDataReactAttrs(false).toStream(),
+      tmpl.toStream(),
       segment => {
         output += segment;
         segmentCount++;
@@ -83,12 +84,13 @@ describe("stream templates", () => {
       );
     };
 
-    const tmpl = template`${() => someState}${render(<B />)}${() => someState}`;
+    const tmpl =
+      template`${() => someState}${render(<B />).includeDataReactAttrs(false)}${() => someState}`;
 
     let output = "";
 
     return resolveStreamOnDone(
-      tmpl.includeDataReactAttrs(false).toStream(),
+      tmpl.toStream(),
       segment => output += segment
     ).then(() => {
       expect(output).to.equal("before<div><div></div></div>after");
@@ -98,15 +100,35 @@ describe("stream templates", () => {
   it("supports template composition", () => {
     const A = () => <div>A</div>;
     const B = () => <div>B</div>;
-    const tmpl = template`${render(<A />)}-${render(<B />)}`;
+    // eslint-disable-next-line max-len
+    const tmpl = template`${render(<A />).includeDataReactAttrs(false)}-${render(<B />).includeDataReactAttrs(false)}`;
 
     let output = "";
     return resolveStreamOnDone(
-      tmpl.includeDataReactAttrs(false).toStream(),
+      tmpl.toStream(),
       segment => output += segment
     ).then(() => {
       expect(output).to.equal("<div>A</div>-<div>B</div>");
     });
 
+  });
+
+  it("supports retrieving and inserting the checksum from a sub-renderer", () => {
+    const A = () => <div>A</div>;
+    const aRenderer = render(<A />);
+    const tmpl = template`<html>${aRenderer}<!–– ${() => aRenderer.checksum()} ––></html>`;
+
+    let output = "";
+    return resolveStreamOnDone(
+      tmpl.toStream(),
+      segment => output += segment
+    ).then(() => {
+      const renderToStringOutput = reactRenderToString(<A />);
+      const [ , checksum ] = renderToStringOutput.match(/data-react-checksum="([^"]*)"/);
+
+      expect(output).to.equal(
+        `<html><div data-reactroot=\"\" data-reactid=\"1\">A</div><!–– ${checksum} ––></html>`
+      );
+    });
   });
 });

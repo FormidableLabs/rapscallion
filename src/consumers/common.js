@@ -1,8 +1,6 @@
-const adler32 = require("adler-32");
 const Promise = require("bluebird");
 
 const { EXHAUSTED } = require("../sequence");
-const { REACT_ID } = require("../symbols");
 
 
 const INCOMPLETE = Symbol();
@@ -14,18 +12,16 @@ const INCOMPLETE = Symbol();
  * of retrieved values reaches the specified batch size, return control back
  * to the caller.
  *
- * @param      {Sequence}     sequence   Source sequence.
- * @param      {Integer}      batchSize  The number of segments to generated before
- *                                       returning control call to the caller.
+ * @param      {Renderer}     renderer   The Renderer from which to pull next-vals.
  * @param      {Array|Stream}            pushable   Destination for all segments.
  *
  * @return     {boolean|Promise}         Indicates whether there are more values to
  *                                       be retrieved, or if this the last batch.
  */
-function pullBatch (sequence, batchSize, pushable) {
-  let iter = batchSize;
+function pullBatch (renderer, pushable) {
+  let iter = renderer.batchSize;
   while (iter--) {
-    const next = sequence.next();
+    const next = renderer._next();
     if (
       next === EXHAUSTED ||
       next instanceof Promise
@@ -39,38 +35,7 @@ function pullBatch (sequence, batchSize, pushable) {
 }
 
 
-function getReactIdPushable (pushable, reactIdStart, dataReactAttrs) {
-  return {
-    reactIdStart,
-    reactIdIdx: reactIdStart,
-    push (el) {
-      if (el === REACT_ID) {
-        if (!dataReactAttrs) { return; }
-        if (this.reactIdIdx === this.reactIdStart) { pushable.push(" data-reactroot=\"\""); }
-        pushable.push(` data-reactid="${this.reactIdIdx}"`);
-        this.reactIdIdx++;
-      } else {
-        pushable.push(el);
-      }
-    }
-  };
-}
-
-function getChecksumWrapper (pushable) {
-  let checksum;
-  return {
-    push: data => {
-      checksum = adler32.str(data, checksum);
-      pushable.push(data);
-    },
-    checksum: () => checksum
-  };
-}
-
-
 module.exports = {
   pullBatch,
-  getReactIdPushable,
-  getChecksumWrapper,
   INCOMPLETE
 };

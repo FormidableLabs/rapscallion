@@ -11,7 +11,7 @@ class FrameCache {
   }
 
   fork () {
-    return new FrameCacheIterator(this, this.getNextFn());
+    return new FrameCacheIterator(this.getNextFn());
   }
 
   compress () {
@@ -48,7 +48,7 @@ class FrameCache {
 }
 
 class FrameCacheIterator {
-  constructor (frameCache, nextFn) {
+  constructor (nextFn) {
     this.idx = 0;
     this.next = () => nextFn(this.idx++);
   }
