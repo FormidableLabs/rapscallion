@@ -1,6 +1,6 @@
 const { getChildContext, getContext } = require("./context");
 const { syncSetState } = require("./state");
-const { htmlStringEscape } = require("./util");
+const htmlStringEscape = require("./escape-html");
 const renderAttrs = require("./attrs");
 
 const { REACT_ID } = require("../symbols");

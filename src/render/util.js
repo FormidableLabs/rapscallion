@@ -1,12 +1,4 @@
-const escapeHtml = require("escape-html");
 const { kebabCase } = require("lodash");
-
-const htmlStringEscape = str => {
-  if (typeof str === "boolean" || typeof str === "number") {
-    return String(str);
-  }
-  return escapeHtml(str);
-};
 
 const hasOwn = (obj, key) => Object.prototype.hasOwnProperty.call(obj, key);
 /**
@@ -22,7 +14,6 @@ const hasOwn = (obj, key) => Object.prototype.hasOwnProperty.call(obj, key);
 const hyphenateStyleName = (string) => kebabCase(string).replace(/^ms-/, "-ms-");
 
 module.exports = {
-  htmlStringEscape,
   hasOwn,
   hyphenateStyleName
 };
