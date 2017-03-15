@@ -26,7 +26,7 @@ function getSequenceEvent (seq, segment) {
   } else if (segmentType === "function") {
     seq.delegate(() => getSequenceEvent(seq, segment()));
   } else if (segment instanceof Renderer) {
-    segment._render(seq);
+    segment._queueRootNode(seq);
   } else {
     throw new Error(`Unknown value in template of type ${typeof segment}: ${segment}`);
   }
@@ -35,7 +35,7 @@ function getSequenceEvent (seq, segment) {
 function template (strings, ...values) {
   const templateSegments = interlaceTemplateSegments(strings, values);
   const renderer = new Renderer();
-  renderer._render = function (seq) {
+  renderer._queueRootNode = function (seq) {
     seq = seq || this.sequence;
     templateSegments.forEach(segment => getSequenceEvent(seq, segment));
   };

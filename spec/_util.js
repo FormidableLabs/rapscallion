@@ -27,12 +27,13 @@ export const checkParity = (Component, props) => {
         });
     });
     it("has parity with React#renderToString via Render#toStream", () => {
-      const stream = render(<Component {...props} />).toStream();
+      const renderer = render(<Component {...props} />);
+      const stream = renderer.toStream();
 
       let output = "";
       return resolveStreamOnDone(stream, segment => output += segment)
         .then(() => {
-          const checksum = stream.checksum();
+          const checksum = renderer.checksum();
           output = output.replace(TAG_END, ` data-react-checksum="${checksum}"$&`);
 
           expect(output).to.equal(reactRenderToString(<Component {...props} />));
@@ -57,12 +58,13 @@ export const checkParity = (Component, props) => {
         });
     });
     it("has parity with React#renderToString via Render#toStream", () => {
-      const stream = render(prerenderedRootNode).toStream();
+      const renderer = render(prerenderedRootNode);
+      const stream = renderer.toStream();
 
       let output = "";
       return resolveStreamOnDone(stream, segment => output += segment)
         .then(() => {
-          const checksum = stream.checksum();
+          const checksum = renderer.checksum();
           output = output.replace(TAG_END, ` data-react-checksum="${checksum}"$&`);
 
           expect(output).to.equal(reactRenderToString(<Component {...props} />));

@@ -1,9 +1,14 @@
 const { isInteger } = require("lodash");
+const adler32 = require("adler-32");
 
 const render = require("./render");
 const { sequence } = require("./sequence");
 const toPromise = require("./consumers/promise");
 const toNodeStream = require("./consumers/node-stream");
+const { REACT_ID } = require("./symbols");
+
+
+const REACT_ID_START = 1;
 
 
 /**
@@ -18,29 +23,45 @@ class Renderer {
     this.batchSize = 100;
     this.dataReactAttrs = true;
     this._stream = null;
+    this.reactIdIdx = REACT_ID_START;
+    this._checksum = undefined;
   }
 
-  _render (seq) {
+  _queueRootNode (seq) {
     render(seq || this.sequence, this.vdomNode);
   }
 
+  _next () {
+    let nextVal = this.sequence.next();
+
+    if (nextVal === REACT_ID) {
+      if (this.dataReactAttrs) {
+        nextVal = this.reactIdIdx === REACT_ID_START ?
+          ` data-reactroot="" data-reactid="${this.reactIdIdx}"` :
+          ` data-reactid="${this.reactIdIdx}"`;
+        this.reactIdIdx++;
+      } else {
+        return "";
+      }
+    }
+
+    this._checksum = adler32.str(nextVal, this._checksum);
+
+    return nextVal;
+  }
+
   toPromise () {
-    this._render();
-    return toPromise(this.sequence, this.batchSize, this.dataReactAttrs);
+    this._queueRootNode();
+    return toPromise(this);
   }
 
   toStream () {
-    this._render();
-    return this._stream = toNodeStream(this.sequence, this.batchSize, this.dataReactAttrs);
+    this._queueRootNode();
+    return toNodeStream(this);
   }
 
   checksum () {
-    if (!this._stream) {
-      throw new Error(
-        "Renderer#checksum can only be invoked for a renderer converted to node stream."
-      );
-    }
-    return this._stream.checksum();
+    return this._checksum;
   }
 
   includeDataReactAttrs (yesNo) {
