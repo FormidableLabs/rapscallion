@@ -23,7 +23,9 @@
     "check-templated-output": "babel-node benchmark/test-templated-output.js"
   },
   "files": [
-    "lib"
+    "lib",
+    "babel-plugin-client.js",
+    "babel-plugin-server.js"
   ],
   "repository": {
     "type": "git",
