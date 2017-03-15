@@ -35,11 +35,7 @@ function asyncBatch (
  * Consumes the provided sequence and returns a promise with the concatenation of all
  * sequence segments.
  *
- * @param      {Sequence}  sequence        Source sequence.
- * @param      {Integer}   batchSize       The number of HTML segments to render
- *                                         before passing control back to the event loop.
- * @param      {Boolean}   dataReactAttrs  Indicates whether data-react* attrs should be
- *                                         rendered.
+ * @param      {Renderer}     renderer     The Renderer from which to pull next-vals.
  *
  * @return     {Promise}                   A promise resolving to the HTML string.
  */

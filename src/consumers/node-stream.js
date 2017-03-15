@@ -8,11 +8,7 @@ const { pullBatch } = require("./common");
 /**
  * Consumes the provided sequence and pushes onto a readable Node stream.
  *
- * @param      {Sequence}  sequence        Source sequence.
- * @param      {Integer}   batchSize       The number of HTML segments to render
- *                                         before passing control back to the event loop.
- * @param      {Boolean}   dataReactAttrs  Indicates whether data-react* attrs should be
- *                                         rendered.
+ * @param      {Renderer}  renderer        The Renderer from which to pull next-vals.
  *
  * @return     {Readable}                  A readable Node stream.
  */

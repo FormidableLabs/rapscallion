@@ -12,9 +12,7 @@ const INCOMPLETE = Symbol();
  * of retrieved values reaches the specified batch size, return control back
  * to the caller.
  *
- * @param      {Sequence}     sequence   Source sequence.
- * @param      {Integer}      batchSize  The number of segments to generated before
- *                                       returning control call to the caller.
+ * @param      {Renderer}     renderer   The Renderer from which to pull next-vals.
  * @param      {Array|Stream}            pushable   Destination for all segments.
  *
  * @return     {boolean|Promise}         Indicates whether there are more values to
