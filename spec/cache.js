@@ -1,6 +1,6 @@
 import { default as React, Component } from "react";
 
-import { render, setCacheStrategy, Promise } from "../src";
+import { render, setCacheStrategy, Promise as Bluebird } from "../src";
 import { useDefaultCacheStrategy } from "../src/sequence/cache";
 
 
@@ -31,7 +31,7 @@ const runAllTests = () => {
 
     it("returns cached HTML for <div>", () => {
       const childKey = getChildKey();
-      return Promise.resolve()
+      return Bluebird.resolve()
         .then(() => render(<Parent val="firstA" childKey={childKey} />)
           .includeDataReactAttrs(false)
           .toPromise()
@@ -47,7 +47,7 @@ const runAllTests = () => {
 
     it("returns cached HTML for <Child>", () => {
       const parentKey = getParentKey();
-      return Promise.resolve()
+      return Bluebird.resolve()
         .then(() => render(<Parent val="firstB" parentKey={parentKey} />)
           .includeDataReactAttrs(false)
           .toPromise()
@@ -80,7 +80,7 @@ const runAllTests = () => {
 
     it("returns cached HTML for <div>", () => {
       const childKey = getChildKey();
-      return Promise.resolve()
+      return Bluebird.resolve()
         .then(() => render(<Parent val="firstC" childKey={childKey} />)
           .includeDataReactAttrs(false)
           .toPromise()
@@ -96,7 +96,7 @@ const runAllTests = () => {
 
     it("returns cached HTML for <Child>", () => {
       const parentKey = getParentKey();
-      return Promise.resolve()
+      return Bluebird.resolve()
         .then(() => render(<Parent val="firstD" parentKey={parentKey} />)
           .includeDataReactAttrs(false)
           .toPromise()
@@ -121,10 +121,10 @@ describe("async caching", () => {
     const asyncCache = Object.create(null);
 
     setCacheStrategy({
-      get: key => Promise.resolve(asyncCache[key] && JSON.parse(asyncCache[key]) || null),
+      get: key => Bluebird.resolve(asyncCache[key] && JSON.parse(asyncCache[key]) || null),
       set: (key, val) => {
         asyncCache[key] = JSON.stringify(val);
-        return Promise.resolve();
+        return Bluebird.resolve();
       }
     });
   });
@@ -134,4 +134,30 @@ describe("async caching", () => {
   });
 
   runAllTests();
+});
+
+describe("cache strategy promise support", () => {
+  it("supports native promises", () => {
+    const asyncCache = Object.create(null);
+    setCacheStrategy({
+      get: key => Promise.resolve(asyncCache[key] && JSON.parse(asyncCache[key]) || null),
+      set: (key, val) => {
+        asyncCache[key] = JSON.stringify(val);
+        return Promise.resolve();
+      }
+    });
+
+    return Promise.resolve()
+        .then(() => render(<div cacheKey="key">test</div>)
+          .includeDataReactAttrs(false)
+          .toPromise()
+        )
+        .then(() => render(<div cacheKey="key">cached</div>)
+          .includeDataReactAttrs(false)
+          .toPromise()
+        )
+        .then(html => {
+          expect(html).to.equal("<div>test</div>");
+        });
+  });
 });
