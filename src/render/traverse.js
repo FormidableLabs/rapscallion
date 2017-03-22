@@ -91,6 +91,8 @@ function evalComponent (seq, node, context) {
 
   // eslint-disable-next-line new-cap
   const instance = new node.type(node.props, componentContext);
+  instance.props = node.props;
+  instance.context = componentContext;
 
   if (typeof instance.componentWillMount === "function") {
     instance.setState = syncSetState;
