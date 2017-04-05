@@ -80,28 +80,40 @@ function renderNode (seq, node, context) {
  * @return     {undefined}          No return value.
  */
 function evalComponent (seq, node, context) {
-  const componentContext = getContext(node.type, context);
+  const Component = node.type;
 
-  if (!(node.type.prototype && node.type.prototype.isReactComponent)) {
-    const instance = node.type(node.props, componentContext);
-    const childContext = getChildContext(node.type, instance, context);
-    traverse(seq, instance, childContext);
-    return;
+  const componentContext = getContext(Component, context);
+  const instance = constructComponent(Component, node.props, componentContext);
+  const renderedElement = renderComponentInstance(instance, node.props, componentContext);
+
+  const childContext = getChildContext(Component, instance, context);
+  traverse(seq, renderedElement, childContext);
+}
+
+function constructComponent (Component, props, context) {
+  if (!(Component.prototype && Component.prototype.isReactComponent)) {
+    // eslint-disable-next-line new-cap
+    return Component(props, context);
+  } else {
+    return new Component(props, context);
   }
+}
 
-  // eslint-disable-next-line new-cap
-  const instance = new node.type(node.props, componentContext);
-  instance.props = node.props;
-  instance.context = componentContext;
-
-  if (typeof instance.componentWillMount === "function") {
-    instance.setState = syncSetState;
-    instance.componentWillMount();
+function renderComponentInstance (instance, props, context) {
+  let renderedElement;
+  // Stateless functional components return rendered element directly rather than component instance
+  if (instance === null || typeof instance.render !== "function") {
+    renderedElement = instance;
+  } else {
+    instance.props = props;
+    instance.context = context;
+    if (typeof instance.componentWillMount === "function") {
+      instance.setState = syncSetState;
+      instance.componentWillMount();
+    }
+    renderedElement = instance.render();
   }
-
-  const childContext = getChildContext(node.type, instance, context);
-
-  traverse(seq, instance.render(), childContext);
+  return renderedElement;
 }
 
 function evalSegment (seq, segment, context) {
