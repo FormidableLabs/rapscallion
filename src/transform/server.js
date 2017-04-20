@@ -127,7 +127,9 @@ const getComponentProps = (attributes, children) => attributes
   .concat([
     t.objectProperty(
       t.identifier("children"),
-      t.arrayExpression(children)
+      children.length === 1 ?
+        children[0] :
+        t.arrayExpression(children)
     )
   ]);
 
