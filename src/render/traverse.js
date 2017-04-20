@@ -117,7 +117,7 @@ function evalSegment (seq, segment, context) {
     } else if (segment.expression instanceof Array) {
       segment.expression.forEach(subsegment => traverse(seq, subsegment, context));
     } else {
-      traverse(segment.expression);
+      traverse(seq, segment.expression, context);
     }
   } else {
     traverse(seq, segment, context);
