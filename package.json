@@ -12,7 +12,7 @@
   ],
   "main": "index.js",
   "scripts": {
-    "build": "npm run check && rm -rf lib/ && babel -d lib/ src/",
+    "build": "rm -rf lib/ && babel -d lib/ src/",
     "check": "npm run lint && npm run test",
     "test": "mocha spec/exec.js",
     "lint": "eslint src spec",
