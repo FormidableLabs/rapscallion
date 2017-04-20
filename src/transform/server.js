@@ -64,8 +64,7 @@ const prerenderComponent = node => {
   return buildObjectExpression({
     __prerendered__: t.stringLiteral("component"),
     type: t.identifier(node.openingElement.name.name),
-    props: t.objectExpression(getComponentProps(node.openingElement.attributes)),
-    children: t.arrayExpression(children)
+    props: t.objectExpression(getComponentProps(node.openingElement.attributes, children))
   });
 };
 
@@ -87,8 +86,8 @@ const prerenderDom = node => {
   return objExpr;
 };
 
-const getComponentProps = attributes =>
-  attributes.map(attr => {
+const getComponentProps = (attributes, children) => attributes
+  .map(attr => {
     if (t.isJSXSpreadAttribute(attr)) {
       return t.spreadProperty(attr.argument);
     }
@@ -100,7 +99,13 @@ const getComponentProps = attributes =>
         value.expression :
         value
     );
-  });
+  })
+  .concat([
+    t.objectProperty(
+      t.identifier("children"),
+      t.arrayExpression(children)
+    )
+  ]);
 
 const pushVanillaVdom = (segments, node) => {
   const { openingElement, children, closingElement } = node;

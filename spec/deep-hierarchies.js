@@ -2,15 +2,23 @@ import { checkParity, getRootNode } from "./_util";
 
 
 const code = `
-const Foo = () => (
+
+const Bizz = () => (
+  <span>BIZZZZZZ</span>
+);
+
+const Foo = ({ children }) => (
   <div>
     <h1 id="foobar">Hello, world</h1>
+    { children }
   </div>
 );
 
 const Bar = () => (
   <div>
-    <Foo />
+    <Foo>
+      <Bizz />
+    </Foo>
     <ul>
       <li>first</li>
       <li>second</li>
