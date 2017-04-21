@@ -199,7 +199,7 @@ Like string templates, rendering templates allow you to insert expressions of va
 
 One important thing to note is that a rendering template returns a `Renderer` instance when evaluated.  This means that templates can be composed like so:
 
-```
+```javascript
 const myComponent = template`
 <div>
   ${ <MyComponent /> }
@@ -239,7 +239,7 @@ However, these properties also allow the computation cost to be spread across th
 
 All of this may be somewhat unclear in the abstract, so here's a fuller example:
 
-```
+```javascript
 import { render, template } from "rapscallion";
 
 // ...
