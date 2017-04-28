@@ -1,6 +1,7 @@
 const { isFunction } = require("lodash/fp");
-const { hasOwn } = require("../util");
 
+const { hasOwn } = require("../util");
+const htmlStringEscape = require("../escape-html");
 const transformAttrKey = require("./transform-attr-key");
 const { renderStyleAttribute } = require("./style");
 
@@ -37,6 +38,8 @@ function renderAttrs (attrs) {
         attrVal = "";
       } else if (attrKey === "style" && typeof attrVal === "object") {
         attrVal = `="${renderStyleAttribute(attrVal)}"`;
+      } else if (typeof attrVal === "string") {
+        attrVal = `="${htmlStringEscape(attrVal)}"`;
       } else {
         attrVal = `="${attrVal}"`;
       }
