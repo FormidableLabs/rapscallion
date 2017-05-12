@@ -41,7 +41,9 @@ function delegateToRenderer (seq, renderer) {
 function getSequenceEvent (seq, segment) {
   const segmentType = typeof segment;
 
-  if (segmentType === "string") {
+  if (segmentType === "undefined") {
+    seq.emit(() => "");
+  } else if (segmentType === "string") {
     seq.emit(() => segment);
   } else if (segmentType === "object" && typeof segment.type === "function") {
     render(seq, segment);
