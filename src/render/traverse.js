@@ -3,7 +3,12 @@ const { syncSetState } = require("./state");
 const htmlStringEscape = require("./escape-html");
 const renderAttrs = require("./attrs");
 
-const { REACT_ID } = require("../symbols");
+const {
+  REACT_EMPTY,
+  REACT_ID,
+  REACT_TEXT_START,
+  REACT_TEXT_END
+} = require("../symbols");
 
 const omittedCloseTags = {
   "area": true,
@@ -166,12 +171,21 @@ function evalPreRendered (seq, node, context) {
  */
 function traverse (seq, node, context) {
   // A Component's render function might return `null`.
-  if (!node) { return; }
+  if (node === undefined || node === null) {
+    seq.emit(() => REACT_EMPTY);
+    return;
+  }
+
+  if (node === false) {
+    return;
+  }
 
   switch (typeof node) {
   case "string": {
     // Text node.
+    seq.emit(() => REACT_TEXT_START);
     seq.emit(() => htmlStringEscape(node));
+    seq.emit(() => REACT_TEXT_END);
     return;
   }
   case "number": {

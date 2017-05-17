@@ -5,7 +5,12 @@ const render = require("./render");
 const { sequence } = require("./sequence");
 const toPromise = require("./consumers/promise");
 const toNodeStream = require("./consumers/node-stream");
-const { REACT_ID } = require("./symbols");
+const {
+  REACT_EMPTY,
+  REACT_ID,
+  REACT_TEXT_START,
+  REACT_TEXT_END
+} = require("./symbols");
 
 
 const REACT_ID_START = 1;
@@ -43,7 +48,28 @@ class Renderer {
       } else {
         return "";
       }
+    } else if (nextVal === REACT_EMPTY) {
+      if (this.dataReactAttrs) {
+        nextVal = `<!-- react-empty: ${this.reactIdIdx} -->`;
+        this.reactIdIdx++;
+      } else {
+        return "";
+      }
+    } else if (nextVal === REACT_TEXT_START) {
+      if (this.dataReactAttrs) {
+        nextVal = `<!-- react-text: ${this.reactIdIdx} -->`;
+        this.reactIdIdx++;
+      } else {
+        return "";
+      }
+    } else if (nextVal === REACT_TEXT_END) {
+      if (this.dataReactAttrs) {
+        nextVal = "<!-- /react-text -->";
+      } else {
+        return "";
+      }
     }
+
 
     this._checksum = adler32.str(nextVal, this._checksum);
 

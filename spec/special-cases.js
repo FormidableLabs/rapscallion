@@ -9,7 +9,7 @@ describe("special cases", () => {
     const Parent = () => <div><NullComponent /></div>;
 
     return render(<Parent />).includeDataReactAttrs(false).toPromise().then(html => {
-      expect(html).to.equal("<div></div>");
+      expect(html).to.equal("<div><!-- react-empty --></div>");
     });
   });
   it("renders components that don't pass constructor arguments to super", () => {
