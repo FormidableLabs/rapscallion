@@ -34,7 +34,7 @@ function renderChildrenArray (seq, children, context) {
     if (child instanceof Array) {
       renderChildrenArray(seq, child, context);
     } else {
-      traverse(seq, child, context);
+      traverse(seq, child, context, children.length);
     }
   }
 }
@@ -66,7 +66,7 @@ function renderNode (seq, node, context) {
   if (node.props.dangerouslySetInnerHTML) {
     seq.emit(() => node.props.dangerouslySetInnerHTML.__html || "");
   } else {
-    seq.delegate(() => renderChildren(seq, node.props.children, context));
+    seq.delegate(() => renderChildren(seq, node.props.children, context, node));
   }
   if (!omittedCloseTags[node.type]) {
     seq.emit(() => `</${node.type}>`);
@@ -169,7 +169,7 @@ function evalPreRendered (seq, node, context) {
  *
  * @return     {undefined}          No return value.
  */
-function traverse (seq, node, context) {
+function traverse (seq, node, context, numChildren) {
   // A Component's render function might return `null`.
   if (node === undefined || node === null) {
     seq.emit(() => REACT_EMPTY);
@@ -183,9 +183,13 @@ function traverse (seq, node, context) {
   switch (typeof node) {
   case "string": {
     // Text node.
-    seq.emit(() => REACT_TEXT_START);
+    if (numChildren) {
+      seq.emit(() => REACT_TEXT_START);
+    }
     seq.emit(() => htmlStringEscape(node));
-    seq.emit(() => REACT_TEXT_END);
+    if (numChildren) {
+      seq.emit(() => REACT_TEXT_END);
+    }
     return;
   }
   case "number": {
