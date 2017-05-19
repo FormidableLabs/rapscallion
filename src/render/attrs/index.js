@@ -28,13 +28,24 @@ function renderAttrs (attrs) {
       let attrVal = attrs[attrKey];
 
       if (
-        !attrVal || isFunction(attrVal) ||
-        !(Object.keys(attrVal).length > 0)
-      ) { continue; }
+        attrVal === undefined ||
+        attrVal === null ||
+        attrVal === false ||
+        isFunction(attrVal) ||
+        (
+          typeof attrVal === "object" &&
+          !(Object.keys(attrVal).length > 0)
+        )
+      ) {
+        continue;
+      }
 
       attrKey = transformAttrKey(attrKey);
-
-      if (attrVal === true) {
+      if (
+        attrVal === true ||
+        attrVal === undefined ||
+        attrVal === null
+      ) {
         attrVal = "";
       } else if (attrKey === "style" && typeof attrVal === "object") {
         attrVal = `="${renderStyleAttribute(attrVal)}"`;
