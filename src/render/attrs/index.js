@@ -10,6 +10,11 @@ const attrsNotToRender = {
   dangerouslySetInnerHTML: true
 };
 
+const attrsWithExplicitBoolValue = [
+  "aria-expanded",
+  "aria-haspopup"
+];
+
 /**
  * Render an object of key/value pairs into their HTML attribute equivalent.
  *
@@ -26,11 +31,15 @@ function renderAttrs (attrs) {
       !attrsNotToRender[attrKey]
     ) {
       let attrVal = attrs[attrKey];
+      const explicitBooleanValue = attrsWithExplicitBoolValue.includes(attrKey);
 
       if (
         attrVal === undefined ||
         attrVal === null ||
-        attrVal === false ||
+        (
+          attrVal === false &&
+          !(explicitBooleanValue)
+        ) ||
         isFunction(attrVal) ||
         (
           typeof attrVal === "object" &&
@@ -42,7 +51,10 @@ function renderAttrs (attrs) {
 
       attrKey = transformAttrKey(attrKey);
       if (
-        attrVal === true ||
+        (
+          attrVal === true &&
+          !(explicitBooleanValue)
+        ) ||
         attrVal === undefined ||
         attrVal === null
       ) {

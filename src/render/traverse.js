@@ -170,8 +170,12 @@ function evalPreRendered (seq, node, context) {
  * @return     {undefined}          No return value.
  */
 function traverse (seq, node, context, numChildren) {
+  if (node === undefined) {
+    return;
+  }
+
   // A Component's render function might return `null`.
-  if (node === undefined || node === null) {
+  if (node === null) {
     seq.emit(() => REACT_EMPTY);
     return;
   }
@@ -180,20 +184,31 @@ function traverse (seq, node, context, numChildren) {
     return;
   }
 
+  const hasSiblings = !!numChildren;
+
   switch (typeof node) {
   case "string": {
+
     // Text node.
-    if (numChildren) {
+    if (hasSiblings) {
       seq.emit(() => REACT_TEXT_START);
     }
     seq.emit(() => htmlStringEscape(node));
-    if (numChildren) {
+    if (hasSiblings) {
       seq.emit(() => REACT_TEXT_END);
     }
+
     return;
   }
   case "number": {
+    if (hasSiblings) {
+      seq.emit(() => REACT_TEXT_START);
+    }
     seq.emit(() => node.toString());
+    if (hasSiblings) {
+      seq.emit(() => REACT_TEXT_END);
+    }
+
     return;
   }
   case "object": {
