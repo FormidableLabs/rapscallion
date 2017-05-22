@@ -10,10 +10,10 @@ const attrsNotToRender = {
   dangerouslySetInnerHTML: true
 };
 
-const attrsWithExplicitBoolValue = [
-  "aria-expanded",
-  "aria-haspopup"
-];
+const attrsWithExplicitBoolValue = {
+  "aria-expanded": true,
+  "aria-haspopup": true
+};
 
 function shouldSkipRender (attrVal, isExplicitBoolValue) {
   return (
@@ -62,7 +62,7 @@ function renderAttrs (attrs) {
       !attrsNotToRender[attrKey]
     ) {
       let attrVal = attrs[attrKey];
-      const isExplicitBoolValue = attrsWithExplicitBoolValue.includes(attrKey);
+      const isExplicitBoolValue = !!attrsWithExplicitBoolValue[attrKey];
 
       if (shouldSkipRender(attrVal, isExplicitBoolValue)) {
         continue;
