@@ -4,7 +4,11 @@ const { getRootContext } = require("./context");
 
 function render (seq, node, rootContext) {
   rootContext = rootContext || getRootContext();
-  traverse(seq, node, rootContext);
+  traverse({
+    seq,
+    node,
+    context: rootContext
+  });
   return seq;
 }
 

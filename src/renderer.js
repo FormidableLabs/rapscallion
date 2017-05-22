@@ -36,38 +36,71 @@ class Renderer {
     render(seq || this.sequence, this.vdomNode);
   }
 
+  _rootVal () {
+    let val;
+
+    if (this.dataReactAttrs) {
+      val = this.reactIdIdx === REACT_ID_START ?
+        ` data-reactroot="" data-reactid="${this.reactIdIdx}"` :
+        ` data-reactid="${this.reactIdIdx}"`;
+
+      this.reactIdIdx++;
+
+      return val;
+    }
+
+    return val;
+  }
+
+  _emptyVal () {
+    let val;
+
+    if (this.dataReactAttrs) {
+      val = `<!-- react-empty: ${this.reactIdIdx} -->`;
+
+      this.reactIdIdx++;
+    }
+
+    return val;
+  }
+
+  _textStart () {
+    let val;
+
+    if (this.dataReactAttrs) {
+      val = `<!-- react-text: ${this.reactIdIdx} -->`;
+
+      this.reactIdIdx++;
+    }
+
+    return val;
+  }
+
+  _textEnd () {
+    let val;
+
+    if (this.dataReactAttrs) {
+      val = "<!-- /react-text -->";
+    }
+
+    return val;
+  }
+
   _next () {
     let nextVal = this.sequence.next();
 
     if (nextVal === REACT_ID) {
-      if (this.dataReactAttrs) {
-        nextVal = this.reactIdIdx === REACT_ID_START ?
-          ` data-reactroot="" data-reactid="${this.reactIdIdx}"` :
-          ` data-reactid="${this.reactIdIdx}"`;
-        this.reactIdIdx++;
-      } else {
-        return "";
-      }
+      nextVal = this._rootVal();
     } else if (nextVal === REACT_EMPTY) {
-      if (this.dataReactAttrs) {
-        nextVal = `<!-- react-empty: ${this.reactIdIdx} -->`;
-        this.reactIdIdx++;
-      } else {
-        return "";
-      }
+      nextVal = this._emptyVal();
     } else if (nextVal === REACT_TEXT_START) {
-      if (this.dataReactAttrs) {
-        nextVal = `<!-- react-text: ${this.reactIdIdx} -->`;
-        this.reactIdIdx++;
-      } else {
-        return "";
-      }
+      nextVal = this._textStart();
     } else if (nextVal === REACT_TEXT_END) {
-      if (this.dataReactAttrs) {
-        nextVal = "<!-- /react-text -->";
-      } else {
-        return "";
-      }
+      nextVal = this._textEnd();
+    }
+
+    if (!nextVal) {
+      return "";
     }
 
 

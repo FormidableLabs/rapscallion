@@ -15,6 +15,37 @@ const attrsWithExplicitBoolValue = [
   "aria-haspopup"
 ];
 
+function shouldSkipRender (attrVal, isExplicitBoolValue) {
+  return (
+    attrVal === undefined ||
+    attrVal === null ||
+    (
+      attrVal === false &&
+      !(isExplicitBoolValue)
+    ) ||
+    isFunction(attrVal) ||
+    (
+      typeof attrVal === "object" &&
+      !(Object.keys(attrVal).length > 0)
+    )
+  );
+}
+
+function isValuelessAttribute (attrVal, isExplicitBoolValue) {
+  return (
+    (
+      attrVal === true &&
+      !(isExplicitBoolValue)
+    ) ||
+    attrVal === undefined ||
+    attrVal === null
+  );
+}
+
+function isStyleAttribute (attrKey, attrVal) {
+  return attrKey === "style" && typeof attrVal === "object";
+}
+
 /**
  * Render an object of key/value pairs into their HTML attribute equivalent.
  *
@@ -31,35 +62,17 @@ function renderAttrs (attrs) {
       !attrsNotToRender[attrKey]
     ) {
       let attrVal = attrs[attrKey];
-      const explicitBooleanValue = attrsWithExplicitBoolValue.includes(attrKey);
+      const isExplicitBoolValue = attrsWithExplicitBoolValue.includes(attrKey);
 
-      if (
-        attrVal === undefined ||
-        attrVal === null ||
-        (
-          attrVal === false &&
-          !(explicitBooleanValue)
-        ) ||
-        isFunction(attrVal) ||
-        (
-          typeof attrVal === "object" &&
-          !(Object.keys(attrVal).length > 0)
-        )
-      ) {
+      if (shouldSkipRender(attrVal, isExplicitBoolValue)) {
         continue;
       }
 
       attrKey = transformAttrKey(attrKey);
-      if (
-        (
-          attrVal === true &&
-          !(explicitBooleanValue)
-        ) ||
-        attrVal === undefined ||
-        attrVal === null
-      ) {
+
+      if (isValuelessAttribute(attrVal, isExplicitBoolValue)) {
         attrVal = "";
-      } else if (attrKey === "style" && typeof attrVal === "object") {
+      } else if (isStyleAttribute(attrKey, attrVal)) {
         attrVal = `="${renderStyleAttribute(attrVal)}"`;
       } else if (typeof attrVal === "string") {
         attrVal = `="${htmlStringEscape(attrVal)}"`;

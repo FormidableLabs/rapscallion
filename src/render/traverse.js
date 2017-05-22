@@ -34,7 +34,12 @@ function renderChildrenArray (seq, children, context) {
     if (child instanceof Array) {
       renderChildrenArray(seq, child, context);
     } else {
-      traverse(seq, child, context, children.length);
+      traverse({
+        seq,
+        node: child,
+        context,
+        numChildren: children.length
+      });
     }
   }
 }
@@ -45,7 +50,11 @@ function renderChildren (seq, children, context) {
   if (children instanceof Array) {
     renderChildrenArray(seq, children, context);
   } else {
-    traverse(seq, children, context);
+    traverse({
+      seq,
+      node: children,
+      context
+    });
   }
 }
 
@@ -92,7 +101,11 @@ function evalComponent (seq, node, context) {
   const renderedElement = renderComponentInstance(instance, node.props, componentContext);
 
   const childContext = getChildContext(Component, instance, context);
-  traverse(seq, renderedElement, childContext);
+  traverse({
+    seq,
+    node: renderedElement,
+    context: childContext
+  });
 }
 
 function constructComponent (Component, props, context) {
@@ -132,12 +145,24 @@ function evalSegment (seq, segment, context) {
     if (typeof segment.expression === "string") {
       seq.emit(() => htmlStringEscape(segment.expression));
     } else if (segment.expression instanceof Array) {
-      segment.expression.forEach(subsegment => traverse(seq, subsegment, context));
+      segment.expression.forEach(subsegment => traverse({
+        seq,
+        node: subsegment,
+        context
+      }));
     } else {
-      traverse(seq, segment.expression, context);
+      traverse({
+        seq,
+        node: segment.expression,
+        context
+      });
     }
   } else {
-    traverse(seq, segment, context);
+    traverse({
+      seq,
+      node: segment,
+      context
+    });
   }
 }
 
@@ -159,55 +184,68 @@ function evalPreRendered (seq, node, context) {
   }
 }
 
-/**
- * This function will recursively traverse the VDOM tree, emitting HTML segments
- * to the provided sequence.
- *
- * @param      {Sequence}  seq      Sequence that receives HTML segments.
- * @param      {VDOM}      node     Root VDOM node.
- * @param      {Object}    context  React context.
- *
- * @return     {undefined}          No return value.
- */
-function traverse (seq, node, context, numChildren) {
+function emitEmpty (seq) {
+  seq.emit(() => REACT_EMPTY);
+}
+
+function emitText (seq, text, numChildren) {
+  const hasSiblings = numChildren > 1;
+
+  if (hasSiblings) {
+    seq.emit(() => REACT_TEXT_START);
+  }
+
+  seq.emit(() => text);
+
+  if (hasSiblings) {
+    seq.emit(() => REACT_TEXT_END);
+  }
+}
+
+function shouldEmitByType (seq, node) {
   if (node === undefined) {
-    return;
+    return false;
   }
 
   // A Component's render function might return `null`.
   if (node === null) {
-    seq.emit(() => REACT_EMPTY);
-    return;
+    emitEmpty(seq);
+    return false;
   }
 
   if (node === false) {
-    return;
+    return false;
   }
 
-  const hasSiblings = !!numChildren;
+  return true;
+}
+
+/**
+ * This function will recursively traverse the VDOM tree, emitting HTML segments
+ * to the provided sequence.
+ *
+ * @param      {Sequence}  seq          Sequence that receives HTML segments.
+ * @param      {VDOM}      node         Root VDOM node.
+ * @param      {Object}    context      React context.
+ * @param      {Number}    numChildren  number of children the parent node has
+ *
+ * @return     {undefined}          No return value.
+ */
+function traverse ({ seq, node, context, numChildren }) {
+  if (!shouldEmitByType(seq, node)) {
+    return;
+  }
 
   switch (typeof node) {
   case "string": {
 
     // Text node.
-    if (hasSiblings) {
-      seq.emit(() => REACT_TEXT_START);
-    }
-    seq.emit(() => htmlStringEscape(node));
-    if (hasSiblings) {
-      seq.emit(() => REACT_TEXT_END);
-    }
+    emitText(seq, htmlStringEscape(node), numChildren);
 
     return;
   }
   case "number": {
-    if (hasSiblings) {
-      seq.emit(() => REACT_TEXT_START);
-    }
-    seq.emit(() => node.toString());
-    if (hasSiblings) {
-      seq.emit(() => REACT_TEXT_END);
-    }
+    emitText(seq, node.toString(), numChildren);
 
     return;
   }
