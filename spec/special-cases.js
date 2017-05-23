@@ -69,6 +69,7 @@ describe("special cases", () => {
       .then(html => expect(html).to.equal("<a></a>"));
   });
   it("renders true attributes as valueless", () => {
+    // eslint-disable-next-line react/jsx-boolean-value
     const ValuelessAttribute = () => <a disabled={true} />;
 
     return render(<ValuelessAttribute />)
