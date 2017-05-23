@@ -43,6 +43,7 @@
     "babel-plugin-transform-react-jsx": "^6.22.0",
     "babel-preset-latest": "^6.22.0",
     "chai": "^3.5.0",
+    "cheerio": "^0.22.0",
     "eslint": "2.10.2",
     "eslint-config-formidable": "^2.0.1",
     "eslint-plugin-filenames": "^1.1.0",
