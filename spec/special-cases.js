@@ -1,5 +1,5 @@
 import { default as React, Component } from "react";
-import cheerio from 'cheerio';
+import cheerio from "cheerio";
 
 import { render } from "../src";
 
