@@ -16,16 +16,67 @@ describe("special cases", () => {
   it("renders empty comments for components that return null", () => {
     const NullComponent = () => null;
 
-    return render(<NullComponent />).toPromise().then(cheerio.load).then($ => {
-      expect($.html()).to.equal("<!-- react-empty: 1 -->");
-    });
+    return render(<NullComponent />)
+      .toPromise()
+      .then(cheerio.load)
+      .then($ => $.html())
+      .then(html => expect(html).to.equal("<!-- react-empty: 1 -->"));
   });
-  it("does not renders text comments for single children", () => {
+  it("does not render text comments for children without siblings", () => {
     const TextComponent = () => "some text";
 
-    return render(<TextComponent />).toPromise().then(cheerio.load).then($ => {
-      expect($.html()).to.equal("some text");
-    });
+    return render(<TextComponent />).toPromise()
+      .then(cheerio.load)
+      .then($ => $.html())
+      .then(html => expect(html).to.equal("some text"));
+  });
+  it("renders text comments for children with siblings", () => {
+    const TextWithSiblingsComponent = () => <div id="root"><div>child 1</div>child 2</div>;
+
+    const expected =
+      "<div data-reactid=\"2\">child 1</div><!-- react-text: 3 -->child 2<!-- /react-text -->";
+
+    return render(<TextWithSiblingsComponent />)
+      .toPromise()
+      .then(cheerio.load)
+      .then($ => $("#root").html())
+      .then(html => expect(html).to.equal(expected));
+  });
+  it("does not render non-number falsy attributes", () => {
+    const ComponentWithFalsyAttribute = () => (
+      <div>
+        <a disabled={false} />
+        <a disabled={null} />
+        <a disabled={undefined} />
+      </div>
+    );
+
+    return render(<ComponentWithFalsyAttribute />)
+      .includeDataReactAttrs(false)
+      .toPromise()
+      .then(cheerio.load)
+      .then($ => $.html())
+      .then(html => expect(html).to.equal("<div><a></a><a></a><a></a></div>"));
+  });
+  it("renders zero attributes as a string", () => {
+    const ComponentWithZeroAttribute = () => <a disabled={false} />;
+
+    return render(<ComponentWithZeroAttribute />)
+      .includeDataReactAttrs(false)
+      .toPromise()
+      .then(cheerio.load)
+      .then($ => $.html())
+      .then(html => expect(html).to.equal("<a></a>"));
+  });
+  it("renders true attributes as valueless", () => {
+    const ValuelessAttribute = () => <a disabled={true} />;
+
+    return render(<ValuelessAttribute />)
+      .includeDataReactAttrs(false)
+      .toPromise()
+      .then(cheerio.load)
+      .then($ => $.html())
+      .then(html => expect(html).to.equal("<a disabled></a>"));
   });
   it("renders components that don't pass constructor arguments to super", () => {
     class C extends Component {
