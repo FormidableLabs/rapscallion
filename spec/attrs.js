@@ -1,6 +1,6 @@
 const renderAttrs = require("../src/render/attrs");
 
-describe.only("attributes", () => {
+describe("attributes", () => {
   it("do not include children", () => {
     expect(renderAttrs({ children: "value" })).to.equal("");
   });

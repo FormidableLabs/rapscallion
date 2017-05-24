@@ -38,37 +38,6 @@ describe("special cases", () => {
       .then($ => $("#root").html())
       .then(html => expect(html).to.equal(expected));
   });
-  // it("does not render non-number falsy attributes", () => {
-  //   const ComponentWithFalsyAttribute = () => (
-  //     <div>
-  //       <a disabled={false} />
-  //       <a disabled={null} />
-  //       <a disabled={undefined} />
-  //     </div>
-  //   );
-  //
-  //   return render(<ComponentWithFalsyAttribute />)
-  //     .includeDataReactAttrs(false)
-  //     .toPromise()
-  //     .then(html => expect(html).to.equal("<div><a></a><a></a><a></a></div>"));
-  // });
-  // it("renders zero attributes as a string", () => {
-  //   const ComponentWithZeroAttribute = () => <a disabled={0} />;
-  //
-  //   return render(<ComponentWithZeroAttribute />)
-  //     .includeDataReactAttrs(false)
-  //     .toPromise()
-  //     .then(html => expect(html).to.equal("<a></a>"));
-  // });
-  // it("renders true attributes as valueless", () => {
-  //   // eslint-disable-next-line react/jsx-boolean-value
-  //   const ValuelessAttribute = () => <a disabled={true} />;
-  //
-  //   return render(<ValuelessAttribute />)
-  //     .includeDataReactAttrs(false)
-  //     .toPromise()
-  //     .then(html => expect(html).to.equal("<a disabled></a>"));
-  // });
   it("renders components that don't pass constructor arguments to super", () => {
     class C extends Component {
       constructor () {
@@ -82,13 +51,4 @@ describe("special cases", () => {
       expect(html).to.equal("<div>bar</div>");
     });
   });
-  // it("renders true aria attributes", () => {
-  //   // eslint-disable-next-line react/jsx-boolean-value
-  //   const ComponentWithAriaAttribute = () => <a aria-expanded={true} />;
-  //
-  //   return render(<ComponentWithAriaAttribute />)
-  //     .includeDataReactAttrs(false)
-  //     .toPromise()
-  //     .then(html => expect(html).to.equal("<a aria-expanded=\"true\"></a>"));
-  // });
 });
