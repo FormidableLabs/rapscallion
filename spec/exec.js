@@ -23,3 +23,4 @@ require("./special-cases");
 require("./template");
 require("./escape-html");
 require("./styles");
+require("./attrs");
