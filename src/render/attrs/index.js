@@ -1,49 +1,43 @@
-const { isFunction } = require("lodash/fp");
-
-const { hasOwn } = require("../util");
-const htmlStringEscape = require("../escape-html");
-const transformAttrKey = require("./transform-attr-key");
 const { renderStyleAttribute } = require("./style");
 
-const attrsNotToRender = {
-  children: true,
-  dangerouslySetInnerHTML: true
-};
-
-const attrsWithExplicitBoolValue = {
-  "aria-expanded": true,
-  "aria-haspopup": true
-};
-
-function shouldSkipRender (attrVal, isExplicitBoolValue) {
-  return (
-    attrVal === undefined ||
-    attrVal === null ||
-    (
-      attrVal === false &&
-      !(isExplicitBoolValue)
-    ) ||
-    isFunction(attrVal) ||
-    (
-      typeof attrVal === "object" &&
-      !(Object.keys(attrVal).length > 0)
-    )
-  );
-}
-
-function isValuelessAttribute (attrVal, isExplicitBoolValue) {
-  return (
-    (
-      attrVal === true &&
-      !(isExplicitBoolValue)
-    ) ||
-    attrVal === undefined ||
-    attrVal === null
-  );
-}
+const DOMProperty = require("react-dom/lib/DOMProperty");
 
 function isStyleAttribute (attrKey, attrVal) {
   return attrKey === "style" && typeof attrVal === "object";
+}
+
+function shouldIgnoreValue (propertyInfo, value) {
+  return (
+		value === null ||
+		(propertyInfo.hasBooleanValue && !value) ||
+		(propertyInfo.hasNumericValue && isNaN(value)) ||
+		(propertyInfo.hasPositiveNumericValue && value < 1) ||
+		(propertyInfo.hasOverloadedBooleanValue && value === false)
+	);
+}
+
+function stringifyAttr (attr, value) {
+  if (!DOMProperty.properties.hasOwnProperty(attr)) {
+    return "";
+  }
+
+  const info = DOMProperty.properties[attr];
+  const finalAttr = info.attributeName;
+  let finalValue = value;
+
+  if (shouldIgnoreValue(info, value)) {
+    return "";
+  }
+
+  if (
+    !info.mustUseProperty &&
+    info.hasBooleanValue ||
+    (info.hasOverloadedBooleanValue && value === true)
+  ) {
+    finalValue = "";
+  }
+
+  return `${finalAttr}="${finalValue}"`;
 }
 
 /**
@@ -56,31 +50,18 @@ function isStyleAttribute (attrKey, attrVal) {
 function renderAttrs (attrs) {
   const attrString = [];
 
-  for (let attrKey in attrs) {
-    if (
-      hasOwn(attrs, attrKey) &&
-      !attrsNotToRender[attrKey]
-    ) {
-      let attrVal = attrs[attrKey];
-      const isExplicitBoolValue = !!attrsWithExplicitBoolValue[attrKey];
+  for (const attrKey in attrs) {
+    let attrPairString;
+    const attrVal = attrs[attrKey];
 
-      if (shouldSkipRender(attrVal, isExplicitBoolValue)) {
-        continue;
-      }
+    if (isStyleAttribute(attrKey, attrVal)) {
+      attrPairString = `style="${renderStyleAttribute(attrVal)}"`;
+    } else {
+      attrPairString = stringifyAttr(attrKey, attrs[attrKey]);
+    }
 
-      attrKey = transformAttrKey(attrKey);
-
-      if (isValuelessAttribute(attrVal, isExplicitBoolValue)) {
-        attrVal = "";
-      } else if (isStyleAttribute(attrKey, attrVal)) {
-        attrVal = `="${renderStyleAttribute(attrVal)}"`;
-      } else if (typeof attrVal === "string") {
-        attrVal = `="${htmlStringEscape(attrVal)}"`;
-      } else {
-        attrVal = `="${attrVal}"`;
-      }
-
-      attrString.push(` ${attrKey}${attrVal}`);
+    if (attrPairString.length) {
+      attrString.push(` ${attrPairString}`);
     }
   }
 
