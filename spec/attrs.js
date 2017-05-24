@@ -39,28 +39,47 @@ describe.only("attributes", () => {
     });
   });
   it("include those not tracked by React", () => {
-    expect(renderAttrs({ "data-track": "click.something.somewhere" })).to.equal(" data-track=\"click.something.somewhere\"");
+    expect(renderAttrs({ "data-track": "click.something.somewhere" }))
+    .to.equal(" data-track=\"click.something.somewhere\"");
   });
-  xit("that must be included are always included", () => {
-    throw 'test not implemented';
+  it("are HTML encoded", () => {
+    expect(renderAttrs({ href: "/?this=that&foo=bar" }))
+    .to.equal(" href=\"/?this=that&amp;foo=bar\"");
   });
-  xdescribe("expecting numbers", () => {
+  it("that must be included are always included", () => {
+    expect(renderAttrs({ checked: false })).to.equal(" checked=\"false\"");
+    expect(renderAttrs({ checked: true })).to.equal(" checked=\"true\"");
+  });
+  describe("expecting numbers", () => {
     it("are absent when their value is NaN", () => {
-      throw 'test not implemented';
+      expect(renderAttrs({ rowSpan: NaN })).to.equal("");
     });
     it("are present when their value is a number", () => {
-      throw 'test not implemented';
+      expect(renderAttrs({ rowSpan: 0 })).to.equal(" rowspan=\"0\"");
     });
-  })
-  xdescribe("expecting positive numbers", () => {
+  });
+  describe("expecting positive numbers", () => {
     it("are absent when their value is < 1", () => {
-      throw 'test not implemented';
+      expect(renderAttrs({ cols: 0 })).to.equal("");
     });
     it("are present when their value is >= 1", () => {
-      throw 'test not implemented';
+      expect(renderAttrs({ cols: 1 })).to.equal(" cols=\"1\"");
+      expect(renderAttrs({ cols: 2 })).to.equal(" cols=\"2\"");
     });
-  })
-  xit("overloaded boolean value?", () => {
-    throw 'test not implemented';
+  });
+  describe("expecting overloaded boolean values", () => {
+    it("include strings when true", () => {
+      expect(renderAttrs({ download: true })).to.equal(" download=\"\"");
+    });
+    it("are absent when false, undefined, or null", () => {
+      expect(renderAttrs({ download: false })).to.equal("");
+      expect(renderAttrs({ download: undefined })).to.equal("");
+      expect(renderAttrs({ download: null })).to.equal("");
+    });
+    it("include strings when 0 or truthy", () => {
+      expect(renderAttrs({ download: 0 })).to.equal(" download=\"0\"");
+      expect(renderAttrs({ download: 1 })).to.equal(" download=\"1\"");
+      expect(renderAttrs({ download: "https://www.shutterstock.com?this=that&foo=bar" })).to.equal(" download=\"https://www.shutterstock.com?this=that&foo=bar\"");
+    });
   });
 });

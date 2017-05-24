@@ -7,9 +7,11 @@ const SVGDOMPropertyConfig = require("react-dom/lib/SVGDOMPropertyConfig");
 const { renderStyleAttribute } = require("./style");
 const escapeHtml = require("../escape-html");
 
-DOMProperty.injection.injectDOMPropertyConfig(ARIADOMPropertyConfig);
-DOMProperty.injection.injectDOMPropertyConfig(HTMLDOMPropertyConfig);
-DOMProperty.injection.injectDOMPropertyConfig(SVGDOMPropertyConfig);
+if (!(Object.keys(DOMProperty.properties).length)) {
+  DOMProperty.injection.injectDOMPropertyConfig(ARIADOMPropertyConfig);
+  DOMProperty.injection.injectDOMPropertyConfig(HTMLDOMPropertyConfig);
+  DOMProperty.injection.injectDOMPropertyConfig(SVGDOMPropertyConfig);
+}
 
 const attrsNotToRender = {
   children: true,
@@ -20,116 +22,99 @@ function isStyleAttribute (attrKey) {
   return attrKey === "style";
 }
 
-function shouldIgnoreValue (propertyInfo, value) {
-  return (
-		value === null ||
-		(propertyInfo.hasBooleanValue && !value) ||
-		(propertyInfo.hasNumericValue && isNaN(value)) ||
-		(propertyInfo.hasPositiveNumericValue && value < 1) ||
-		(propertyInfo.hasOverloadedBooleanValue && value === false)
-	);
-}
-
 function toStringWithValue (name, value) {
   return `${name}="${value}"`;
 }
 
+function stringifyCustom (attr, value) {
+  let val;
+
+  if (
+    !isFunction(value) &&
+    !attrsNotToRender[attr]
+  ) {
+    val = toStringWithValue(attr, value);
+  }
+
+  return val;
+}
+
+function stringifyBoolean ({ attributeName: name, mustUseProperty }, value) {
+  let val;
+
+  if (mustUseProperty) {
+    val = toStringWithValue(name, value);
+  } else if (value) {
+    val = name;
+  }
+
+  return val;
+}
+
+function stringifyOverloadedBoolean (name, value) {
+  let val;
+
+  if (value === true) {
+    val = toStringWithValue(name, "");
+  } else if (value !== undefined && value !== null && value !== false) {
+    val = toStringWithValue(name, value);
+  }
+
+  return val;
+}
+
+function stringifyNumeric ({ attributeName: name, hasPositiveNumericValue }, value) {
+  let val;
+
+  if (!isNaN(value)) {
+    if (hasPositiveNumericValue) {
+      if (value > 0) {
+        val = toStringWithValue(name, value);
+      }
+    } else {
+      val = toStringWithValue(name, value);
+    }
+  }
+
+  return val;
+}
+
+function stringifyStyle (name, value) {
+  let val;
+
+  if (value && typeof value === "object" && Object.keys(value).length) {
+    val = toStringWithValue(name, renderStyleAttribute(value));
+  }
+
+  return val;
+}
+
 function stringifyAttr (attr, value) {
-  // if (attr === 'className') console.log(attr, value);
+  let val;
+
   if (value !== undefined && value !== null) {
     if (!DOMProperty.properties.hasOwnProperty(attr)) {
-      if (
-        !isFunction(value) &&
-        !attrsNotToRender[attr]
-      ) {
-        return toStringWithValue(attr, value);
-      }
+      val = stringifyCustom(attr, value);
     } else {
       const info = DOMProperty.properties[attr];
       const name = info.attributeName;
 
       if (info.hasBooleanValue) {
-        if (value) {
-          return name;
-        }
+        val = stringifyBoolean(info, value);
+      } else if (info.hasNumericValue) {
+        val = stringifyNumeric(info, value);
       } else if (isStyleAttribute(attr)) {
-        if (value && typeof value === "object" && Object.keys(value).length) {
-          return toStringWithValue(name, renderStyleAttribute(value));
-        }
+        val = stringifyStyle(name, value);
+      } else if (info.hasOverloadedBooleanValue) {
+        val = stringifyOverloadedBoolean(name, value);
       } else {
-        return toStringWithValue(name, value);
+        val = toStringWithValue(name, escapeHtml(value));
       }
     }
   }
 
-  return "";
+  return val || "";
 }
-
-// function stringifyAttr (attr, value) {
-  // if (!DOMProperty.properties.hasOwnProperty(attr)) {
-  //   if (isFunction(value)) {
-  //     return "";
-  //   }
-  //
-  //   if (!value) {
-  //     return "";
-  //   }
-  //
-  //   if (attrsNotToRender[attr]) {
-  //     return "";
-  //   }
-  //
-  //   return `${attr}="${escapeHtml(value)}"`;
-  // }
-
-
-
-
-
-  // if (!DOMProperty.properties.hasOwnProperty(attr)) {
-  //   if (
-  //     attrsNotToRender[attr]
-  //     || isFunction(value)
-  //     || !value
-  //   ) {
-  //     return "";
-  //   } else {
-  //     return `${attr}="${escapeHtml(value)}"`;
-  //   }
-  // }
-  //
-  // const info = DOMProperty.properties[attr];
-  // const finalAttr = info.attributeName;
-  // let finalValue = value;
-  //
-  // if (shouldIgnoreValue(info, value)) {
-  //   return "";
-  // }
-  //
-  // if (isStyleAttribute(attr)) {
-  //   if (!value || !Object.keys(value).length) {
-  //     return "";
-  //   } else {
-  //     finalValue = `="${renderStyleAttribute(value)}"`;
-  //   }
-  // } else if (!value) {
-  //   if (
-  //     info.mustUseProperty ||
-  //     (info.hasBooleanValue && value === false) ||
-  //     (info.hasOverloadedBooleanValue && value === true)
-  //   ) {
-  //     finalValue = "";
-  //   } else if (typeof value === "string") {
-  //     finalValue = "=\"\"";
-  //   } else {
-  //     return "";
-  //   }
-  // } else {
-  //   finalValue = `="${escapeHtml(finalValue)}"`;
-  // }
-  //
-  // return `${finalAttr}${finalValue}`;
-// }
 
 /**
  * Render an object of key/value pairs into their HTML attribute equivalent.
