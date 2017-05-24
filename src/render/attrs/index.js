@@ -30,14 +30,17 @@ function stringifyAttr (attr, value) {
   }
 
   if (
-    !info.mustUseProperty &&
-    info.hasBooleanValue ||
-    (info.hasOverloadedBooleanValue && value === true)
+    !info.mustUseProperty && (
+      info.hasBooleanValue ||
+      (info.hasOverloadedBooleanValue && value === true)
+    )
   ) {
     finalValue = "";
+  } else {
+    finalValue = `="${finalValue}"`;
   }
 
-  return `${finalAttr}="${finalValue}"`;
+  return `${finalAttr}${finalValue}`;
 }
 
 /**

@@ -18,16 +18,12 @@ describe("special cases", () => {
 
     return render(<NullComponent />)
       .toPromise()
-      .then(cheerio.load)
-      .then($ => $.html())
       .then(html => expect(html).to.equal("<!-- react-empty: 1 -->"));
   });
   it("does not render text comments for children without siblings", () => {
     const TextComponent = () => "some text";
 
     return render(<TextComponent />).toPromise()
-      .then(cheerio.load)
-      .then($ => $.html())
       .then(html => expect(html).to.equal("some text"));
   });
   it("renders text comments for children with siblings", () => {
@@ -54,18 +50,14 @@ describe("special cases", () => {
     return render(<ComponentWithFalsyAttribute />)
       .includeDataReactAttrs(false)
       .toPromise()
-      .then(cheerio.load)
-      .then($ => $.html())
       .then(html => expect(html).to.equal("<div><a></a><a></a><a></a></div>"));
   });
   it("renders zero attributes as a string", () => {
-    const ComponentWithZeroAttribute = () => <a disabled={false} />;
+    const ComponentWithZeroAttribute = () => <a disabled={0} />;
 
     return render(<ComponentWithZeroAttribute />)
       .includeDataReactAttrs(false)
       .toPromise()
-      .then(cheerio.load)
-      .then($ => $.html())
       .then(html => expect(html).to.equal("<a></a>"));
   });
   it("renders true attributes as valueless", () => {
@@ -75,8 +67,6 @@ describe("special cases", () => {
     return render(<ValuelessAttribute />)
       .includeDataReactAttrs(false)
       .toPromise()
-      .then(cheerio.load)
-      .then($ => $.html())
       .then(html => expect(html).to.equal("<a disabled></a>"));
   });
   it("renders components that don't pass constructor arguments to super", () => {
@@ -91,5 +81,14 @@ describe("special cases", () => {
     return render(<C foo="bar"/>).includeDataReactAttrs(false).toPromise().then(html => {
       expect(html).to.equal("<div>bar</div>");
     });
+  });
+  it("renders true aria attributes", () => {
+    // eslint-disable-next-line react/jsx-boolean-value
+    const ComponentWithAriaAttribute = () => <a aria-expanded={true} />;
+
+    return render(<ComponentWithAriaAttribute />)
+      .includeDataReactAttrs(false)
+      .toPromise()
+      .then(html => expect(html).to.equal("<a aria-expanded=\"true\"></a>"));
   });
 });
