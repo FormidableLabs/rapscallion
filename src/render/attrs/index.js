@@ -7,9 +7,11 @@ const SVGDOMPropertyConfig = require("react-dom/lib/SVGDOMPropertyConfig");
 const { renderStyleAttribute } = require("./style");
 const escapeHtml = require("../escape-html");
 
-DOMProperty.injection.injectDOMPropertyConfig(ARIADOMPropertyConfig);
-DOMProperty.injection.injectDOMPropertyConfig(HTMLDOMPropertyConfig);
-DOMProperty.injection.injectDOMPropertyConfig(SVGDOMPropertyConfig);
+if (Object.keys(DOMProperty.properties).length === 0) {
+  DOMProperty.injection.injectDOMPropertyConfig(ARIADOMPropertyConfig);
+  DOMProperty.injection.injectDOMPropertyConfig(HTMLDOMPropertyConfig);
+  DOMProperty.injection.injectDOMPropertyConfig(SVGDOMPropertyConfig);
+}
 
 const attrsNotToRender = {
   children: true,

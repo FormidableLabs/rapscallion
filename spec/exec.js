@@ -2,6 +2,9 @@ Error.stackTraceLimit = Infinity;
 
 require("babel-core/register");
 
+// initializes react-dom/lib/DOMProperty for tests
+require("react-dom/server");
+
 const chai = require("chai");
 const sinonChai = require("sinon-chai");
 global.sinon = require("sinon");
