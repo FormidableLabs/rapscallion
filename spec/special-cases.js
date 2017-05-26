@@ -1,5 +1,4 @@
 import { default as React, Component } from "react";
-import cheerio from "cheerio";
 
 import { render } from "../src";
 
@@ -29,13 +28,11 @@ describe("special cases", () => {
   it("renders text comments for children with siblings", () => {
     const TextWithSiblingsComponent = () => <div id="root"><div>child 1</div>child 2</div>;
 
-    const expected =
-      "<div data-reactid=\"2\">child 1</div><!-- react-text: 3 -->child 2<!-- /react-text -->";
+    // eslint-disable-next-line max-len
+    const expected = "<div id=\"root\" data-reactroot=\"\" data-reactid=\"1\" data-react-checksum=\"-1855509454\"><div data-reactid=\"2\">child 1</div><!-- react-text: 3 -->child 2<!-- /react-text --></div>";
 
     return render(<TextWithSiblingsComponent />)
       .toPromise()
-      .then(cheerio.load)
-      .then($ => $("#root").html())
       .then(html => expect(html).to.equal(expected));
   });
   it("renders components that don't pass constructor arguments to super", () => {
