@@ -1,6 +1,6 @@
 const { hasOwn } = require("../util");
 const { map } = require("lodash/fp");
-const { isNumber } = require("lodash");
+const { isNumber, omitBy } = require("lodash");
 const { hyphenateStyleName } = require("../util");
 const isUnitlessNumber = require("./is-unitless-number");
 
@@ -17,7 +17,9 @@ const mapToParsedStyles = mapWithKey((value, name) => (
  * @returns {String} parsed and stringified style
  */
 function renderStyleAttribute (styles) {
-  return mapToParsedStyles(styles).join("");
+  return mapToParsedStyles(omitBy(styles, value => {
+    return value === null || value === undefined;
+  })).join("");
 }
 
 /**
@@ -28,9 +30,7 @@ function renderStyleAttribute (styles) {
  * @see https://github.com/facebook/react/blob/master/src/renderers/dom/shared/dangerousStyleValue.js
  */
 function parseStyleValue (name, value) {
-  // Use loose equality check to catch undefined as well.
-  // eslint-disable-next-line eqeqeq
-  if (value == null || typeof value === "boolean" || value === "") {
+  if (typeof value === "boolean" || value === "") {
     return "";
   }
   // All numeric properties that are not registered as
