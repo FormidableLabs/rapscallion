@@ -77,7 +77,9 @@ function renderNode (seq, node, context) {
   } else if (node.props.children !== null) {
     let children = node.props.children;
     if (Array.isArray(children)) {
-      children = children.filter(Boolean);
+      children = children.filter(item => {
+        return item !== null && item !== undefined && item !== false;
+      });
     }
     seq.delegate(() => renderChildren(seq, children, context, node));
   }

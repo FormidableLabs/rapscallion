@@ -83,6 +83,16 @@ describe("special cases", () => {
       .toPromise()
       .then(html => expect(html).to.equal(expected));
   });
+  it("renders text comments for empty text with siblings", () => {
+    const EmptyTextComponent = () => <div>{""}<div>foo</div></div>;
+
+    // eslint-disable-next-line max-len
+    const expected = "<div data-reactroot=\"\" data-reactid=\"1\" data-react-checksum=\"-442161767\"><!-- react-text: 2 --><!-- /react-text --><div data-reactid=\"3\">foo</div></div>";
+
+    return render(<EmptyTextComponent />).toPromise().then(html => {
+      expect(html).to.equal(expected);
+    });
+  });
   it("renders components that don't pass constructor arguments to super", () => {
     class C extends Component {
       constructor () {
