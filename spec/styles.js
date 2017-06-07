@@ -9,7 +9,11 @@ const FooBar = () => (
       opacity: 1,
       animationIterationCount: 1,
       animationName: "foobar",
-      fontSize: 15
+      fontSize: 15,
+      width: null,
+      height: undefined,
+      paddingTop: false,
+      paddingBottom: ""
     }}
   />
 );

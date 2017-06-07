@@ -4,12 +4,60 @@ import { render } from "../src";
 
 
 describe("special cases", () => {
-  it("renders components that return null", () => {
+  it("renders components that return null without data attrs", () => {
     const NullComponent = () => null;
     const Parent = () => <div><NullComponent /></div>;
 
     return render(<Parent />).includeDataReactAttrs(false).toPromise().then(html => {
       expect(html).to.equal("<div></div>");
+    });
+  });
+  it("renders components that return null with data attrs", () => {
+    const NullComponent = () => null;
+    const Parent = () => <div><NullComponent /></div>;
+
+    // eslint-disable-next-line max-len
+    const expected = "<div data-reactroot=\"\" data-reactid=\"1\" data-react-checksum=\"585373152\"><!-- react-empty: 2 --></div>";
+
+    return render(<Parent />).toPromise().then(html => {
+      expect(html).to.equal(expected);
+    });
+  });
+  it("renders expression that return null without data attrs", () => {
+    const Parent = () => <div>{null}</div>;
+
+    return render(<Parent />).includeDataReactAttrs(false).toPromise().then(html => {
+      expect(html).to.equal("<div></div>");
+    });
+  });
+  it("renders expression that return null with data attrs", () => {
+    const Parent = () => <div>{null}</div>;
+
+    // eslint-disable-next-line max-len
+    const expected = "<div data-reactroot=\"\" data-reactid=\"1\" data-react-checksum=\"1998851930\"></div>";
+
+    return render(<Parent />).toPromise().then(html => {
+      expect(html).to.equal(expected);
+    });
+  });
+  it("renders expression that return array with some null items", () => {
+    const Parent = () => <div>{[null, <div key={1}>foo</div>, null]}</div>;
+
+    // eslint-disable-next-line max-len
+    const expected = "<div data-reactroot=\"\" data-reactid=\"1\" data-react-checksum=\"-11200067\"><div data-reactid=\"2\">foo</div></div>";
+
+    return render(<Parent />).toPromise().then(html => {
+      expect(html).to.equal(expected);
+    });
+  });
+  it("renders expression that return array with all null items", () => {
+    const Parent = () => <div>{[null, null, null]}</div>;
+
+    // eslint-disable-next-line max-len
+    const expected = "<div data-reactroot=\"\" data-reactid=\"1\" data-react-checksum=\"1998851930\"></div>";
+
+    return render(<Parent />).toPromise().then(html => {
+      expect(html).to.equal(expected);
     });
   });
   it("renders empty comments for components that return null", () => {
@@ -35,6 +83,16 @@ describe("special cases", () => {
       .toPromise()
       .then(html => expect(html).to.equal(expected));
   });
+  it("renders text comments for empty text with siblings", () => {
+    const EmptyTextComponent = () => <div>{""}<div>foo</div></div>;
+
+    // eslint-disable-next-line max-len
+    const expected = "<div data-reactroot=\"\" data-reactid=\"1\" data-react-checksum=\"-442161767\"><!-- react-text: 2 --><!-- /react-text --><div data-reactid=\"3\">foo</div></div>";
+
+    return render(<EmptyTextComponent />).toPromise().then(html => {
+      expect(html).to.equal(expected);
+    });
+  });
   it("renders components that don't pass constructor arguments to super", () => {
     class C extends Component {
       constructor () {
@@ -46,6 +104,13 @@ describe("special cases", () => {
     }
     return render(<C foo="bar"/>).includeDataReactAttrs(false).toPromise().then(html => {
       expect(html).to.equal("<div>bar</div>");
+    });
+  });
+  it("renders 0 as number", () => {
+    const ZeroComponent = () => <div>{0}</div>;
+
+    return render(<ZeroComponent />).includeDataReactAttrs(false).toPromise().then(html => {
+      expect(html).to.equal("<div>0</div>");
     });
   });
 });
