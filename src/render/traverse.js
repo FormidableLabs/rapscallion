@@ -45,7 +45,7 @@ function renderChildrenArray (seq, children, context) {
 }
 
 function renderChildren (seq, children, context) {
-  if (!children) { return; }
+  if (children === undefined) { return; }
 
   if (children instanceof Array) {
     renderChildrenArray(seq, children, context);
@@ -74,8 +74,12 @@ function renderNode (seq, node, context) {
   seq.emit(() => omittedCloseTags[node.type] ? "/>" : ">");
   if (node.props.dangerouslySetInnerHTML) {
     seq.emit(() => node.props.dangerouslySetInnerHTML.__html || "");
-  } else {
-    seq.delegate(() => renderChildren(seq, node.props.children, context, node));
+  } else if (node.props.children !== null) {
+    let children = node.props.children;
+    if (Array.isArray(children)) {
+      children = children.filter(Boolean);
+    }
+    seq.delegate(() => renderChildren(seq, children, context, node));
   }
   if (!omittedCloseTags[node.type]) {
     seq.emit(() => `</${node.type}>`);
@@ -207,12 +211,6 @@ function shouldEmitByType (seq, node) {
     return false;
   }
 
-  // A Component's render function might return `null`.
-  if (node === null) {
-    emitEmpty(seq);
-    return false;
-  }
-
   if (node === false) {
     return false;
   }
@@ -231,14 +229,19 @@ function shouldEmitByType (seq, node) {
  *
  * @return     {undefined}          No return value.
  */
+// eslint-disable-next-line max-statements
 function traverse ({ seq, node, context, numChildren }) {
   if (!shouldEmitByType(seq, node)) {
     return;
   }
 
+  if (node === null) {
+    emitEmpty(seq);
+    return;
+  }
+
   switch (typeof node) {
   case "string": {
-
     // Text node.
     emitText(seq, htmlStringEscape(node), numChildren);
 
