@@ -1,5 +1,5 @@
 const { isInteger } = require("lodash");
-const adler32 = require("adler-32");
+const adler32 = require("./adler32");
 
 const render = require("./render");
 const { sequence } = require("./sequence");
@@ -45,7 +45,7 @@ class Renderer {
       }
     }
 
-    this._checksum = adler32.str(nextVal, this._checksum);
+    this._checksum = adler32(nextVal, this._checksum);
 
     return nextVal;
   }
