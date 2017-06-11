@@ -5,7 +5,12 @@ const render = require("./render");
 const { sequence } = require("./sequence");
 const toPromise = require("./consumers/promise");
 const toNodeStream = require("./consumers/node-stream");
-const { REACT_ID } = require("./symbols");
+const {
+  REACT_EMPTY,
+  REACT_ID,
+  REACT_TEXT_START,
+  REACT_TEXT_END
+} = require("./symbols");
 
 
 const REACT_ID_START = 1;
@@ -31,18 +36,71 @@ class Renderer {
     render(seq || this.sequence, this.vdomNode);
   }
 
+  _rootVal () {
+    let val;
+
+    if (this.dataReactAttrs) {
+      val = this.reactIdIdx === REACT_ID_START ?
+        ` data-reactroot="" data-reactid="${this.reactIdIdx}"` :
+        ` data-reactid="${this.reactIdIdx}"`;
+
+      this.reactIdIdx++;
+
+      return val;
+    }
+
+    return val;
+  }
+
+  _emptyVal () {
+    let val;
+
+    if (this.dataReactAttrs) {
+      val = `<!-- react-empty: ${this.reactIdIdx} -->`;
+
+      this.reactIdIdx++;
+    }
+
+    return val;
+  }
+
+  _textStart () {
+    let val;
+
+    if (this.dataReactAttrs) {
+      val = `<!-- react-text: ${this.reactIdIdx} -->`;
+
+      this.reactIdIdx++;
+    }
+
+    return val;
+  }
+
+  _textEnd () {
+    let val;
+
+    if (this.dataReactAttrs) {
+      val = "<!-- /react-text -->";
+    }
+
+    return val;
+  }
+
   _next () {
     let nextVal = this.sequence.next();
 
     if (nextVal === REACT_ID) {
-      if (this.dataReactAttrs) {
-        nextVal = this.reactIdIdx === REACT_ID_START ?
-          ` data-reactroot="" data-reactid="${this.reactIdIdx}"` :
-          ` data-reactid="${this.reactIdIdx}"`;
-        this.reactIdIdx++;
-      } else {
-        return "";
-      }
+      nextVal = this._rootVal();
+    } else if (nextVal === REACT_EMPTY) {
+      nextVal = this._emptyVal();
+    } else if (nextVal === REACT_TEXT_START) {
+      nextVal = this._textStart();
+    } else if (nextVal === REACT_TEXT_END) {
+      nextVal = this._textEnd();
+    }
+
+    if (!nextVal) {
+      return "";
     }
 
     this._checksum = adler32(nextVal, this._checksum);

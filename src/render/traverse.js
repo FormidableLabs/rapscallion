@@ -3,7 +3,12 @@ const { syncSetState } = require("./state");
 const htmlStringEscape = require("./escape-html");
 const renderAttrs = require("./attrs");
 
-const { REACT_ID } = require("../symbols");
+const {
+  REACT_EMPTY,
+  REACT_ID,
+  REACT_TEXT_START,
+  REACT_TEXT_END
+} = require("../symbols");
 
 const omittedCloseTags = {
   "area": true,
@@ -29,18 +34,27 @@ function renderChildrenArray (seq, children, context) {
     if (child instanceof Array) {
       renderChildrenArray(seq, child, context);
     } else {
-      traverse(seq, child, context);
+      traverse({
+        seq,
+        node: child,
+        context,
+        numChildren: children.length
+      });
     }
   }
 }
 
 function renderChildren (seq, children, context) {
-  if (!children) { return; }
+  if (children === undefined) { return; }
 
   if (children instanceof Array) {
     renderChildrenArray(seq, children, context);
   } else {
-    traverse(seq, children, context);
+    traverse({
+      seq,
+      node: children,
+      context
+    });
   }
 }
 
@@ -60,8 +74,14 @@ function renderNode (seq, node, context) {
   seq.emit(() => omittedCloseTags[node.type] ? "/>" : ">");
   if (node.props.dangerouslySetInnerHTML) {
     seq.emit(() => node.props.dangerouslySetInnerHTML.__html || "");
-  } else {
-    seq.delegate(() => renderChildren(seq, node.props.children, context));
+  } else if (node.props.children !== null) {
+    let children = node.props.children;
+    if (Array.isArray(children)) {
+      children = children.filter(item => {
+        return item !== null && item !== undefined && item !== false;
+      });
+    }
+    seq.delegate(() => renderChildren(seq, children, context, node));
   }
   if (!omittedCloseTags[node.type]) {
     seq.emit(() => `</${node.type}>`);
@@ -87,7 +107,11 @@ function evalComponent (seq, node, context) {
   const renderedElement = renderComponentInstance(instance, node.props, componentContext);
 
   const childContext = getChildContext(Component, instance, context);
-  traverse(seq, renderedElement, childContext);
+  traverse({
+    seq,
+    node: renderedElement,
+    context: childContext
+  });
 }
 
 function constructComponent (Component, props, context) {
@@ -127,12 +151,24 @@ function evalSegment (seq, segment, context) {
     if (typeof segment.expression === "string") {
       seq.emit(() => htmlStringEscape(segment.expression));
     } else if (segment.expression instanceof Array) {
-      segment.expression.forEach(subsegment => traverse(seq, subsegment, context));
+      segment.expression.forEach(subsegment => traverse({
+        seq,
+        node: subsegment,
+        context
+      }));
     } else {
-      traverse(seq, segment.expression, context);
+      traverse({
+        seq,
+        node: segment.expression,
+        context
+      });
     }
   } else {
-    traverse(seq, segment, context);
+    traverse({
+      seq,
+      node: segment,
+      context
+    });
   }
 }
 
@@ -154,28 +190,68 @@ function evalPreRendered (seq, node, context) {
   }
 }
 
+function emitEmpty (seq) {
+  seq.emit(() => REACT_EMPTY);
+}
+
+function emitText (seq, text, numChildren) {
+  const hasSiblings = numChildren > 1;
+
+  if (hasSiblings) {
+    seq.emit(() => REACT_TEXT_START);
+  }
+
+  seq.emit(() => text);
+
+  if (hasSiblings) {
+    seq.emit(() => REACT_TEXT_END);
+  }
+}
+
+function shouldEmitByType (seq, node) {
+  if (node === undefined) {
+    return false;
+  }
+
+  if (node === false) {
+    return false;
+  }
+
+  return true;
+}
+
 /**
  * This function will recursively traverse the VDOM tree, emitting HTML segments
  * to the provided sequence.
  *
- * @param      {Sequence}  seq      Sequence that receives HTML segments.
- * @param      {VDOM}      node     Root VDOM node.
- * @param      {Object}    context  React context.
+ * @param      {Sequence}  seq          Sequence that receives HTML segments.
+ * @param      {VDOM}      node         Root VDOM node.
+ * @param      {Object}    context      React context.
+ * @param      {Number}    numChildren  number of children the parent node has
  *
  * @return     {undefined}          No return value.
  */
-function traverse (seq, node, context) {
-  // A Component's render function might return `null`.
-  if (!node) { return; }
+// eslint-disable-next-line max-statements
+function traverse ({ seq, node, context, numChildren }) {
+  if (!shouldEmitByType(seq, node)) {
+    return;
+  }
+
+  if (node === null) {
+    emitEmpty(seq);
+    return;
+  }
 
   switch (typeof node) {
   case "string": {
     // Text node.
-    seq.emit(() => htmlStringEscape(node));
+    emitText(seq, htmlStringEscape(node), numChildren);
+
     return;
   }
   case "number": {
-    seq.emit(() => node.toString());
+    emitText(seq, node.toString(), numChildren);
+
     return;
   }
   case "object": {
