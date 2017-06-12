@@ -8,14 +8,13 @@
 // Requiring `react-dom` early resolves this issue.
 require("react-dom");
 
-const { isFunction } = require("lodash/fp");
+const isObject = require("lodash/isObject");
+const isString = require("lodash/isString");
+const mapValues = require("lodash/mapValues");
 const DOMProperty = require("react-dom/lib/DOMProperty");
 const ARIADOMPropertyConfig = require("react-dom/lib/ARIADOMPropertyConfig");
 const HTMLDOMPropertyConfig = require("react-dom/lib/HTMLDOMPropertyConfig");
 const SVGDOMPropertyConfig = require("react-dom/lib/SVGDOMPropertyConfig");
-
-const { renderStyleAttribute } = require("./style");
-const escapeHtml = require("../escape-html");
 
 if (Object.keys(DOMProperty.properties).length === 0) {
   DOMProperty.injection.injectDOMPropertyConfig(ARIADOMPropertyConfig);
@@ -23,128 +22,62 @@ if (Object.keys(DOMProperty.properties).length === 0) {
   DOMProperty.injection.injectDOMPropertyConfig(SVGDOMPropertyConfig);
 }
 
-const attrsNotToRender = {
-  children: true,
-  dangerouslySetInnerHTML: true
+const DOMPropertyOperations = require("react-dom/lib/DOMPropertyOperations");
+const CSSPropertyOperations = require("react-dom/lib/CSSPropertyOperations");
+
+const STYLE = "style";
+const RESERVED_PROPS = {
+  children: null,
+  dangerouslySetInnerHTML: null,
+  suppressContentEditableWarning: null
 };
 
-function isStyleAttribute (attrKey) {
-  return attrKey === "style";
-}
-
-function toStringWithValue (name, value) {
-  return `${name}="${value}"`;
-}
-
-function stringifyCustom (attr, value) {
-  let val;
-
-  if (
-    !isFunction(value) &&
-    !attrsNotToRender[attr]
-  ) {
-    val = toStringWithValue(attr, value);
-  }
-
-  return val;
-}
-
-function stringifyBoolean ({ attributeName: name, mustUseProperty }, value) {
-  let val;
-
-  if (mustUseProperty) {
-    val = toStringWithValue(name, value);
-  } else if (value) {
-    val = name;
-  }
-
-  return val;
-}
-
-function stringifyOverloadedBoolean (name, value) {
-  let val;
-
-  if (value === true) {
-    val = toStringWithValue(name, "");
-  } else if (value !== undefined && value !== null && value !== false) {
-    val = toStringWithValue(name, value);
-  }
-
-  return val;
-}
-
-function stringifyNumeric ({ attributeName: name, hasPositiveNumericValue }, value) {
-  let val;
-
-  if (!isNaN(value)) {
-    if (hasPositiveNumericValue) {
-      if (value > 0) {
-        val = toStringWithValue(name, value);
-      }
-    } else {
-      val = toStringWithValue(name, value);
-    }
-  }
-
-  return val;
-}
-
-function stringifyStyle (name, value) {
-  let val;
-
-  if (value && typeof value === "object" && Object.keys(value).length) {
-    val = toStringWithValue(name, renderStyleAttribute(value));
-  }
-
-  return val;
-}
-
-function stringifyAttr (attr, value) {
-  let val;
-
-  if (value !== undefined && value !== null) {
-    if (!DOMProperty.properties.hasOwnProperty(attr)) {
-      val = stringifyCustom(attr, value);
-    } else {
-      const info = DOMProperty.properties[attr];
-      const name = info.attributeName;
-
-      if (info.hasBooleanValue) {
-        val = stringifyBoolean(info, value);
-      } else if (info.hasNumericValue) {
-        val = stringifyNumeric(info, value);
-      } else if (isStyleAttribute(attr)) {
-        val = stringifyStyle(name, value);
-      } else if (info.hasOverloadedBooleanValue) {
-        val = stringifyOverloadedBoolean(name, value);
-      } else {
-        val = toStringWithValue(name, escapeHtml(value));
-      }
-    }
-  }
-
-  return val || "";
+function isCustomNode (node) {
+  return node.type.indexOf("-") >= 0 ||
+    (node.props.is !== null && node.props.is !== undefined);
 }
 
 /**
  * Render an object of key/value pairs into their HTML attribute equivalent.
  *
  * @param      {Object}  attrs   Attributes in object form.
+ * @param      {VDOM}    node    VDOM node.
  *
  * @return     {String}          Generated HTML attribute output.
  */
-function renderAttrs (attrs) {
-  const attrString = [];
+function renderAttrs (attrs, node) {
+  let result = "";
 
   for (const attrKey in attrs) {
-    const attrPairString = stringifyAttr(attrKey, attrs[attrKey]);
+    let attrValue = attrs[attrKey];
 
-    if (attrPairString.length) {
-      attrString.push(` ${attrPairString}`);
+    if (attrKey === STYLE) {
+      if (!isObject(attrValue)) {
+        continue;
+      }
+      attrValue = CSSPropertyOperations.createMarkupForStyles(mapValues(attrValue, value => {
+        if (isString(value)) {
+          return value.trim();
+        }
+        return value;
+      }));
     }
+
+    let markup = null;
+    if (DOMProperty.isCustomAttribute(attrKey) || node && isCustomNode(node)) {
+      if (!RESERVED_PROPS.hasOwnProperty(attrKey)) {
+        markup = DOMPropertyOperations.createMarkupForCustomAttribute(attrKey, attrValue);
+      }
+    } else {
+      markup = DOMPropertyOperations.createMarkupForProperty(attrKey, attrValue);
+    }
+    if (markup) {
+      result += ` ${markup}`;
+    }
+
   }
 
-  return attrString.join("");
+  return result;
 }
 
 module.exports = renderAttrs;

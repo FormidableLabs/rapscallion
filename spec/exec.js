@@ -30,3 +30,4 @@ require("./attrs");
 require("./adler32");
 require("./render-error");
 require("./elements");
+require("./attributes");
