@@ -29,6 +29,8 @@ function toNodeStream (renderer) {
         sourceIsReady = true;
         stream.push(next);
         read();
+      }).catch(err => {
+        stream.emit("error", err);
       });
     }
   };

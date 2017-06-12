@@ -21,7 +21,13 @@ const INCOMPLETE = Symbol();
 function pullBatch (renderer, pushable) {
   let iter = renderer.batchSize;
   while (iter--) {
-    const next = renderer._next();
+    let next;
+    try {
+      next = renderer._next();
+    } catch (err) {
+      return Promise.reject(err);
+    }
+
     if (
       next === EXHAUSTED ||
       next instanceof Promise
