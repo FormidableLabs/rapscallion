@@ -31,3 +31,4 @@ require("./adler32");
 require("./render-error");
 require("./elements");
 require("./attributes");
+require("./set-state");
