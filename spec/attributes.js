@@ -248,5 +248,17 @@ describe("property to attribute mapping", () => {
         />
       );
     });
+
+    describe("textarea value", () => {
+      checkElementParity(<textarea value="foobar" />);
+    });
+
+    describe("textarea without value", () => {
+      checkElementParity(<textarea />);
+    });
+
+    describe("textarea with empty value", () => {
+      checkElementParity(<textarea value="" />);
+    });
   });
 });

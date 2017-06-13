@@ -90,6 +90,10 @@ function renderNode (seq, node, context) {
   if (node.props.dangerouslySetInnerHTML) {
     seq.emit(() => node.props.dangerouslySetInnerHTML.__html || "");
   } else if (node.props.children !== null) {
+    if (node.type === "textarea" && node.props.value) {
+      seq.emit(() => node.props.value);
+    }
+
     seq.delegate(() => renderChildren({
       seq,
       context,
