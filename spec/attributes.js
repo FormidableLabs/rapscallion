@@ -237,14 +237,14 @@ describe("property to attribute mapping", () => {
       checkElementParity(<input qwe={false} />);
     });
 
-    describe("attributes order", () => {
+    describe("input type order", () => {
       checkElementParity(
         <input
-          type="file"
           accept="image/jpeg,image/png"
           style={{
             display: "none"
           }}
+          type="file"
         />
       );
     });
