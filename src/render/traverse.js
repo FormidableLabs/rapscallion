@@ -28,12 +28,22 @@ const omittedCloseTags = {
   "wbr": true
 };
 
-function renderChildrenArray (seq, children, context) {
+const newlineEatingTags = {
+  "listing": true,
+  "pre": true,
+  "textarea": true
+};
+
+function renderChildrenArray ({ seq, children, context }) {
   for (let idx = 0; idx < children.length; idx++) {
     const child = children[idx];
     if (Array.isArray(child)) {
-      renderChildrenArray(seq, child, context);
-    } else {
+      renderChildrenArray({
+        seq,
+        children: child,
+        context
+      });
+    } else if (child !== null && child !== undefined && child !== false) {
       traverse({
         seq,
         node: child,
@@ -44,16 +54,21 @@ function renderChildrenArray (seq, children, context) {
   }
 }
 
-function renderChildren (seq, children, context) {
+function renderChildren ({ seq, children, context, parent }) {
   if (children === undefined) { return; }
 
   if (Array.isArray(children)) {
-    renderChildrenArray(seq, children, context);
+    renderChildrenArray({
+      seq,
+      children,
+      context
+    });
   } else {
     traverse({
       seq,
       node: children,
-      context
+      context,
+      parent
     });
   }
 }
@@ -75,13 +90,12 @@ function renderNode (seq, node, context) {
   if (node.props.dangerouslySetInnerHTML) {
     seq.emit(() => node.props.dangerouslySetInnerHTML.__html || "");
   } else if (node.props.children !== null) {
-    let children = node.props.children;
-    if (Array.isArray(children)) {
-      children = children.filter(item => {
-        return item !== null && item !== undefined && item !== false;
-      });
-    }
-    seq.delegate(() => renderChildren(seq, children, context, node));
+    seq.delegate(() => renderChildren({
+      seq,
+      context,
+      children: node.props.children,
+      parent: node
+    }));
   }
   if (!omittedCloseTags[node.type]) {
     seq.emit(() => `</${node.type}>`);
@@ -194,11 +208,15 @@ function emitEmpty (seq) {
   seq.emit(() => REACT_EMPTY);
 }
 
-function emitText (seq, text, numChildren) {
+function emitText ({ seq, text, numChildren, isNewlineEatingTag }) {
   const hasSiblings = numChildren > 1;
 
   if (hasSiblings) {
     seq.emit(() => REACT_TEXT_START);
+  }
+
+  if (isNewlineEatingTag && text.charAt(0) === "\n") {
+    text = `\n${text}`;
   }
 
   seq.emit(() => text);
@@ -232,7 +250,7 @@ function shouldEmitByType (seq, node) {
  * @return     {undefined}          No return value.
  */
 // eslint-disable-next-line max-statements
-function traverse ({ seq, node, context, numChildren }) {
+function traverse ({ seq, node, context, numChildren, parent }) {
   if (!shouldEmitByType(seq, node)) {
     return;
   }
@@ -245,12 +263,21 @@ function traverse ({ seq, node, context, numChildren }) {
   switch (typeof node) {
   case "string": {
     // Text node.
-    emitText(seq, htmlStringEscape(node), numChildren);
+    emitText({
+      seq,
+      text: htmlStringEscape(node),
+      numChildren,
+      isNewlineEatingTag: Boolean(parent && newlineEatingTags[parent.type])
+    });
 
     return;
   }
   case "number": {
-    emitText(seq, node.toString(), numChildren);
+    emitText({
+      seq,
+      text: node.toString(),
+      numChildren
+    });
 
     return;
   }
