@@ -241,10 +241,10 @@ describe("property to attribute mapping", () => {
       checkElementParity(
         <input
           accept="image/jpeg,image/png"
-          style={{
-            display: "none"
-          }}
+          step="1"
           type="file"
+          min="0"
+          max="100"
         />
       );
     });
