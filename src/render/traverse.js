@@ -31,7 +31,7 @@ const omittedCloseTags = {
 function renderChildrenArray (seq, children, context) {
   for (let idx = 0; idx < children.length; idx++) {
     const child = children[idx];
-    if (child instanceof Array) {
+    if (Array.isArray(child)) {
       renderChildrenArray(seq, child, context);
     } else {
       traverse({
@@ -47,7 +47,7 @@ function renderChildrenArray (seq, children, context) {
 function renderChildren (seq, children, context) {
   if (children === undefined) { return; }
 
-  if (children instanceof Array) {
+  if (Array.isArray(children)) {
     renderChildrenArray(seq, children, context);
   } else {
     traverse({
@@ -150,7 +150,7 @@ function evalSegment (seq, segment, context) {
   } else if (segment.__prerendered__ === "expression") {
     if (typeof segment.expression === "string") {
       seq.emit(() => htmlStringEscape(segment.expression));
-    } else if (segment.expression instanceof Array) {
+    } else if (Array.isArray(segment.expression)) {
       segment.expression.forEach(subsegment => traverse({
         seq,
         node: subsegment,
@@ -176,7 +176,7 @@ function evalPreRendered (seq, node, context) {
   const prerenderType = node.__prerendered__;
   if (prerenderType === "dom") {
     node.segments.forEach(segment => {
-      if (segment instanceof Array) {
+      if (Array.isArray(segment)) {
         segment.forEach(subsegment => evalSegment(seq, subsegment, context));
       } else {
         evalSegment(seq, segment, context);
