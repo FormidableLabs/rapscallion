@@ -33,6 +33,7 @@ describe("children", () => {
   });
 });
 
+// eslint-disable-next-line max-statements
 describe("elements with text children", () => {
   describe("a div with text", () => {
     checkElementParity(<div>Text</div>);
