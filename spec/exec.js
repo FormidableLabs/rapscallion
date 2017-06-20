@@ -27,3 +27,4 @@ require("./template");
 require("./escape-html");
 require("./styles");
 require("./attrs");
+require("./render-error");

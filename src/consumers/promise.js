@@ -16,17 +16,20 @@ const COMMENT_START = /^<\!\-\-/;
 function asyncBatch (
   renderer,
   pushable,
-  resolve
+  resolve,
+  reject
 ) {
   const result = pullBatch(renderer, pushable);
   if (result === INCOMPLETE) {
-    setImmediate(asyncBatch, renderer, pushable, resolve);
+    setImmediate(asyncBatch, renderer, pushable, resolve, reject);
   } else if (result === EXHAUSTED) {
     resolve();
   } else if (result instanceof Promise) {
     result.then(next => {
       pushable.push(next);
-      setImmediate(asyncBatch, renderer, pushable, resolve);
+      setImmediate(asyncBatch, renderer, pushable, resolve, reject);
+    }).catch(err => {
+      reject(err);
     });
   }
 }
@@ -47,12 +50,13 @@ function toPromise (renderer) {
     push (segment) { this.value += segment; }
   };
 
-  return new Promise(resolve =>
+  return new Promise((resolve, reject) =>
     setImmediate(
       asyncBatch,
       renderer,
       buffer,
-      resolve
+      resolve,
+      reject
     )
   ).then(() => {
     let html = buffer.value;
