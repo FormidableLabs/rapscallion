@@ -209,7 +209,7 @@ function emitEmpty (seq) {
 }
 
 function emitText ({ seq, text, numChildren, isNewlineEatingTag }) {
-  const hasSiblings = numChildren > 1;
+  const hasSiblings = Boolean(numChildren);
 
   if (hasSiblings) {
     seq.emit(() => REACT_TEXT_START);

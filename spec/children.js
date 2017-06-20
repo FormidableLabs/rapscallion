@@ -43,19 +43,19 @@ describe("elements with text children", () => {
   });
 
   describe("a div with text", () => {
-    checkElementParity(<div>{'Text'}</div>);
+    checkElementParity(<div>{"Text"}</div>);
   });
 
   describe("a div with blank text child", () => {
-    checkElementParity(<div>{''}</div>);
+    checkElementParity(<div>{""}</div>);
   });
 
   describe("renders a div with blank text children", () => {
-    checkElementParity(<div>{''}{''}{''}</div>);
+    checkElementParity(<div>{""}{""}{""}</div>);
   });
 
   describe("a div with whitespace children", () => {
-    checkElementParity(<div>{' '}{' '}{' '}</div>);
+    checkElementParity(<div>{" "}{" "}{" "}</div>);
   });
 
   describe("a div with text sibling to a node", () => {
@@ -71,11 +71,11 @@ describe("elements with text children", () => {
   });
 
   describe("leading blank children with comments when there are multiple children", () => {
-    checkElementParity(<div>{''}foo</div>);
+    checkElementParity(<div>{""}foo</div>);
   });
 
   describe("trailing blank children with comments when there are multiple children", () => {
-    checkElementParity(<div>foo{''}</div>);
+    checkElementParity(<div>foo{""}</div>);
   });
 
   describe("an element with just one text child without comments", () => {
@@ -83,7 +83,7 @@ describe("elements with text children", () => {
   });
 
   describe("an element with two text children with comments", () => {
-    checkElementParity(<div>{'foo'}{'bar'}</div>);
+    checkElementParity(<div>{"foo"}{"bar"}</div>);
   });
 
   describe("a div with multiple children elements separated by whitespace", () => {
@@ -94,6 +94,10 @@ describe("elements with text children", () => {
     // eslint-disable-next-line no-multi-spaces
     checkElementParity(<div id="parent">  <div id="child" />   </div>);
   });
+
+  describe("inside array", () => {
+    checkElementParity(<div>{["Text"]}</div>);
+  });
 });
 
 describe("elements with number children", () => {
@@ -101,13 +105,13 @@ describe("elements with number children", () => {
     checkElementParity(<div>{3}</div>);
   });
 
-  // zero is falsey, so it could look like no children if the code isn't careful.
+  // zero is falsey, so it could look like no children if the code isn"t careful.
   describe("zero as single child", () => {
     checkElementParity(<div>{0}</div>);
   });
 
   describe("an element with number and text children with comments", () => {
-    checkElementParity(<div>{'foo'}{40}</div>);
+    checkElementParity(<div>{"foo"}{40}</div>);
   });
 });
 
@@ -170,10 +174,10 @@ describe("array children", () => {
 
 describe("escaping >, <, and & in children", () => {
   describe(">,<, and & in a single child", () => {
-    checkElementParity(<div>{'<span>Text&quot;</span>'}</div>);
+    checkElementParity(<div>{"<span>Text&quot;</span>"}</div>);
   });
 
   describe(">,<, and & in multiple children", () => {
-    checkElementParity(<div>{'<span>Text1&quot;</span>'}{'<span>Text2&quot;</span>'}</div>);
+    checkElementParity(<div>{"<span>Text1&quot;</span>"}{"<span>Text2&quot;</span>"}</div>);
   });
 });
