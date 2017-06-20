@@ -3,7 +3,6 @@ import { default as React } from "react";
 import { checkElementParity } from "./_util";
 
 describe("property to attribute mapping", () => {
-
   describe("string properties", () => {
     describe("simple numbers", () => {
       checkElementParity(<div width={30} />);
@@ -178,7 +177,7 @@ describe("property to attribute mapping", () => {
 
   describe("unknown attributes", () => {
     describe("no unknown attributes", () => {
-      checkElementParity(<div foo="bar" />, 1);
+      checkElementParity(<div foo="bar" />);
     });
 
     describe("unknown data- attributes", () => {
@@ -186,7 +185,7 @@ describe("property to attribute mapping", () => {
     });
 
     describe("no unknown attributes for non-standard elements", () => {
-      checkElementParity(<nonstandard foo="bar" />, 1);
+      checkElementParity(<nonstandard foo="bar" />);
     });
 
     describe("unknown attributes for custom elements", () => {
@@ -206,6 +205,52 @@ describe("property to attribute mapping", () => {
     checkElementParity(<div onFoo={() => {}} />);
   });
 
+  describe("input attributes", () => {
+    describe("false multiple", () => {
+      checkElementParity(<input multiple={false} />);
+    });
+
+    describe("order", () => {
+      checkElementParity(
+        <input
+          accept="image/jpeg,image/png"
+          step="1"
+          type="file"
+          min="0"
+          max="100"
+        />
+      );
+    });
+  });
+
+  describe("textarea", () => {
+    describe("empty style", () => {
+      checkElementParity(<div style={{ margin: null }} />);
+    });
+
+    describe("with value", () => {
+      checkElementParity(<textarea value="foobar" />);
+    });
+
+    describe("without value", () => {
+      checkElementParity(<textarea />);
+    });
+
+    describe("with empty value", () => {
+      checkElementParity(<textarea value="" />);
+    });
+  });
+
+  describe("style", () => {
+    describe("empty", () => {
+      checkElementParity(<div style={{}} />);
+    });
+
+    describe("with all null values", () => {
+      checkElementParity(<div style={{ margin: null }} />);
+    });
+  });
+
   describe("old failed tests from attrs.js", () => {
     describe("true booleans", () => {
       checkElementParity(<div disabled={true} />); // eslint-disable-line react/jsx-boolean-value
@@ -221,44 +266,6 @@ describe("property to attribute mapping", () => {
 
     describe("download with url", () => {
       checkElementParity(<div download="https://www.shutterstock.com?this=that&foo=bar" />);
-    });
-  });
-
-  describe("#94", () => {
-    describe("empty style", () => {
-      checkElementParity(<div style={{ margin: null }} />);
-    });
-
-    describe("multiple in input", () => {
-      checkElementParity(<input multiple={false} />);
-    });
-
-    describe("custom attribute", () => {
-      checkElementParity(<input qwe={false} />);
-    });
-
-    describe("input type order", () => {
-      checkElementParity(
-        <input
-          accept="image/jpeg,image/png"
-          step="1"
-          type="file"
-          min="0"
-          max="100"
-        />
-      );
-    });
-
-    describe("textarea value", () => {
-      checkElementParity(<textarea value="foobar" />);
-    });
-
-    describe("textarea without value", () => {
-      checkElementParity(<textarea />);
-    });
-
-    describe("textarea with empty value", () => {
-      checkElementParity(<textarea value="" />);
     });
   });
 });
