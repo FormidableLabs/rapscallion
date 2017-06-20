@@ -27,4 +27,5 @@ require("./template");
 require("./escape-html");
 require("./styles");
 require("./attrs");
+require("./adler32");
 require("./render-error");
