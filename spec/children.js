@@ -94,7 +94,6 @@ describe("elements with text children", () => {
     // eslint-disable-next-line no-multi-spaces
     checkElementParity(<div id="parent">  <div id="child" />   </div>);
   });
-
 });
 
 describe("elements with number children", () => {
@@ -144,6 +143,28 @@ describe("null, false, and undefined children", () => {
 
   describe("only null and false children as blank", () => {
     checkElementParity(<div>{false}{null}{null}{false}</div>);
+  });
+});
+
+describe("array children", () => {
+  describe("array of divs", () => {
+    checkElementParity(<div>{[<div key="0" />, <div key="1" />]}</div>);
+  });
+
+  describe("array with null element", () => {
+    checkElementParity(<div>{[<div key="0" />, null]}</div>);
+  });
+
+  describe("array with false element", () => {
+    checkElementParity(<div>{[<div key="0" />, false]}</div>);
+  });
+
+  describe("array with undefined element", () => {
+    checkElementParity(<div>{[<div key="0" />, undefined]}</div>);
+  });
+
+  describe("array with all empty elements", () => {
+    checkElementParity(<div>{[null, false, undefined]}</div>);
   });
 });
 
