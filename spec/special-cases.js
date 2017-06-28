@@ -113,4 +113,26 @@ describe("special cases", () => {
       expect(html).to.equal("<div>0</div>");
     });
   });
+  it("renders true, false, null and undefined as nothing", () => {
+    const TrueComponent = () => <div>{true}</div>;
+
+    return render(<TrueComponent />).includeDataReactAttrs(false).toPromise().then(html => {
+      expect(html).to.equal("<div></div>");
+    });
+    const FalseComponent = () => <div>{false}</div>;
+
+    return render(<TrueComponent />).includeDataReactAttrs(false).toPromise().then(html => {
+      expect(html).to.equal("<div></div>");
+    });
+    const NullComponent = () => <div>{null}</div>;
+
+    return render(<TrueComponent />).includeDataReactAttrs(false).toPromise().then(html => {
+      expect(html).to.equal("<div></div>");
+    });
+    const UndefinedComponent = () => <div>{undefined}</div>;
+
+    return render(<TrueComponent />).includeDataReactAttrs(false).toPromise().then(html => {
+      expect(html).to.equal("<div></div>");
+    });
+  });
 });

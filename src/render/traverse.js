@@ -237,7 +237,9 @@ function traverse ({ seq, node, context, numChildren }) {
     return;
   }
 
-  if (node === null) {
+  // in JSX, all are valid children:
+  // null, undefined, false and true
+  if (node === true || node === false || node === undefined || node === null) {
     emitEmpty(seq);
     return;
   }
