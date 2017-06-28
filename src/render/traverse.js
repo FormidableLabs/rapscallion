@@ -227,15 +227,9 @@ function emitText ({ seq, text, numChildren, isNewlineEatingTag }) {
 }
 
 function shouldEmitByType (seq, node) {
-  if (node === undefined) {
-    return false;
-  }
-
-  if (node === false) {
-    return false;
-  }
-
-  return true;
+  return node !== undefined &&
+    node !== false &&
+    node !== true;
 }
 
 /**

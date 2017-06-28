@@ -116,9 +116,13 @@ describe("elements with number children", () => {
   });
 });
 
-describe("null, false, and undefined children", () => {
+describe("boolean, null, and undefined children", () => {
   describe("null single child as blank", () => {
     checkElementParity(<div>{null}</div>);
+  });
+
+  describe("true single child as blank", () => {
+    checkElementParity(<div>{true}</div>);
   });
 
   describe("false single child as blank", () => {
