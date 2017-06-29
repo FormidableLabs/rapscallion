@@ -87,25 +87,31 @@ class Renderer {
   }
 
   _next () {
-    let nextVal = this.sequence.next();
+    const next = this.sequence.next();
 
-    if (nextVal === REACT_ID) {
-      nextVal = this._rootVal();
-    } else if (nextVal === REACT_EMPTY) {
-      nextVal = this._emptyVal();
-    } else if (nextVal === REACT_TEXT_START) {
-      nextVal = this._textStart();
-    } else if (nextVal === REACT_TEXT_END) {
-      nextVal = this._textEnd();
+    if (!(next && next.then)) {
+      return next;
     }
 
-    if (!nextVal) {
-      return "";
-    }
+    return next.then(nextVal => {
+      if (nextVal === REACT_ID) {
+        nextVal = this._rootVal();
+      } else if (nextVal === REACT_EMPTY) {
+        nextVal = this._emptyVal();
+      } else if (nextVal === REACT_TEXT_START) {
+        nextVal = this._textStart();
+      } else if (nextVal === REACT_TEXT_END) {
+        nextVal = this._textEnd();
+      }
 
-    this._checksum = adler32(nextVal, this._checksum);
+      if (!nextVal) {
+        return "";
+      }
 
-    return nextVal;
+      this._checksum = adler32(nextVal, this._checksum);
+
+      return nextVal;
+    });
   }
 
   toPromise () {

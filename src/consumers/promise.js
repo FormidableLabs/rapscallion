@@ -2,10 +2,7 @@
 const Promise = require("bluebird");
 
 const { EXHAUSTED } = require("../sequence");
-const {
-  pullBatch,
-  INCOMPLETE
-} = require("./common");
+const { pullBatch } = require("./common");
 
 
 const TAG_END = /\/?>/;
@@ -19,19 +16,23 @@ function asyncBatch (
   resolve,
   reject
 ) {
-  const result = pullBatch(renderer, pushable);
-  if (result === INCOMPLETE) {
-    setImmediate(asyncBatch, renderer, pushable, resolve, reject);
-  } else if (result === EXHAUSTED) {
-    resolve();
-  } else if (result instanceof Promise) {
-    result.then(next => {
-      pushable.push(next);
-      setImmediate(asyncBatch, renderer, pushable, resolve, reject);
-    }).catch(err => {
-      reject(err);
-    });
-  }
+  const pull = pullBatch(renderer, pushable);
+
+  pull.then(result => {
+    if (result === EXHAUSTED) {
+      resolve();
+    } else {
+      setImmediate(
+        asyncBatch,
+        renderer,
+        pushable,
+        resolve,
+        reject,
+      );
+    }
+  }).catch(err => {
+    reject(err);
+  });
 }
 
 /**
@@ -44,10 +45,9 @@ function asyncBatch (
  */
 function toPromise (renderer) {
   // this.sequence, this.batchSize, this.dataReactAttrs
-
   const buffer = {
-    value: "",
-    push (segment) { this.value += segment; }
+    value: [],
+    push (segment) { this.value.push(segment); }
   };
 
   return new Promise((resolve, reject) =>
@@ -58,8 +58,12 @@ function toPromise (renderer) {
       resolve,
       reject
     )
-  ).then(() => {
-    let html = buffer.value;
+  )
+  .then(() => Promise.all(buffer.value))
+  .then(chunks => {
+    let html = chunks
+      .filter(chunk => typeof chunk === "string")
+      .join("");
 
     if (renderer.dataReactAttrs && !COMMENT_START.test(html)) {
       const checksum = renderer.checksum();

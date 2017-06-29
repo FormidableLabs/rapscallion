@@ -29,6 +29,18 @@ const runAllTests = () => {
       }
     }
 
+    it("returns HTML on cache miss for <div>", () => {
+      const childKey = getChildKey();
+      return Bluebird.resolve()
+        .then(() => render(<Parent val="firstA" childKey={childKey} />)
+          .includeDataReactAttrs(false)
+          .toPromise()
+        )
+        .then(html => {
+          expect(html).to.equal("<div>firstA</div>");
+        });
+    });
+
     it("returns cached HTML for <div>", () => {
       const childKey = getChildKey();
       return Bluebird.resolve()
@@ -42,6 +54,18 @@ const runAllTests = () => {
         )
         .then(html => {
           expect(html).to.equal("<div>firstA</div>");
+        });
+    });
+
+    it("returns HTML on cache miss for <Child>", () => {
+      const parentKey = getParentKey();
+      return Bluebird.resolve()
+        .then(() => render(<Parent val="firstB" parentKey={parentKey} />)
+          .includeDataReactAttrs(false)
+          .toPromise()
+        )
+        .then(html => {
+          expect(html).to.equal("<div>firstB</div>");
         });
     });
 
