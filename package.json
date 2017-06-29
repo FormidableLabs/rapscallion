@@ -20,7 +20,8 @@
     "concurrency": "babel-node benchmark/concurrency.js",
     "check-output": "babel-node benchmark/test-html-output.js",
     "check-context-output": "babel-node benchmark/test-html-output-with-context.js",
-    "check-templated-output": "babel-node benchmark/test-templated-output.js"
+    "check-templated-output": "babel-node benchmark/test-templated-output.js",
+    "prepublish": "npm run check && npm run build"
   },
   "files": [
     "lib",
