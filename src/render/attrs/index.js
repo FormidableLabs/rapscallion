@@ -1,3 +1,13 @@
+// `react-dom` expects that certain of its subcomponents are loaded in a particular
+// order.  Because of this, requiring the `react-dom/*` submodules below results in
+// the following error:
+//
+//    You're trying to inject DOM property 'aria-current' which has
+//    already been injected.
+//
+// Requiring `react-dom` early resolves this issue.
+require("react-dom");
+
 const { isFunction } = require("lodash/fp");
 const DOMProperty = require("react-dom/lib/DOMProperty");
 const ARIADOMPropertyConfig = require("react-dom/lib/ARIADOMPropertyConfig");
