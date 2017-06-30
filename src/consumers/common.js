@@ -18,7 +18,7 @@ function next (renderer, iter, push) {
   }
 
   if (nextVal === EXHAUSTED) {
-    return EXHAUSTED;
+    return Promise.resolve(EXHAUSTED);
   } else if (nextVal instanceof Promise) {
     return nextVal
     .then(push)
