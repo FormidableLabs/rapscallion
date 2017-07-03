@@ -131,4 +131,30 @@ describe("stream templates", () => {
       );
     });
   });
+  it("renders across batch boundaries", () => {
+    const BATCH_SIZE = 2;
+    const A = () => (
+      <div>
+        component content
+      </div>
+    );
+
+    const tmpl = template`before${render(<A />).includeDataReactAttrs(false)}after`;
+    let output = "";
+    let segmentCount = 0;
+
+    return resolveStreamOnDone(
+      tmpl
+        .includeDataReactAttrs(false)
+        .tuneAsynchronicity(BATCH_SIZE)
+        .toStream(),
+      segment => {
+        output += segment;
+        segmentCount++;
+      }
+    ).then(() => {
+      expect(output).to.equal("before<div>component content</div>after");
+      expect(segmentCount).to.be.above(1);
+    });
+  });
 });

@@ -1,10 +1,15 @@
 const Promise = require("bluebird");
 
 const { EXHAUSTED } = require("../sequence");
+const INCOMPLETE = Symbol();
 
 function next (renderer, iter, push) {
   const max = renderer.batchSize;
   let nextVal;
+
+  if (iter >= max) {
+    return Promise.resolve(INCOMPLETE);
+  }
 
   try {
     nextVal = renderer._next();
@@ -17,7 +22,7 @@ function next (renderer, iter, push) {
   } else if (nextVal instanceof Promise) {
     return nextVal
     .then(push)
-    .then(() => iter < max && next(renderer, iter + 1, push));
+    .then(() => next(renderer, iter + 1, push));
   } else {
     push(nextVal);
     return Promise.resolve(nextVal);
@@ -40,4 +45,4 @@ function pullBatch (renderer, pushable) {
   return next(renderer, 0, val => typeof val === "string" && pushable.push(val));
 }
 
-module.exports = { pullBatch };
+module.exports = { pullBatch, INCOMPLETE };
