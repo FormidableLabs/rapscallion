@@ -24,7 +24,7 @@ pullRequest:
 commit:
   subject:
     mustHaveLengthBetween: [8, 100]
-    mustMatch: !!js/regexp /^(Fix|Enhancement|Feature|Docs|Other):\s.*/
+    mustMatch: !!js/regexp /^(Fix|Enhancement|Feature|Docs|Internal|Other):\s.*/
     mustNotMatch: !!js/regexp /^fixup!/
   message:
     enforceEmptySecondLine: true
