@@ -5,3 +5,13 @@ test:
 machine:
   node:
     version: v6.9.5
+
+dependencies:
+  pre:
+    - echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
+
+deployment:
+  production:
+    branch: master
+    commands:
+    - ./deploy.sh
