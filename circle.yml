@@ -4,7 +4,7 @@ test:
 
 machine:
   node:
-    version: v6.9.5
+    version: v8.1.2
 
 dependencies:
   pre:
