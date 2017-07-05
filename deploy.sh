@@ -8,7 +8,7 @@ if [ -z "$PULL_REQUEST_NUMBER" ]; then
 fi
 
 echo "Detected pull request #$PULL_REQUEST_NUMBER."
-SEMVER_CHANGE=$(curl "https://maintainerd.divmain.com/api/semver?repoPath=FormidableLabs/rapscallionz&installationId=37499&prNumber=$PULL_REQUEST_NUMBER")
+SEMVER_CHANGE=$(curl "https://maintainerd.divmain.com/api/semver?repoPath=FormidableLabs/rapscallion&installationId=37499&prNumber=$PULL_REQUEST_NUMBER")
 if [ -z "$SEMVER_CHANGE" ]; then
     echo "No semver selection found; aborting publish."
     exit 0
