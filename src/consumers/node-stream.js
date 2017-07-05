@@ -1,7 +1,7 @@
 const { Readable } = require("stream");
 
 const { EXHAUSTED } = require("../sequence");
-const { pullBatch } = require("./common");
+const { pullBatch, INCOMPLETE } = require("./common");
 
 
 /**
@@ -26,7 +26,9 @@ function toNodeStream (renderer) {
       if (result === EXHAUSTED) {
         stream.push(null);
       } else {
-        stream.push(result);
+        if (result !== INCOMPLETE) {
+          stream.push(result);
+        }
         read();
       }
     }).catch(err => {
