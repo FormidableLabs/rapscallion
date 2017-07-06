@@ -19,11 +19,11 @@ echo "Detected semantic version change of $SEMVER_CHANGE."
 # CI might leave the working directory in an unclean state.
 git reset --hard
 
-eval npm version "$SEMVER_CHANGE"
-npm publish
-
 git config --global user.name "Dale Bustad (bot)"
 git config --global user.email "dale@divmain.com"
+
+eval npm version "$SEMVER_CHANGE"
+npm publish
 
 git remote add origin-deploy https://${GH_TOKEN}@github.com/FormidableLabs/rapscallion.git > /dev/null 2>&1
 git push --quiet --tags origin-deploy master
