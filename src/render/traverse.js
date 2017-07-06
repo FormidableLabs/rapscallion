@@ -84,12 +84,16 @@ function renderChildren ({ seq, children, context, parent }) {
  */
 function renderNode (seq, node, context) {
   seq.emit(() => `<${node.type}`);
-  seq.emit(() => renderAttrs(node.props, seq));
+  seq.emit(() => renderAttrs(node.props, node));
   seq.emit(() => REACT_ID);
   seq.emit(() => omittedCloseTags[node.type] ? "/>" : ">");
   if (node.props.dangerouslySetInnerHTML) {
     seq.emit(() => node.props.dangerouslySetInnerHTML.__html || "");
   } else if (node.props.children !== null) {
+    if (node.type === "textarea" && node.props.value) {
+      seq.emit(() => node.props.value);
+    }
+
     seq.delegate(() => renderChildren({
       seq,
       context,
