@@ -1,6 +1,6 @@
 {
   "name": "rapscallion",
-  "version": "2.1.10",
+  "version": "2.1.11",
   "description": "Asynchronous React VirtualDOM renderer for SSR.",
   "keywords": [
     "react",
