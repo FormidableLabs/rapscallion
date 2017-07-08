@@ -55,31 +55,15 @@ describe("lifecycle methods", () => {
       });
   });
 
-  it("invokes provided setState callbacks", () => {
+  it("do not invoke provided setState callbacks", () => {
     const setStateCb = sinon.spy();
 
-    let _instance;
     const cb = instance => {
-      _instance = instance;
       instance.setState({}, setStateCb);
     };
 
     return render(<C cb={cb} />).includeDataReactAttrs(false).toPromise().then(() => {
-      expect(setStateCb)
-        .to.have.been.calledOnce.and
-        .to.have.been.calledOn(_instance);
-    });
-  });
-
-  it("supports recursive setState invocations", () => {
-    const cb = instance =>
-      instance.setState({ val: "set" }, function () {
-        // eslint-disable-next-line no-invalid-this
-        this.setState({ val: "set-again" });
-      });
-
-    return render(<C cb={cb} />).includeDataReactAttrs(false).toPromise().then(html => {
-      expect(html).to.equal("<div>set-again</div>");
+      expect(setStateCb).to.not.have.been.called;
     });
   });
 });
