@@ -157,4 +157,15 @@ describe("stream templates", () => {
       expect(segmentCount).to.be.above(1);
     });
   });
+  it("renders empty string", () => {
+    const tmpl = template``;
+
+    let output = "";
+    return resolveStreamOnDone(
+      tmpl.toStream(),
+      segment => output += segment
+    ).then(() => {
+      expect(output).to.equal("");
+    });
+  });
 });
