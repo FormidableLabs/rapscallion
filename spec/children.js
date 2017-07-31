@@ -138,6 +138,11 @@ describe("boolean, null, and undefined children", () => {
     checkElementParity(<div><NullComponent /></div>);
   });
 
+  describe("a false component children as empty", () => {
+    const FalseComponent = () => false;
+    checkElementParity(<div><FalseComponent /></div>);
+  });
+
   describe("null children as blank", () => {
     checkElementParity(<div>{null}foo</div>);
   });
