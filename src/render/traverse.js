@@ -2,6 +2,7 @@ const { getChildContext, getContext } = require("./context");
 const { syncSetState } = require("./state");
 const htmlStringEscape = require("./escape-html");
 const renderAttrs = require("./attrs");
+const deasync = require("deasync");
 
 const {
   REACT_EMPTY,
@@ -147,12 +148,33 @@ function renderComponentInstance (instance, props, context) {
   if (instance === null || typeof instance.render !== "function") {
     renderedElement = instance;
   } else {
+    let result = null;
+    let promise = null;
+
     instance.props = props;
     instance.context = context;
-    if (typeof instance.componentWillMount === "function") {
+
+    if (typeof instance.componentWillMount === 'function') {
       instance.setState = syncSetState;
-      instance.componentWillMount();
+      result = instance.componentWillMount();
     }
+
+    if (result && result.then) {
+      promise = result;
+    }
+
+    let done = false;
+
+    if (promise) {
+      promise.then(() => {
+        done = true;
+      });
+    } else {
+      done = true;
+    }
+
+    deasync.loopWhile(() => !done);
+
     renderedElement = instance.render();
   }
   return renderedElement;

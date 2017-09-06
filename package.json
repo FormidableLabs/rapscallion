@@ -1,15 +1,8 @@
 {
-  "name": "rapscallion",
+  "name": "@lostmyname/rapscallion",
   "version": "2.1.13",
   "description": "Asynchronous React VirtualDOM renderer for SSR.",
-  "keywords": [
-    "react",
-    "ssr",
-    "asynchronous",
-    "render",
-    "html",
-    "stream"
-  ],
+  "keywords": ["react", "ssr", "asynchronous", "render", "html", "stream"],
   "main": "index.js",
   "scripts": {
     "build": "rm -rf lib/ && babel -d lib/ src/",
@@ -23,11 +16,7 @@
     "check-templated-output": "babel-node benchmark/test-templated-output.js",
     "prepublish": "npm run check && npm run build"
   },
-  "files": [
-    "lib",
-    "babel-plugin-client.js",
-    "babel-plugin-server.js"
-  ],
+  "files": ["lib", "babel-plugin-client.js", "babel-plugin-server.js"],
   "repository": {
     "type": "git",
     "url": "git://github.com/FormidableLabs/rapscallion.git"
@@ -61,6 +50,7 @@
   },
   "dependencies": {
     "bluebird": "^3.4.7",
+    "deasync": "^0.1.9",
     "lodash": "^4.17.4"
   }
 }

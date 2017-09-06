@@ -2,6 +2,14 @@
 
 [![CircleCI](https://circleci.com/gh/FormidableLabs/rapscallion.svg?style=svg)](https://circleci.com/gh/FormidableLabs/rapscallion) [![Join the chat at https://gitter.im/FormidableLabs/rapscallion](https://badges.gitter.im/FormidableLabs/rapscallion.svg)](https://gitter.im/FormidableLabs/rapscallion?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
+A (hopefully temporary) fork that adds async rendering of components that return promises from componentWillMount.
+
+To install this fork via npm:
+
+```shell
+$ npm install --save @lostmyname/rapscallion
+```
+
 ## Overview
 
 Rapscallion is a React VirtualDOM renderer for the server.  Its notable features are as follows:
