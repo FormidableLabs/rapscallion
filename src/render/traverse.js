@@ -2,6 +2,7 @@ const { getChildContext, getContext } = require("./context");
 const { syncSetState } = require("./state");
 const htmlStringEscape = require("./escape-html");
 const renderAttrs = require("./attrs");
+const isFunction = require("lodash/isFunction");
 
 const {
   REACT_EMPTY,
@@ -128,7 +129,8 @@ function evalComponent (seq, node, context) {
   traverse({
     seq,
     node: renderedElement,
-    context: childContext
+    context: childContext,
+    parent: node
   });
 }
 
@@ -230,12 +232,6 @@ function emitText ({ seq, text, numChildren, isNewlineEatingTag }) {
   }
 }
 
-function shouldEmitByType (seq, node) {
-  return node !== undefined &&
-    node !== false &&
-    node !== true;
-}
-
 /**
  * This function will recursively traverse the VDOM tree, emitting HTML segments
  * to the provided sequence.
@@ -247,10 +243,19 @@ function shouldEmitByType (seq, node) {
  *
  * @return     {undefined}          No return value.
  */
-// eslint-disable-next-line max-statements
+// eslint-disable-next-line max-statements, complexity
 function traverse ({ seq, node, context, numChildren, parent }) {
-  if (!shouldEmitByType(seq, node)) {
+  if (node === undefined || node === true) {
     return;
+  }
+
+  if (node === false) {
+    if (parent && isFunction(parent.type)) {
+      emitEmpty(seq);
+      return;
+    } else {
+      return;
+    }
   }
 
   if (node === null) {
