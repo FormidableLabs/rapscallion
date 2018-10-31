@@ -110,6 +110,18 @@ const prerenderDom = node => {
   return objExpr;
 };
 
+const objectPropertyValue = value => {
+  if (t.isJSXExpressionContainer(value)) {
+    return value.expression;
+  }
+
+  if (value === null || value === undefined) {
+    return t.jSXEmptyExpression();
+  }
+
+  return value;
+};
+
 const getComponentProps = (attributes, children) => attributes
   .map(attr => {
     if (t.isJSXSpreadAttribute(attr)) {
@@ -119,9 +131,7 @@ const getComponentProps = (attributes, children) => attributes
     const { name, value } = attr;
     return t.objectProperty(
       t.identifier(name.name),
-      t.isJSXExpressionContainer(value) ?
-        value.expression :
-        value
+      objectPropertyValue(value)
     );
   })
   .concat([
