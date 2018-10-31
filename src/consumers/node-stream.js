@@ -16,23 +16,23 @@ function toNodeStream (renderer) {
 
   const read = () => {
     // If source is not ready, defer any reads until the promise resolves.
-    if (!sourceIsReady) { return; }
+    if (!sourceIsReady) { return false; }
 
     sourceIsReady = false;
     const pull = pullBatch(renderer, stream);
 
-    pull.then(result => {
+    return pull.then(result => {
       sourceIsReady = true;
       if (result === EXHAUSTED) {
-        stream.push(null);
+        return stream.push(null);
       } else {
         if (result !== INCOMPLETE) {
           stream.push(result);
         }
-        read();
+        return read();
       }
     }).catch(err => {
-      stream.emit("error", err);
+      return stream.emit("error", err);
     });
   };
 
