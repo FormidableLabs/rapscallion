@@ -1,6 +1,7 @@
 import { default as React, Component } from "react";
 
 import { render } from "../src";
+import { checkParity, getRootNode } from "./_util";
 
 
 describe("special cases", () => {
@@ -49,5 +50,10 @@ describe("special cases", () => {
     return render(<C foo="bar"/>).includeDataReactAttrs(false).toPromise().then(html => {
       expect(html).to.equal("<div>bar</div>");
     });
+  });
+  it("can handle [] in __html", () => {
+    checkParity(getRootNode(`
+      return () => <script dangerouslySetInnerHTML={{__html:[] }} type="text/javascript" />
+    `), {});
   });
 });
