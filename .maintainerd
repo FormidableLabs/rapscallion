@@ -27,7 +27,7 @@ commit:
     mustMatch: !!js/regexp /^(Fix|Enhancement|Feature|Docs|Internal|Other):\s.*/
     mustNotMatch: !!js/regexp /^fixup!/
   message:
-    enforceEmptySecondLine: true
+    enforceEmptySecondLine: false
     linesMustHaveLengthBetween: [0, 100]
 issue:
   onLabelAdded:
