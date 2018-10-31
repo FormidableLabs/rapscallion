@@ -23,5 +23,5 @@ return FooBar;
 
 describe("the style prop", () => {
   const FooBar = getRootNode(code);
-  checkParity(FooBar, {});
+  checkParity(FooBar);
 });

@@ -2,6 +2,7 @@ import { default as React, Component } from "react";
 
 import { render } from "../src";
 
+import { checkElementParity } from "./_util";
 
 describe("special cases", () => {
   it("renders empty comments for components that return null", () => {
@@ -49,5 +50,15 @@ describe("special cases", () => {
     return render(<C foo="bar"/>).includeDataReactAttrs(false).toPromise().then(html => {
       expect(html).to.equal("<div>bar</div>");
     });
+  });
+
+  describe("a false component as empty", () => {
+    const FalseComponent = () => false;
+    checkElementParity(<FalseComponent />, false);
+  });
+
+  describe("a null component as empty", () => {
+    const NullComponent = () => null;
+    checkElementParity(<NullComponent />, false);
   });
 });

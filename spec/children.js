@@ -1,7 +1,6 @@
 import { default as React } from "react";
 import { checkParity, checkElementParity, getRootNode } from "./_util";
 
-
 const code = `
 import { range } from "lodash";
 
@@ -29,7 +28,7 @@ return Bar;
 describe("children", () => {
   describe("specified as an array", () => {
     const Bar = getRootNode(code);
-    checkParity(Bar, {});
+    checkParity(Bar);
   });
 });
 
@@ -106,7 +105,7 @@ describe("elements with number children", () => {
     checkElementParity(<div>{3}</div>);
   });
 
-  // zero is falsey, so it could look like no children if the code isn"t careful.
+  // zero is falsey, so it could look like no children if the code isn't careful.
   describe("zero as single child", () => {
     checkElementParity(<div>{0}</div>);
   });

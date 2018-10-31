@@ -42,5 +42,5 @@ return FooBar;
 
 describe("a hierarchy three levels deep", () => {
   const FooBar = getRootNode(code);
-  checkParity(FooBar, {});
+  checkParity(FooBar);
 });

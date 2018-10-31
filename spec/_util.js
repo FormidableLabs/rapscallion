@@ -21,46 +21,47 @@ function resolveStreamOnDone (stream, cb) {
   });
 }
 
-
-export const checkParity = (Component, props = {}) => {
+export const checkParity = (Component, expectChecksum = true) => {
   describe("via React.createElement", () => {
     it("has parity with React#renderToString via Render#toPromise", () => {
-      return render(<Component {...props} />)
+      return render(<Component />)
         .toPromise()
         .then(htmlString => {
-          expect(htmlString).to.equal(reactRenderToString(<Component {...props} />));
+          expect(htmlString).to.equal(reactRenderToString(<Component />));
         });
     });
     it("has parity with React#renderToString via Render#toStream", () => {
-      const renderer = render(<Component {...props} />);
+      const renderer = render(<Component />);
       const stream = renderer.toStream();
 
       let output = "";
       return resolveStreamOnDone(stream, segment => output += segment)
         .then(() => {
-          const checksum = renderer.checksum();
-          output = output.replace(TAG_END, ` data-react-checksum="${checksum}"$&`);
+          if (expectChecksum) {
+            const checksum = renderer.checksum();
+            output = output.replace(TAG_END, ` data-react-checksum="${checksum}"$&`);
+          }
 
-          expect(output).to.equal(reactRenderToString(<Component {...props} />));
+          expect(output).to.equal(reactRenderToString(<Component />));
         });
     });
     it("has parity with React#renderToStaticMarkup via Render#toPromise", () => {
-      return render(<Component {...props} />)
+      return render(<Component />)
         .includeDataReactAttrs(false)
         .toPromise()
         .then(htmlString => {
-          expect(htmlString).to.equal(reactRenderToStaticMarkup(<Component {...props} />));
+          expect(htmlString).to.equal(reactRenderToStaticMarkup(<Component />));
         });
     });
     it("has parity with React#renderToStaticMarkup via Render#toStream", () => {
-      const stream = render(<Component {...props} />)
+      const stream = render(<Component />)
         .includeDataReactAttrs(false)
         .toStream();
 
       let output = "";
       return resolveStreamOnDone(stream, segment => output += segment)
         .then(() => {
-          expect(output).to.equal(reactRenderToStaticMarkup(<Component {...props} />));
+          expect(output).to.equal(reactRenderToStaticMarkup(<Component />));
         });
     });
   });
@@ -71,14 +72,13 @@ export const checkParity = (Component, props = {}) => {
     const prerenderedRootNode = {
       __prerendered__: "component",
       type: Component.preVDOM,
-      props,
       children: []
     };
     it("has parity with React#renderToString via Render#toPromise", () => {
       return render(prerenderedRootNode)
         .toPromise()
         .then(htmlString => {
-          expect(htmlString).to.equal(reactRenderToString(<Component {...props} />));
+          expect(htmlString).to.equal(reactRenderToString(<Component />));
         });
     });
     it("has parity with React#renderToString via Render#toStream", () => {
@@ -88,17 +88,18 @@ export const checkParity = (Component, props = {}) => {
       let output = "";
       return resolveStreamOnDone(stream, segment => output += segment)
         .then(() => {
-          const checksum = renderer.checksum();
-          output = output.replace(TAG_END, ` data-react-checksum="${checksum}"$&`);
-
-          expect(output).to.equal(reactRenderToString(<Component {...props} />));
+          if (expectChecksum) {
+            const checksum = renderer.checksum();
+            output = output.replace(TAG_END, ` data-react-checksum="${checksum}"$&`);
+          }
+          expect(output).to.equal(reactRenderToString(<Component />));
         });
     });
   });
 };
 
-export const checkElementParity = (element) => {
-  return checkParity(() => element);
+export const checkElementParity = (element, expectChecksum) => {
+  return checkParity(() => element, expectChecksum);
 };
 
 const serverPluginPath = require.resolve("../src/transform/server");

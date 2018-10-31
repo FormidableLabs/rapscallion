@@ -16,7 +16,7 @@ describe("setState", () => {
   `;
 
   const FooBar = getRootNode(code);
-  checkParity(FooBar, {});
+  checkParity(FooBar);
 });
 
 describe("setState with callback", () => {
@@ -37,5 +37,5 @@ describe("setState with callback", () => {
   `;
 
   const FooBar = getRootNode(code);
-  checkParity(FooBar, {});
+  checkParity(FooBar);
 });

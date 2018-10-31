@@ -29,9 +29,6 @@ describe("newline-eating elements", () => {
   describe("a newline-eating tag with content starting with \\n", () => {
     checkElementParity(<pre>{'\nHello'}</pre>);
   });
-  describe("a newline-eating tag with content starting with \\n", () => {
-    checkElementParity(<pre>{'\nHello'}</pre>);
-  });
   describe("a normal tag with content starting with \\n", () => {
     checkElementParity(<div>{'\nHello'}</div>);
   });

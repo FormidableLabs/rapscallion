@@ -17,10 +17,12 @@ global.AssertionError = chai.AssertionError;
 global.Assertion = chai.Assertion;
 global.assert = chai.assert;
 
+require("./attributes");
 require("./cache");
 require("./children");
 require("./context");
 require("./deep-hierarchies");
+require("./elements");
 require("./lifecycle-methods");
 require("./special-cases");
 require("./template");

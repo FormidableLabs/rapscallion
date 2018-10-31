@@ -2,6 +2,7 @@ import { default as React, Component } from "react";
 
 import { render } from "../src";
 
+import { checkElementParity } from "./_util";
 
 class C extends Component {
   constructor (...args) {
@@ -66,4 +67,17 @@ describe("lifecycle methods", () => {
       expect(setStateCb).to.not.have.been.called;
     });
   });
+
+  describe("with a getInitialState call for createClass components", () => {
+    const InitalStateComponent = React.createClass({ // eslint-disable-line react/prefer-es6-class
+      getInitialState () {
+        return { text: "foo" };
+      },
+      render () {
+        return <div>{this.state.text}</div>;
+      }
+    });
+    checkElementParity(<InitalStateComponent />);
+  });
+
 });

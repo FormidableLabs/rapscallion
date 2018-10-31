@@ -10,5 +10,5 @@ return FooBar;
 
 describe("escape/encode html parity", () => {
   const FooBar = getRootNode(code);
-  checkParity(FooBar, {});
+  checkParity(FooBar);
 });
