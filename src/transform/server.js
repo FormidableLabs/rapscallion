@@ -62,10 +62,21 @@ const prerenderComponent = node => {
     .filter(x => x);
 
   return buildObjectExpression({
+    // React.Children.only may be used in app code to validate inputs to a component.
+    // We need to provide the right value here in order for it to be detected as a
+    // valid React element.
+    //
+    //   https://github.com/facebook/react/blob/b1b4a2fb252f26fe10d29ba60d85ff89a85ff3ec/src/isomorphic/children/onlyChild.js#L32-L36
+    //   https://github.com/facebook/react/blob/b1b4a2fb252f26fe10d29ba60d85ff89a85ff3ec/src/isomorphic/classic/element/ReactElement.js#L376-L380
+    //   https://github.com/facebook/react/blob/b1b4a2fb252f26fe10d29ba60d85ff89a85ff3ec/src/shared/utils/ReactElementSymbol.js#L17-L20
+    //
+    $$typeof: t.callExpression(
+      t.memberExpression(t.identifier("Symbol"), t.identifier("for")),
+      [ t.stringLiteral("react.element") ]
+    ),
     __prerendered__: t.stringLiteral("component"),
     type: t.identifier(node.openingElement.name.name),
-    props: t.objectExpression(getComponentProps(node.openingElement.attributes)),
-    children: t.arrayExpression(children)
+    props: t.objectExpression(getComponentProps(node.openingElement.attributes, children))
   });
 };
 
@@ -78,6 +89,18 @@ const prerenderDom = node => {
   segments = compress(segments);
 
   const objExpr = buildObjectExpression({
+    // React.Children.only may be used in app code to validate inputs to a component.
+    // We need to provide the right value here in order for it to be detected as a
+    // valid React element.
+    //
+    //   https://github.com/facebook/react/blob/b1b4a2fb252f26fe10d29ba60d85ff89a85ff3ec/src/isomorphic/children/onlyChild.js#L32-L36
+    //   https://github.com/facebook/react/blob/b1b4a2fb252f26fe10d29ba60d85ff89a85ff3ec/src/isomorphic/classic/element/ReactElement.js#L376-L380
+    //   https://github.com/facebook/react/blob/b1b4a2fb252f26fe10d29ba60d85ff89a85ff3ec/src/shared/utils/ReactElementSymbol.js#L17-L20
+    //
+    $$typeof: t.callExpression(
+      t.memberExpression(t.identifier("Symbol"), t.identifier("for")),
+      [ t.stringLiteral("react.element") ]
+    ),
     __prerendered__: t.stringLiteral("dom"),
     segments: t.arrayExpression(segments)
   });
@@ -87,8 +110,8 @@ const prerenderDom = node => {
   return objExpr;
 };
 
-const getComponentProps = attributes =>
-  attributes.map(attr => {
+const getComponentProps = (attributes, children) => attributes
+  .map(attr => {
     if (t.isJSXSpreadAttribute(attr)) {
       return t.spreadProperty(attr.argument);
     }
@@ -100,7 +123,15 @@ const getComponentProps = attributes =>
         value.expression :
         value
     );
-  });
+  })
+  .concat([
+    t.objectProperty(
+      t.identifier("children"),
+      children.length === 1 ?
+        children[0] :
+        t.arrayExpression(children)
+    )
+  ]);
 
 const pushVanillaVdom = (segments, node) => {
   const { openingElement, children, closingElement } = node;

@@ -2,5 +2,11 @@
   "plugins": [
     "transform-react-jsx"
   ],
-  "presets": ["latest"]
+  "presets": [
+    ["env", {
+      "targets": {
+        "node": 4
+      }
+    }]
+  ]
 }

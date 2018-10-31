@@ -1,10 +1,33 @@
 const Promise = require("bluebird");
 
 const { EXHAUSTED } = require("../sequence");
-
-
 const INCOMPLETE = Symbol();
 
+function next (renderer, iter, push) {
+  const max = renderer.batchSize;
+  let nextVal;
+
+  if (iter >= max) {
+    return Promise.resolve(INCOMPLETE);
+  }
+
+  try {
+    nextVal = renderer._next();
+  } catch (err) {
+    return Promise.reject(err);
+  }
+
+  if (nextVal === EXHAUSTED) {
+    return Promise.resolve(EXHAUSTED);
+  } else if (nextVal instanceof Promise) {
+    return nextVal
+    .then(push)
+    .then(() => next(renderer, iter + 1, push));
+  } else {
+    push(nextVal);
+    return Promise.resolve(nextVal);
+  }
+}
 
 /**
  * Given a batch size, request values from the source sequence and push them
@@ -19,23 +42,7 @@ const INCOMPLETE = Symbol();
  *                                       be retrieved, or if this the last batch.
  */
 function pullBatch (renderer, pushable) {
-  let iter = renderer.batchSize;
-  while (iter--) {
-    const next = renderer._next();
-    if (
-      next === EXHAUSTED ||
-      next instanceof Promise
-    ) {
-      return next;
-    }
-
-    pushable.push(next);
-  }
-  return INCOMPLETE;
+  return next(renderer, 0, val => typeof val === "string" && pushable.push(val));
 }
 
-
-module.exports = {
-  pullBatch,
-  INCOMPLETE
-};
+module.exports = { pullBatch, INCOMPLETE };

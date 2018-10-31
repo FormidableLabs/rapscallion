@@ -1,8 +1,7 @@
-const Promise = require("bluebird");
 const { Readable } = require("stream");
 
 const { EXHAUSTED } = require("../sequence");
-const { pullBatch } = require("./common");
+const { pullBatch, INCOMPLETE } = require("./common");
 
 
 /**
@@ -19,18 +18,22 @@ function toNodeStream (renderer) {
     // If source is not ready, defer any reads until the promise resolves.
     if (!sourceIsReady) { return; }
 
-    const result = pullBatch(renderer, stream);
+    sourceIsReady = false;
+    const pull = pullBatch(renderer, stream);
 
-    if (result === EXHAUSTED) {
-      stream.push(null);
-    } else if (result instanceof Promise) {
-      sourceIsReady = false;
-      result.then(next => {
-        sourceIsReady = true;
-        stream.push(next);
+    pull.then(result => {
+      sourceIsReady = true;
+      if (result === EXHAUSTED) {
+        stream.push(null);
+      } else {
+        if (result !== INCOMPLETE) {
+          stream.push(result);
+        }
         read();
-      });
-    }
+      }
+    }).catch(err => {
+      stream.emit("error", err);
+    });
   };
 
   const stream = new Readable({ read });

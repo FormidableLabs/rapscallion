@@ -1,11 +1,16 @@
 const { isInteger } = require("lodash");
-const adler32 = require("adler-32");
+const adler32 = require("./adler32");
 
 const render = require("./render");
 const { sequence } = require("./sequence");
 const toPromise = require("./consumers/promise");
 const toNodeStream = require("./consumers/node-stream");
-const { REACT_ID } = require("./symbols");
+const {
+  REACT_EMPTY,
+  REACT_ID,
+  REACT_TEXT_START,
+  REACT_TEXT_END
+} = require("./symbols");
 
 
 const REACT_ID_START = 1;
@@ -31,23 +36,82 @@ class Renderer {
     render(seq || this.sequence, this.vdomNode);
   }
 
-  _next () {
-    let nextVal = this.sequence.next();
+  _rootVal () {
+    let val;
 
-    if (nextVal === REACT_ID) {
-      if (this.dataReactAttrs) {
-        nextVal = this.reactIdIdx === REACT_ID_START ?
-          ` data-reactroot="" data-reactid="${this.reactIdIdx}"` :
-          ` data-reactid="${this.reactIdIdx}"`;
-        this.reactIdIdx++;
-      } else {
-        return "";
-      }
+    if (this.dataReactAttrs) {
+      val = this.reactIdIdx === REACT_ID_START ?
+        ` data-reactroot="" data-reactid="${this.reactIdIdx}"` :
+        ` data-reactid="${this.reactIdIdx}"`;
+
+      this.reactIdIdx++;
+
+      return val;
     }
 
-    this._checksum = adler32.str(nextVal, this._checksum);
+    return val;
+  }
 
-    return nextVal;
+  _emptyVal () {
+    let val;
+
+    if (this.dataReactAttrs) {
+      val = `<!-- react-empty: ${this.reactIdIdx} -->`;
+
+      this.reactIdIdx++;
+    }
+
+    return val;
+  }
+
+  _textStart () {
+    let val;
+
+    if (this.dataReactAttrs) {
+      val = `<!-- react-text: ${this.reactIdIdx} -->`;
+
+      this.reactIdIdx++;
+    }
+
+    return val;
+  }
+
+  _textEnd () {
+    let val;
+
+    if (this.dataReactAttrs) {
+      val = "<!-- /react-text -->";
+    }
+
+    return val;
+  }
+
+  _next () {
+    const next = this.sequence.next();
+
+    if (!(next && next.then)) {
+      return next;
+    }
+
+    return next.then(nextVal => {
+      if (nextVal === REACT_ID) {
+        nextVal = this._rootVal();
+      } else if (nextVal === REACT_EMPTY) {
+        nextVal = this._emptyVal();
+      } else if (nextVal === REACT_TEXT_START) {
+        nextVal = this._textStart();
+      } else if (nextVal === REACT_TEXT_END) {
+        nextVal = this._textEnd();
+      }
+
+      if (!nextVal) {
+        return "";
+      }
+
+      this._checksum = adler32(nextVal, this._checksum);
+
+      return nextVal;
+    });
   }
 
   toPromise () {

@@ -1,6 +1,6 @@
 {
   "name": "rapscallion",
-  "version": "2.1.5",
+  "version": "2.1.14",
   "description": "Asynchronous React VirtualDOM renderer for SSR.",
   "keywords": [
     "react",
@@ -12,7 +12,7 @@
   ],
   "main": "index.js",
   "scripts": {
-    "build": "npm run check && rm -rf lib/ && babel -d lib/ src/",
+    "build": "rm -rf lib/ && babel -d lib/ src/",
     "check": "npm run lint && npm run test",
     "test": "mocha spec/exec.js",
     "lint": "eslint src spec",
@@ -20,7 +20,8 @@
     "concurrency": "babel-node benchmark/concurrency.js",
     "check-output": "babel-node benchmark/test-html-output.js",
     "check-context-output": "babel-node benchmark/test-html-output-with-context.js",
-    "check-templated-output": "babel-node benchmark/test-templated-output.js"
+    "check-templated-output": "babel-node benchmark/test-templated-output.js",
+    "prepublish": "npm run check && npm run build"
   },
   "files": [
     "lib",
@@ -41,7 +42,7 @@
     "babel-plugin-transform-es2015-modules-commonjs": "^6.22.0",
     "babel-plugin-transform-object-rest-spread": "^6.23.0",
     "babel-plugin-transform-react-jsx": "^6.22.0",
-    "babel-preset-latest": "^6.22.0",
+    "babel-preset-env": "^1.6.0",
     "chai": "^3.5.0",
     "eslint": "2.10.2",
     "eslint-config-formidable": "^2.0.1",
@@ -59,7 +60,6 @@
     "node": ">=6.0.0"
   },
   "dependencies": {
-    "adler-32": "^1.0.0",
     "bluebird": "^3.4.7",
     "lodash": "^4.17.4"
   }
