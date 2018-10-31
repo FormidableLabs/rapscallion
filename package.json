@@ -35,8 +35,8 @@
   "author": "Dale Bustad <dale@divmain.com>",
   "license": "MIT",
   "devDependencies": {
-    "babel-cli": "^6.22.2",
-    "babel-core": "^6.22.1",
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.3",
     "babel-eslint": "^7.1.1",
     "babel-plugin-transform-es2015-arrow-functions": "^6.22.0",
     "babel-plugin-transform-es2015-modules-commonjs": "^6.22.0",
@@ -44,12 +44,12 @@
     "babel-plugin-transform-react-jsx": "^6.22.0",
     "babel-preset-env": "^1.6.0",
     "chai": "^3.5.0",
-    "eslint": "2.10.2",
+    "eslint": "2.13.1",
     "eslint-config-formidable": "^2.0.1",
     "eslint-plugin-filenames": "^1.1.0",
-    "eslint-plugin-import": "^2.2.0",
+    "eslint-plugin-import": "^2.6.0",
     "eslint-plugin-react": "^6.9.0",
-    "mocha": "^3.2.0",
+    "mocha": "^3.5.3",
     "react": "^15.4.2",
     "react-dom": "^15.4.2",
     "sinon": "^1.17.7",
@@ -61,6 +61,6 @@
   },
   "dependencies": {
     "bluebird": "^3.4.7",
-    "lodash": "^4.17.4"
+    "lodash": "^4.17.11"
   }
 }
