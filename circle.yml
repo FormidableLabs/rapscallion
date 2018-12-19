@@ -1,17 +1,30 @@
-test:
-  override:
-    - npm run check
-
-machine:
-  node:
-    version: v8.1.2
-
-dependencies:
-  pre:
-    - echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > ~/.npmrc
-
-deployment:
-  production:
-    branch: master
-    commands:
-    - ./deploy.sh
+version: 2
+jobs:
+  test:
+    working_directory: ~/FormidableLabs/rapscallion
+    environment:
+      CIRCLE_TEST_REPORTS: /tmp/circleci-test-results
+    docker:
+    - image: circleci/node:8.11.1
+    steps:
+    - checkout
+    - run: mkdir -p $CIRCLE_TEST_REPORTS
+    - run: npm install
+    - run: npm run check
+    - store_test_results:
+        path: /tmp/circleci-test-results
+  build:
+    working_directory: ~/FormidableLabs/rapscallion
+    docker:
+    - image: circleci/node:8.11.1
+    steps:
+    - checkout
+    - run: npm install
+    - run: npm run build
+  # Deployment coming soon...
+workflows:
+  version: 2
+  test_and_build:
+    jobs:
+      - test
+      - build
