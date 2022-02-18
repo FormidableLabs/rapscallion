@@ -404,3 +404,8 @@ rapscallion (pre-rendered), caching Components (second time) took 2.470472298 se
 ## License
 
 [MIT License](http://opensource.org/licenses/MIT)
+
+
+## Maintenance Status
+
+**Archived:** This project is no longer maintained by Formidable. We are no longer responding to issues or pull requests unless they relate to security concerns. We encourage interested developers to fork this project and make it their own!
