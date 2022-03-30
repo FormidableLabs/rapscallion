@@ -20,7 +20,7 @@ const EMPTY_CONTEXT = Object.freeze({});
  * @return     {Object}                         Child context merged into master context.
  */
 function getChildContext (componentPrototype, instance, context) {
-  if (componentPrototype.childContextTypes) {
+  if (componentPrototype.childContextTypes && instance.getChildContext) {
     return assign(Object.create(null), context, instance.getChildContext());
   }
   return context;
